@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Category\CategoryCreateRequest;
-use App\Http\Requests\Category\CategoryUpdateRequest;
+use App\Http\Requests\Categories\CategoryCreateRequest;
+use App\Http\Requests\Categories\CategoryUpdateRequest;
 use App\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,7 +21,6 @@ class CategoryController extends Controller
 
     public function create(CategoryCreateRequest $request): JsonResponse
     {
-
         return response()->json($this->categoryService->create($request->all()));
     }
     public function update(CategoryUpdateRequest $request, int $id): JsonResponse

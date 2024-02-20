@@ -13,6 +13,9 @@ return new class extends Migration {
     {
         Schema::create(CategoryDBConstants::TABLE, function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger(CategoryDBConstants::PARENT_ID)->nullable();
+            $table->foreign(CategoryDBConstants::PARENT_ID)->references(CategoryDBConstants::ID)
+                ->on(CategoryDBConstants::TABLE)->onDelete('cascade');
             $table->string(CategoryDBConstants::NAME);
             $table->timestamps();
 

@@ -19,6 +19,7 @@ class CategorySeeder extends Seeder
         for ($i = 0; $i < 100; $i++) {
             $category[] = [
                 CategoryDBConstants::NAME => fake()->word(),
+                CategoryDBConstants::PARENT_ID => null,
             ];
         }
         Category::insert($category);
