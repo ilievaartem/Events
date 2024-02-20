@@ -14,6 +14,7 @@ class CategoryController extends Controller
     public function __construct(private CategoryService $categoryService)
     {
     }
+
     public function index(): JsonResponse
     {
         return response()->json($this->categoryService->index());
