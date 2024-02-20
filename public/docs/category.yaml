@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'http://localhost/api'
+    description: local
+
+# securitySchemes:
+# BearerToken:
+# type: http
+# scheme: bearer
+# bearerFormat: JWT
+paths:
+
+  /categories/{id}:
+    get:
+      tags:
+        - Category
+      summary: Get current category
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 5
+          required: true
+      responses:
+        '200':
+          description: Successful displayed all categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: integer
+                      format: int32
+                    name:
+                      type: string
+                    parent_id:
+                      type: integer
+                      format: int32
+                      nullable: true
+
+                example:
+                  - id: 1
+                    name: frontend
+                    parent_id: null
+
+    delete:
+      tags:
+        -  Delete categories
+      summary: Delete category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          example: 5
+        required: true
+
+      responses:
+        '200':
+          description: Successful deleted category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    success:
+                      type: boolean
+    put:
+      tags:
+        - Update category
+      summary: update current category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          example: 5
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: test Category
+      responses:
+        '200':
+          description: Successful updated category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int32
+                  name:
+                    type: string
+                  parent_id:
+                    type: integer
+                    format: int32
+                    nullable: true
+
+
+                example:
+                  - id: 1
+                    name: cat1
+                    parent_id: 2
+                  - id: 4
+                    name: cat5
+                    parent_id: null
+  /categories:
+    post:
+      tags:
+        -  Create categories
+      summary: Create category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: test Category
+                parent_id:
+                  type: integer
+                  example: 3
+
+
+      responses:
+        '200':
+          description: Successful created category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  parent_id:
+                    type: integer
+                    format: int32
+                    nullable: true
+
+                example:
+                  - id: 1
+                    name: cat1
+                    parent_id: 2
+
+    get:
+      tags:
+        - Categories
+      summary: Get all categories
+      responses:
+        '200':
+          description: Successful displayed all categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: integer
+                      format: int32
+                    name:
+                      type: string
+                    parent_id:
+                      type: integer
+                      format: int32
+                      nullable: true
+
+                example:
+                  - id: 1
+                    name: frontend
+                    parent_id: null
+                  - id: 5
+                    name: mama
+                    parent_id: null
+

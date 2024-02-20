@@ -30,7 +30,7 @@ class CategoryController extends Controller
     }
     public function delete(int $id): JsonResponse
     {
-        return response()->json($this->categoryService->delete($id));
+        return response()->json(['success' => $this->categoryService->delete($id)]);
 
     }
     public function show(int $id): JsonResponse
