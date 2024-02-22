@@ -24,12 +24,11 @@ class QuestionController extends Controller
     }
     public function create(Request $request): JsonResponse
     {
-        $id = Uuid::uuid4()->toString();
         $eventId = $request->input(QuestionRequestConstants::EVENT_ID);
         $parentId = $request->input(QuestionRequestConstants::PARENT_ID);
         $authorId = auth()->user()->getAuthIdentifier();
         $content = $request->input(QuestionRequestConstants::CONTENT);
-        return response()->json($this->questionService->create($id, $eventId, $authorId, $parentId, $content));
+        return response()->json($this->questionService->create($eventId, $authorId, $parentId, $content));
     }
     public function update(Request $request, string $id): JsonResponse
     {
@@ -37,7 +36,8 @@ class QuestionController extends Controller
     }
     public function delete(string $id): JsonResponse
     {
-        return response()->json($this->questionService->delete($id));
+        return response()->json(['success' => $this->questionService->delete($id)]);
+
 
     }
 }

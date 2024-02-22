@@ -18,10 +18,11 @@ return new class extends Migration {
             $table->uuid(MediaDBConstants::ID)->primary();
             $table->string(MediaDBConstants::PATH);
             $table->string(MediaDBConstants::TYPE);
-            $table->timestamps();
             $table->foreignUuid(MediaDBConstants::EVENT_ID)->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(MediaDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(MediaDBConstants::COMMENT_ID)->references(CommentDBConstants::ID)->on(CommentDBConstants::TABLE)->onDelete('cascade');
+            $table->timestamps();
+
         });
     }
 

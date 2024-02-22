@@ -27,7 +27,8 @@ class TagController extends Controller
     }
     public function delete(int $id): JsonResponse
     {
-        return response()->json($this->tagService->delete($id));
+        return response()->json(['success' => $this->tagService->delete($id)]);
+
 
     }
     public function show(int $id): JsonResponse

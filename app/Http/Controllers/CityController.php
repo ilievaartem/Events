@@ -31,7 +31,6 @@ class CityController extends Controller
     }
     public function delete(int $id): JsonResponse
     {
-        return response()->json($this->cityService->delete($id));
-
+        return response()->json(['success' => $this->cityService->delete($id)]);
     }
 }

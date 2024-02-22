@@ -10,6 +10,8 @@ use App\Constants\DB\ColorDBConstants;
 use App\Constants\DB\ManufacturerDBConstants;
 use App\DTO\Contracts\DTOContract;
 use App\DTO\Event\CreateEventDTO;
+use App\DTO\Event\FilterEventDTO;
+use Illuminate\Database\Eloquent\Builder;
 
 class EventRepository extends BaseRepository implements EventRepositoryInterface
 {
@@ -43,23 +45,74 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
             return $query->where(EventDBConstants::DESCRIPTION, $description);
         })->get()->toArray();
     }
-    public function filterEvents(?string $phrase, ?array $categoriesIds, ?array $tagsIds, ?int $priceMax, ?int $priceMin, ?float $ratingMax, ?float $ratingMin): array
+    public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
-
-        return Event::query()->when($phrase != null, function ($query) use ($phrase) {
-            return $query->where(EventDBConstants::TITLE, $phrase)->whereOr(EventDBConstants::DESCRIPTION, $phrase);
-        })
-            // ->when($priceMax != null && $priceMin != null, function ($query) use ($priceMin, $priceMax) {
-            //     return $query->whereBetween(EventDBConstants::PRICE, [$priceMin, $priceMax]);
-            // })
-            ->when($ratingMax != null && $ratingMin != null, function ($query) use ($ratingMax, $ratingMin) {
-                return $query->whereBetween(EventDBConstants::RATING, [$ratingMin, $ratingMax]);
-            })->when($categoriesIds != null, function ($query) use ($categoriesIds) {
-                return $query->orWhereJsonContains(EventDBConstants::CATEGORIES_IDS, $categoriesIds);
-            })->when($tagsIds != null, function ($query) use ($tagsIds) {
-                return $query->orWhereJsonContains(EventDBConstants::TAGS_IDS, $tagsIds);
+        return Event::query()
+            ->when($filterEventDTO->getPhrase() != null && $filterEventDTO->getSearchBy() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(function (Builder $query) use ($filterEventDTO) {
+                    $query
+                        ->whereIn(EventDBConstants::TITLE, $filterEventDTO->getSearchBy())
+                        ->orWhereIn(EventDBConstants::DESCRIPTION, $filterEventDTO->getSearchBy())
+                        ->orWhereIn(EventDBConstants::PLACE_NAME, $filterEventDTO->getSearchBy())
+                        ->orWhereIn(EventDBConstants::STREET_NAME, $filterEventDTO->getSearchBy());
+                });
             })
-            ->get()->toArray();
+            ->when($filterEventDTO->getStartDateMin() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::START_DATE, '>', $filterEventDTO->getStartDateMin());
+            })
+            ->when($filterEventDTO->getStartDateMax() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::START_DATE, '<', $filterEventDTO->getStartDateMax());
+            })
+            ->when($filterEventDTO->getFinishDateMin() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::FINISH_DATE, '>', $filterEventDTO->getFinishDateMin());
+            })
+            ->when($filterEventDTO->getFinishDateMax() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::FINISH_DATE, '<', $filterEventDTO->getFinishDateMax());
+            })
+            ->when($filterEventDTO->getRatingMin() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::RATING, '>', $filterEventDTO->getRatingMin());
+            })
+            ->when($filterEventDTO->getRatingMax() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::RATING, '<', $filterEventDTO->getRatingMax());
+            })
+            ->when($filterEventDTO->getStartTimeMin() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::START_TIME, '>', $filterEventDTO->getStartTimeMin());
+            })
+            ->when($filterEventDTO->getStartTimeMax() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::START_TIME, '<', $filterEventDTO->getStartTimeMax());
+            })
+            ->when($filterEventDTO->getFinishTimeMin() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::FINISH_TIME, '>', $filterEventDTO->getFinishTimeMin());
+            })
+            ->when($filterEventDTO->getFinishTimeMax() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::FINISH_TIME, '<', $filterEventDTO->getFinishTimeMax());
+            })
+            ->when($filterEventDTO->getLongitude() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::LONGITUDE, $filterEventDTO->getLongitude());
+            })
+            ->when($filterEventDTO->getLatitude() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::LONGITUDE, $filterEventDTO->getLatitude());
+            })
+            ->when($filterEventDTO->getAgeFrom() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::AGE_FROM, $filterEventDTO->getAgeFrom());
+            })
+            ->when($filterEventDTO->getAgeTo() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::AGE_TO, $filterEventDTO->getAgeTo());
+            })
+            ->when($filterEventDTO->getAuthorId() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::AUTHOR_ID, $filterEventDTO->getAuthorId());
+            })
+            ->when($filterEventDTO->getParentId() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::PARENT_ID, $filterEventDTO->getParentId());
+            })
+            ->when($filterEventDTO->getCityId() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::CITY_ID, $filterEventDTO->getCityId());
+            })
+            ->when($filterEventDTO->getCountryId() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where('country_id', '=', $filterEventDTO->getCountryId());
+            })
+            ->paginate(self::PER_PAGE)
+            ->toArray();
     }
 
 }

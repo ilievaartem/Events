@@ -113,12 +113,15 @@ Route::get('interesters/{id}', [InteresterController::class, 'show']);
 Route::post('interesters', [InteresterController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::put('interesters/{id}', [InteresterController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 Route::delete('interesters/{id}', [InteresterController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
-//complaints
+//complaints complaints/018dc206-75b3-7162-8a0e-1bb416cda147/unassign
 Route::get('complaints', [ComplaintController::class, 'index']);
 Route::get('complaints/filter', [ComplaintController::class, 'filter']);
 Route::get('complaints/{id}', [ComplaintController::class, 'show']);
 Route::post('events/{id}/complaints', [ComplaintController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::put('complaints/{id}', [ComplaintController::class, 'update'])->middleware([AdminIsAuthorized::class]);
+Route::patch('complaints/{id}/read', [ComplaintController::class, 'read'])->middleware([AdminIsAuthorized::class]);
+Route::patch('complaints/{id}/toAssign', [ComplaintController::class, 'toAssign'])->middleware([AdminIsAuthorized::class]);
+Route::patch('complaints/{id}/unassign', [ComplaintController::class, 'unassign'])->middleware([AdminIsAuthorized::class]);
 Route::delete('complaints/{id}', [ComplaintController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
 
 //user

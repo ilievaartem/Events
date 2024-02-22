@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->foreignUuid(ComplaintDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(ComplaintDBConstants::EVENT_ID)->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(ComplaintDBConstants::RESOLVER_ID)->nullable()->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
+            $table->foreignUuid(ComplaintDBConstants::ASSIGNEE)->nullable()->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->string(ComplaintDBConstants::CAUSE_MESSAGE);
             $table->string(ComplaintDBConstants::CAUSE_DESCRIPTION);
             $table->string(ComplaintDBConstants::RESOLVE_MESSAGE)->nullable();

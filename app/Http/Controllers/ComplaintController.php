@@ -25,6 +25,18 @@ class ComplaintController extends Controller
     {
         return response()->json($this->complaintService->show($id));
     }
+    public function read(string $id): JsonResponse
+    {
+        return response()->json($this->complaintService->read($id));
+    }
+    public function toAssign(Request $request, string $complaintId): JsonResponse
+    {
+        return response()->json($this->complaintService->toAssign($complaintId, $request->input(ComplaintRequestConstants::ASSIGNEE)));
+    }
+    public function unassign(string $id): JsonResponse
+    {
+        return response()->json($this->complaintService->unassign($id));
+    }
     public function filter(ComplaintFilterRequest $request): JsonResponse
     {
 
@@ -33,10 +45,15 @@ class ComplaintController extends Controller
             phrase: $request->input(ComplaintRequestConstants::PHRASE),
             authorId: $request->input(ComplaintRequestConstants::AUTHOR_ID),
             eventId: $request->input(ComplaintRequestConstants::EVENT_ID),
+            assignee: $request->input(ComplaintRequestConstants::ASSIGNEE),
             causeMessage: $request->input(ComplaintRequestConstants::CAUSE_MESSAGE),
-            searchByCauseDescription: $request->input(ComplaintRequestConstants::CAUSE_DESCRIPTION),
+            searchByCauseDescription: $this->complaintService->isSearchByCauseDescription(
+                $request->input(ComplaintRequestConstants::SEARCH_BY)
+            ),
             resolveMessage: $request->input(ComplaintRequestConstants::RESOLVE_MESSAGE),
-            searchByResolveDescription: $request->input(ComplaintRequestConstants::RESOLVE_DESCRIPTION),
+            searchByResolveDescription: $this->complaintService->isSearchByResolveDescription(
+                $request->input(ComplaintRequestConstants::SEARCH_BY)
+            ),
             resolverId: $request->input(ComplaintRequestConstants::RESOLVER_ID),
             resolvedFrom: $request->input(ComplaintRequestConstants::RESOLVED_FROM),
             resolvedTo: $request->input(ComplaintRequestConstants::RESOLVED_TO),
@@ -63,7 +80,6 @@ class ComplaintController extends Controller
     }
     public function delete(string $id): JsonResponse
     {
-        return response()->json($this->complaintService->delete($id));
-
+        return response()->json(['success' => $this->complaintService->delete($id)]);
     }
 }

@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
+    private const PER_PAGE = 10;
+
     public function searchByName(?string $name): ?int
     {
         return User::where(UserDBConstants::NAME, $name)->find(UserDBConstants::ID);
@@ -27,7 +29,8 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
     public function userEvents(string $userId): array
     {
-        return Event::where(EventDBConstants::AUTHOR_ID, $userId)->get()->toArray();
+
+        return Event::where(EventDBConstants::AUTHOR_ID, $userId)->paginate(self::PER_PAGE)->toArray();
 
     }
 

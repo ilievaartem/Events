@@ -36,10 +36,11 @@ class ComplaintsSeeder extends Seeder
                     ->pluck(UserDBConstants::ID)
                     ->toArray()),
                 ComplaintDBConstants::RESOLVER_ID => null,
+                ComplaintDBConstants::ASSIGNEE => null,
                 ComplaintDBConstants::CAUSE_MESSAGE => fake()->sentence(),
                 ComplaintDBConstants::CAUSE_DESCRIPTION => fake()->realText(),
-                ComplaintDBConstants::RESOLVE_MESSAGE => fake()->sentence(),
-                ComplaintDBConstants::RESOLVE_DESCRIPTION => fake()->realText(),
+                ComplaintDBConstants::RESOLVE_MESSAGE => null,
+                ComplaintDBConstants::RESOLVE_DESCRIPTION => null,
                 ComplaintDBConstants::READ_AT => null,
                 ComplaintDBConstants::RESOLVED_AT => null,
                 ComplaintDBConstants::DELETED_AT => null,

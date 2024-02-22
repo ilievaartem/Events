@@ -18,11 +18,11 @@ return new class extends Migration {
 
             $table->text(CommentDBConstants::CONTENT);
             $table->unsignedTinyInteger(CommentDBConstants::RATING)->nullable();
-            $table->timestamps();
             $table->foreignUuid(CommentDBConstants::EVENT_ID)->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(CommentDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(CommentDBConstants::PARENT_ID)->nullable()->references(CommentDBConstants::ID)
                 ->on(CommentDBConstants::TABLE)->onDelete('cascade');
+            $table->timestamps();
 
         });
     }

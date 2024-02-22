@@ -14,35 +14,35 @@ servers:
 # bearerFormat: JWT
 paths:
 
-  /categories/{id}:
+  /interesters/{id}:
     get:
       tags:
-        - Category
-      summary: Get current category
+        - Interester
+      summary: Get current interester
       parameters:
         - in: path
           name: id
           schema:
-            type: integer
+            type: string
           required: true
       responses:
         '200':
-          description: Successful displayed all categories
+          description: Successful displayed all interesters
           content:
             application/json:
               schema:
                 type: object
                 properties:
                     id:
-                      type: integer
-                      format: int32
-                      example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
-                    name:
                       type: string
-                      example: eligendi
+                      format: uuid
+                    event_id:
+                      type: string
+                      format: uuid
+                    author_id:
+                      type: string
+                      format: uuid
+
                     created_at:
                       type: string
                       format: date-time
@@ -54,18 +54,18 @@ paths:
 
     delete:
       tags:
-        -  Delete categories
-      summary: Delete category
+        -  Delete interesters
+      summary: Delete interester
       parameters:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
 
       responses:
         '200':
-          description: Successful deleted category
+          description: Successful deleted interester
           content:
             application/json:
               schema:
@@ -73,88 +73,41 @@ paths:
                 properties:
                     success:
                       type: boolean
-    put:
-      tags:
-        - Update category
-      summary: update current category
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: test Category
-      responses:
-        '200':
-          description: Successful updated category
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                    id:
-                      type: integer
-                      format: int32
-                      example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
-                    name:
-                      type: string
-                      example: eligendi
-                    created_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-                    updated_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-  /categories:
+
+  /interesters:
     post:
       tags:
-        -  Create categories
-      summary: Create category
+        -  Create interesters
+      summary: Create interester
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                name:
+                event_id:
                   type: string
-                  example: test Category
-                parent_id:
-                  type: integer
-                  example: 3
+                author_id:
+                  type: string
 
 
       responses:
         '200':
-          description: Successful created category
+          description: Successful created interester
           content:
             application/json:
               schema:
                 type: object
                 properties:
                     id:
-                      type: integer
-                      format: int32
-                      example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
-                    name:
                       type: string
-                      example: eligendi
+                      format: uuid
+                    event_id:
+                      type: string
+                    author_id:
+                      type: string
+                      format: uuid
+
                     created_at:
                       type: string
                       format: date-time
@@ -166,18 +119,18 @@ paths:
 
     get:
       tags:
-        - Categories
-      summary: Get all categories
+        - Interesters
+      summary: Get all interesters
       responses:
         '200':
-          description: Successful displayed all categories
+          description: Successful displayed all interesters
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   current_page:
-                    type: integer
+                    type: string
                     format: int32
                     example: 1
                   data:
@@ -186,15 +139,13 @@ paths:
                       type: object
                       properties:
                         id:
-                          type: integer
-                          format: int32
-                          example: 1
-                        parent_id:
                           type: string
-                          format: nullable
-                        name:
+                          format: uuid
+                        author_id:
                           type: string
-                          example: et
+                          format: uuid
+                        event_id:
+                          type: string
                         created_at:
                           type: string
                           format: date-time
@@ -205,7 +156,7 @@ paths:
                           nullable: true
                   first_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=1
+                    example: http://localhost/api/interesters?page=1
                   from:
                     type: integer
                     format: int32
@@ -216,7 +167,7 @@ paths:
                     example: 10
                   last_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=10
+                    example: http://localhost/api/interesters?page=10
                   links:
                     type: array
                     items:
@@ -233,10 +184,10 @@ paths:
 
                   next_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=2
+                    example: http://localhost/api/interesters?page=2
                   path:
                     type: string
-                    example: http://localhost/api/categories
+                    example: http://localhost/api/interesters
                   per_page:
                     type: integer
                     format: int32

@@ -9,9 +9,11 @@ use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 
 class ComplaintRepository extends BaseRepository implements ComplaintRepositoryInterface
 {
+    private const PER_PAGE = 10;
+
     public function filter(FilterComplaintDTO $filterComplaintDTO): ?array
     {
-        return Complaint::query()->when($filterComplaintDTO->getPhrase() != null, function ($query) use ($filterComplaintDTO) {
+        return $this->model::query()->when($filterComplaintDTO->getPhrase() != null, function ($query) use ($filterComplaintDTO) {
             return $query->when(
                 $filterComplaintDTO->getSearchByResolveDescription() != null,
                 function ($query) use ($filterComplaintDTO) {
@@ -30,6 +32,9 @@ class ComplaintRepository extends BaseRepository implements ComplaintRepositoryI
             })
             ->when($filterComplaintDTO->getEventId() != null, function ($query) use ($filterComplaintDTO) {
                 return $query->where(ComplaintDBConstants::EVENT_ID, $filterComplaintDTO->getEventId());
+            })
+            ->when($filterComplaintDTO->getAssigneeId() != null, function ($query) use ($filterComplaintDTO) {
+                return $query->where(ComplaintDBConstants::ASSIGNEE, $filterComplaintDTO->getAssigneeId());
             })
             ->when($filterComplaintDTO->getCauseMessage() != null, function ($query) use ($filterComplaintDTO) {
                 return $query->where(ComplaintDBConstants::CAUSE_MESSAGE, $filterComplaintDTO->getCauseMessage());
@@ -67,6 +72,7 @@ class ComplaintRepository extends BaseRepository implements ComplaintRepositoryI
                     ]);
                 }
             )
-            ->get()->toArray();
+            ->paginate(self::PER_PAGE)->toArray();
+
     }
 }

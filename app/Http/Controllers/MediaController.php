@@ -35,7 +35,8 @@ class MediaController extends Controller
     }
     public function delete(string $id): JsonResponse
     {
-        return response()->json($this->mediaService->delete($id));
+        return response()->json(['success' => $this->mediaService->delete($id)]);
+
 
     }
 }

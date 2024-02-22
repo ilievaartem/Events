@@ -19,5 +19,5 @@ interface MediaRepositoryInterface
     public function update(array $data, string $id): bool;
 
 
-    public function show(string|int $id): ?array;
+    public function show(int|string $id): ?array;
 }

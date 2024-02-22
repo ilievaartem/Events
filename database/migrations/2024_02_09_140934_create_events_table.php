@@ -44,11 +44,11 @@ return new class extends Migration {
             $table->float(EventDBConstants::RATING)->nullable();
             $table->boolean(EventDBConstants::IS_ONLINE)->nullable();
             $table->boolean(EventDBConstants::IS_OFFLINE)->nullable();
-            $table->timestamps();
             $table->foreignUuid(EventDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(EventDBConstants::PARENT_ID)->nullable()->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignId(EventDBConstants::CITY_ID)->references(CityDBConstants::ID)->on(CityDBConstants::TABLE)->onDelete('cascade');
             $table->foreignId(EventDBConstants::COUNTRY_ID)->references(CountryDBConstants::ID)->on(CountryDBConstants::TABLE)->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

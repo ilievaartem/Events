@@ -37,7 +37,6 @@ abstract class BaseRepository
     public function index(): array
     {
         return $this->model->paginate(self::PER_PAGE)->toArray();
-
     }
 
 }

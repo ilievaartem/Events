@@ -41,4 +41,14 @@ class EventRequestConstants
     public const SHORT_DESCRIPTION = "short_description";
     public const IS_ONLINE = "is_online";
     public const IS_OFFLINE = "is_offline";
+    public const SEARCH_BY = "search_by";
+    public const START_DATE_MIN = "start_date_min";
+    public const START_DATE_MAX = "start_date_max";
+    public const FINISH_DATE_MIN = "finish_date_min";
+    public const FINISH_DATE_MAX = "finish_date_max";
+    public const START_TIME_MIN = "start_time_min";
+    public const START_TIME_MAX = "start_time_max";
+    public const FINISH_TIME_MIN = "finish_time_min";
+    public const FINISH_TIME_MAX = "finish_time_max";
+
 }

@@ -36,7 +36,7 @@ class ApplierController extends Controller
     }
     public function delete(string $id): JsonResponse
     {
-        return response()->json($this->applierService->delete($id));
+        return response()->json(['success' => $this->applierService->delete($id)]);
 
     }
 }

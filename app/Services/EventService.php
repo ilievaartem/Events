@@ -7,6 +7,7 @@ use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Constants\DB\EventConstants;
 use App\Constants\DB\EventDBConstants;
 use App\DTO\Event\CreateEventDTO;
+use App\DTO\Event\FilterEventDTO;
 use App\Services\System\DataFormattersService;
 use Illuminate\Support\Str;
 
@@ -84,11 +85,9 @@ class EventService
     {
         return $this->eventRepository->searchEvent($title, $description);
     }
-    public function filterEvents(?string $phrase, ?array $categoriesIds, ?array $tagsIds, ?int $priceMax, ?int $priceMin, ?float $ratingMax, ?float $ratingMin): ?array
+    public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
-        $categoriesIds = DataFormattersService::formatValuesToInt($categoriesIds);
-        $tagsIds = DataFormattersService::formatValuesToInt($tagsIds);
-        return $this->eventRepository->filterEvents($phrase, $categoriesIds, $tagsIds, $priceMax, $priceMin, $ratingMax, $ratingMin);
+        return $this->eventRepository->filterEvents($filterEventDTO);
     }
     public function updatePhotos(string $id, ?string $mainPhoto, string $mainPhotoExtension, ?array $photos): array
     {
