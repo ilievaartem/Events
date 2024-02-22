@@ -29,6 +29,39 @@ class ComplaintService
         }
         throw new NotFoundException("Complaint is not found");
     }
+    public function read(string $id): ?array
+    {
+        if ($this->complaintRepository->show($id) != null) {
+            $complaint = [
+                ComplaintDBConstants::READ_AT => now(),
+            ];
+            $this->complaintRepository->update($complaint, $id);
+            return $this->complaintRepository->show($id);
+        }
+        throw new NotFoundException("Complaint is not found");
+    }
+    public function toAssign(string $complaintId, string $assigneeId): ?array
+    {
+        if ($this->complaintRepository->show($complaintId) != null) {
+            $complaint = [
+                ComplaintDBConstants::ASSIGNEE => $assigneeId,
+            ];
+            $this->complaintRepository->update($complaint, $complaintId);
+            return $this->complaintRepository->show($complaintId);
+        }
+        throw new NotFoundException("Complaint is not found");
+    }
+    public function unassign(string $id): ?array
+    {
+        if ($this->complaintRepository->show($id) != null) {
+            $complaint = [
+                ComplaintDBConstants::ASSIGNEE => null,
+            ];
+            $this->complaintRepository->update($complaint, $id);
+            return $this->complaintRepository->show($id);
+        }
+        throw new NotFoundException("Complaint is not found");
+    }
     public function create(string $eventId, string $authorId, string $causeMessage, string $causeDescription): ?array
     {
 
@@ -59,5 +92,28 @@ class ComplaintService
     {
         return $this->complaintRepository->filter($filterComplaintDTO);
 
+    }
+    public function isSearchByCauseDescription(?array $searchBy): ?string
+    {
+        if (!empty($searchBy)) {
+            foreach ($searchBy as $elementOfSearchBy) {
+                if ($elementOfSearchBy === ComplaintDBConstants::CAUSE_DESCRIPTION) {
+                    return $elementOfSearchBy;
+                }
+            }
+        }
+        return null;
+    }
+    public function isSearchByResolveDescription(?array $searchBy): ?string
+    {
+        if (!empty($searchBy)) {
+
+            foreach ($searchBy as $elementOfSearchBy) {
+                if ($elementOfSearchBy === ComplaintDBConstants::RESOLVE_DESCRIPTION) {
+                    return $elementOfSearchBy;
+                }
+            }
+        }
+        return null;
     }
 }

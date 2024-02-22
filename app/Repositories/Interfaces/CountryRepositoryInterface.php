@@ -15,5 +15,5 @@ interface CountryRepositoryInterface
     public function update(array $data, int $id): bool;
 
 
-    public function show(string|int $id): array;
+    public function show(int|string $id): ?array;
 }

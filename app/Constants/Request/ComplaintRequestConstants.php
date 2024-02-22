@@ -7,6 +7,9 @@ class ComplaintRequestConstants
     public const EVENT_ID = "event_id";
     public const AUTHOR_ID = "author_id";
     public const RESOLVER_ID = "resolver_id";
+    public const ASSIGNEE = "assignee";
+    public const SEARCH_BY = "search_by";
+
     public const ID = "id";
     public const TABLE = "complaints";
     public const CAUSE_MESSAGE = "cause_message";

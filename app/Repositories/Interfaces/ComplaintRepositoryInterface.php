@@ -18,6 +18,6 @@ interface ComplaintRepositoryInterface
     public function update(array $data, string $id): bool;
 
 
-    public function show(string|int $id): ?array;
+    public function show(int|string $id): ?array;
     public function filter(FilterComplaintDTO $filterComplaintDTO): ?array;
 }

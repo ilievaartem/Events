@@ -34,7 +34,8 @@ class InteresterController extends Controller
     }
     public function delete(string $id): JsonResponse
     {
-        return response()->json($this->interesterService->delete($id));
+        return response()->json(['success' => $this->interesterService->delete($id)]);
+
 
     }
 }

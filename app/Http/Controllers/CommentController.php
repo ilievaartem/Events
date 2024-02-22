@@ -40,6 +40,7 @@ class CommentController extends Controller
     }
     public function show(string $id): JsonResponse
     {
-        return response()->json($this->commentService->show($id));
+        return response()->json(['success' => $this->commentService->delete($id)]);
+
     }
 }

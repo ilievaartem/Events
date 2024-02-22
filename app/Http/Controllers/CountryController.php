@@ -31,7 +31,8 @@ class CountryController extends Controller
     }
     public function delete(int $id): JsonResponse
     {
-        return response()->json($this->countryService->delete($id));
+        return response()->json(['success' => $this->countryService->delete($id)]);
+
 
     }
 }

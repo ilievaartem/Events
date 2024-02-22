@@ -14,11 +14,11 @@ servers:
 # bearerFormat: JWT
 paths:
 
-  /categories/{id}:
+  /tags/{id}:
     get:
       tags:
-        - Category
-      summary: Get current category
+        - Tag
+      summary: Get current tag
       parameters:
         - in: path
           name: id
@@ -27,7 +27,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Successful displayed all categories
+          description: Successful displayed all tags
           content:
             application/json:
               schema:
@@ -37,12 +37,9 @@ paths:
                       type: integer
                       format: int32
                       example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
                     name:
                       type: string
-                      example: eligendi
+                      example: aut
                     created_at:
                       type: string
                       format: date-time
@@ -54,8 +51,8 @@ paths:
 
     delete:
       tags:
-        -  Delete categories
-      summary: Delete category
+        -  Delete tags
+      summary: Delete tag
       parameters:
       - in: path
         name: id
@@ -65,7 +62,7 @@ paths:
 
       responses:
         '200':
-          description: Successful deleted category
+          description: Successful deleted tag
           content:
             application/json:
               schema:
@@ -75,8 +72,8 @@ paths:
                       type: boolean
     put:
       tags:
-        - Update category
-      summary: update current category
+        - Update tag
+      summary: update current tag
       parameters:
       - in: path
         name: id
@@ -91,10 +88,10 @@ paths:
               properties:
                 name:
                   type: string
-                  example: test Category
+                  example: test Tag
       responses:
         '200':
-          description: Successful updated category
+          description: Successful updated tag
           content:
             application/json:
               schema:
@@ -104,12 +101,9 @@ paths:
                       type: integer
                       format: int32
                       example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
                     name:
                       type: string
-                      example: eligendi
+                      example: aut
                     created_at:
                       type: string
                       format: date-time
@@ -118,11 +112,11 @@ paths:
                       type: string
                       format: date-time
                       nullable: true
-  /categories:
+  /tags:
     post:
       tags:
-        -  Create categories
-      summary: Create category
+        -  Create tags
+      summary: Create tag
       requestBody:
         content:
           application/json:
@@ -131,15 +125,10 @@ paths:
               properties:
                 name:
                   type: string
-                  example: test Category
-                parent_id:
-                  type: integer
-                  example: 3
-
-
+                  example: test Tag
       responses:
         '200':
-          description: Successful created category
+          description: Successful created tag
           content:
             application/json:
               schema:
@@ -149,12 +138,9 @@ paths:
                       type: integer
                       format: int32
                       example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
                     name:
                       type: string
-                      example: eligendi
+                      example: aut
                     created_at:
                       type: string
                       format: date-time
@@ -166,11 +152,11 @@ paths:
 
     get:
       tags:
-        - Categories
-      summary: Get all categories
+        - Tags
+      summary: Get all tags
       responses:
         '200':
-          description: Successful displayed all categories
+          description: Successful displayed all tags
           content:
             application/json:
               schema:
@@ -189,9 +175,6 @@ paths:
                           type: integer
                           format: int32
                           example: 1
-                        parent_id:
-                          type: string
-                          format: nullable
                         name:
                           type: string
                           example: et
@@ -205,7 +188,7 @@ paths:
                           nullable: true
                   first_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=1
+                    example: http://localhost/api/tags?page=1
                   from:
                     type: integer
                     format: int32
@@ -216,7 +199,7 @@ paths:
                     example: 10
                   last_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=10
+                    example: http://localhost/api/tags?page=10
                   links:
                     type: array
                     items:
@@ -233,10 +216,10 @@ paths:
 
                   next_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=2
+                    example: http://localhost/api/tags?page=2
                   path:
                     type: string
-                    example: http://localhost/api/categories
+                    example: http://localhost/api/tags
                   per_page:
                     type: integer
                     format: int32

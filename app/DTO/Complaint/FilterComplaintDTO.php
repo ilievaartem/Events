@@ -10,6 +10,7 @@ class FilterComplaintDTO implements DTOContract
         private readonly ?string $phrase,
         private readonly ?string $authorId,
         private readonly ?string $eventId,
+        private readonly ?string $assignee,
         private readonly ?string $causeMessage,
         private readonly ?string $searchByCauseDescription,
         private readonly ?string $resolveMessage,
@@ -35,6 +36,10 @@ class FilterComplaintDTO implements DTOContract
     public function getEventId(): ?string
     {
         return $this->eventId;
+    }
+    public function getAssigneeId(): ?string
+    {
+        return $this->assignee;
     }
     public function getCauseMessage(): ?string
     {

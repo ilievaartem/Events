@@ -7,6 +7,8 @@ use App\Http\Requests\EventCreateRequest;
 use App\Http\Requests\Events\EventFilterRequest;
 use App\Http\Requests\Events\EventUpdateRequest;
 use App\Constants\Request\EventRequestConstants;
+use App\DTO\Event\FilterEventDTO;
+use App\Factory\FilterEventDTOFactory;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use App\Services\EventService;
@@ -27,16 +29,13 @@ class EventController extends Controller
     {
         return response()->json($this->eventService->index());
     }
-    public function filter(EventFilterRequest $request): JsonResponse
+    public function filter(EventFilterRequest $request, FilterEventDTOFactory $eventFilterDTOFactory): JsonResponse
     {
-        $phrase = $request->input(EventRequestConstants::PHRASE);
-        $categoriesIds = $request->input(EventRequestConstants::CATEGORIES_IDS);
-        $tagsIds = $request->input(EventRequestConstants::TAGS_IDS);
-        $ratingMax = $request->input(EventRequestConstants::RATING_MAX);
-        $ratingMin = $request->input(EventRequestConstants::RATING_MIN);
-        return response()->json('DOROBU');
-        // return response()->json($this->eventService->filterEvents($phrase, $categoriesIds, $tagsIds, $priceMax, $priceMin, $ratingMax, $ratingMin));
-
+        return response()->json(
+            $this->eventService->filterEvents(
+                $eventFilterDTOFactory->make($request)
+            )
+        );
     }
     public function searchEvent(Request $request): JsonResponse
     {
@@ -87,40 +86,6 @@ class EventController extends Controller
             countryId: $request->input(EventRequestConstants::COUNTRY_ID),
         );
         return response()->json($this->eventService->create($createEventDTO));
-
-        // // $event = [
-        //     EventRequestConstants::ID => Uuid::uuid4()->toString(),
-        //     EventRequestConstants::TITLE => $title,
-        //     EventRequestConstants::SLUG => $slug,
-        //     EventRequestConstants::LONGITUDE => $longitude,
-        //     EventRequestConstants::LATITUDE => $latitude,
-        //     EventRequestConstants::ADDITIONAL_AUTHOR => $additionalAuthor,
-        //     EventRequestConstants::DESCRIPTION => $description,
-        //         // EventRequestConstants::MAIN_PHOTO => $main_photo,
-        //         // EventRequestConstants::PHOTOS => $photos,
-        //     EventRequestConstants::STREET_NAME => $streetName,
-        //     EventRequestConstants::BUILDING => $building,
-        //     EventRequestConstants::PLACE_NAME => $placeName,
-        //     EventRequestConstants::CORPUS => $corpus,
-        //     EventRequestConstants::APARTMENT => $apartment,
-        //     EventRequestConstants::PLACE_DESCRIPTION => $placeDescription,
-        //     EventRequestConstants::START_DATE => $startDate,
-        //     EventRequestConstants::START_TIME => $startTime,
-        //     EventRequestConstants::FINISH_DATE => $finishDate,
-        //     EventRequestConstants::FINISH_TIME => $finishTime,
-        //     EventRequestConstants::AGE_FROM => $ageFrom,
-        //     EventRequestConstants::AGE_TO => $ageTo,
-        //     EventRequestConstants::CATEGORIES_IDS => $categoriesIds->categoriesIds,
-        //     EventRequestConstants::TAGS_IDS => $tagsIds->tagsIds,
-        //     EventRequestConstants::APPLIERS => $appliers,
-        //     EventRequestConstants::INTERESTARS => $interestars,
-        //         //  EventRequestConstants::RATING => $rating,
-        //     EventRequestConstants::AUTHOR_ID => $authorId,
-        //     EventRequestConstants::PARENT_ID => $parentId,
-        //     EventRequestConstants::CITY_ID => $cityId,
-        //     EventRequestConstants::COUNTRY_ID => $countryId,
-        // ];
-        // $event->save();
     }
     public function update(Request $request, string $id): JsonResponse
     {
@@ -183,7 +148,8 @@ class EventController extends Controller
     }
     public function delete(string $id): JsonResponse
     {
-        return response()->json($this->eventService->delete($id));
+        return response()->json(['success' => $this->eventService->delete($id)]);
+
 
     }
     public function show(string $id): JsonResponse

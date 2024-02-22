@@ -24,13 +24,12 @@ class UserController extends Controller
 
     public function create(Request $request): JsonResponse
     {
-        $id = Uuid::uuid4()->toString();
         $name = $request->input(UserRequestConstants::NAME);
         $email = $request->input(UserRequestConstants::EMAIL);
         $role = $request->input(UserRequestConstants::ROLE);
         $telephone = $request->input(UserRequestConstants::ROLE);
         $password = $request->input(UserRequestConstants::PASSWORD);
-        return response()->json($this->userService->create($id, $name, $email, $role, $telephone, $password));
+        return response()->json($this->userService->create($name, $email, $role, $telephone, $password));
     }
     public function update(Request $request, string $id): JsonResponse
     {
@@ -41,7 +40,8 @@ class UserController extends Controller
     }
     public function delete(string $id): JsonResponse
     {
-        return response()->json($this->userService->delete($id));
+        return response()->json(['success' => $this->userService->delete($id)]);
+
 
     }
     public function show(string $id): JsonResponse

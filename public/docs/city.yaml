@@ -14,11 +14,11 @@ servers:
 # bearerFormat: JWT
 paths:
 
-  /categories/{id}:
+  /cities/{id}:
     get:
       tags:
-        - Category
-      summary: Get current category
+        - City
+      summary: Get current city
       parameters:
         - in: path
           name: id
@@ -27,7 +27,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Successful displayed all categories
+          description: Successful displayed all cities
           content:
             application/json:
               schema:
@@ -37,12 +37,14 @@ paths:
                       type: integer
                       format: int32
                       example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
                     name:
                       type: string
                       example: eligendi
+                    country_id:
+                      type: integer
+                      format: nullable
+                      example: 4
+
                     created_at:
                       type: string
                       format: date-time
@@ -54,8 +56,8 @@ paths:
 
     delete:
       tags:
-        -  Delete categories
-      summary: Delete category
+        -  Delete cities
+      summary: Delete city
       parameters:
       - in: path
         name: id
@@ -65,7 +67,7 @@ paths:
 
       responses:
         '200':
-          description: Successful deleted category
+          description: Successful deleted city
           content:
             application/json:
               schema:
@@ -75,8 +77,8 @@ paths:
                       type: boolean
     put:
       tags:
-        - Update category
-      summary: update current category
+        - Update city
+      summary: update current city
       parameters:
       - in: path
         name: id
@@ -91,10 +93,10 @@ paths:
               properties:
                 name:
                   type: string
-                  example: test Category
+                  example: test City
       responses:
         '200':
-          description: Successful updated category
+          description: Successful updated city
           content:
             application/json:
               schema:
@@ -104,12 +106,14 @@ paths:
                       type: integer
                       format: int32
                       example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
                     name:
                       type: string
                       example: eligendi
+                    country_id:
+                      type: integer
+                      format: nullable
+                      example: 4
+
                     created_at:
                       type: string
                       format: date-time
@@ -118,11 +122,11 @@ paths:
                       type: string
                       format: date-time
                       nullable: true
-  /categories:
+  /cities:
     post:
       tags:
-        -  Create categories
-      summary: Create category
+        -  Create cities
+      summary: Create city
       requestBody:
         content:
           application/json:
@@ -131,15 +135,15 @@ paths:
               properties:
                 name:
                   type: string
-                  example: test Category
-                parent_id:
+                  example: test City
+                country_id:
                   type: integer
                   example: 3
 
 
       responses:
         '200':
-          description: Successful created category
+          description: Successful created city
           content:
             application/json:
               schema:
@@ -149,12 +153,14 @@ paths:
                       type: integer
                       format: int32
                       example: 5
-                    parent_id:
-                      type: integer
-                      format: nullable
                     name:
                       type: string
                       example: eligendi
+                    country_id:
+                      type: integer
+                      format: nullable
+                      example: 4
+
                     created_at:
                       type: string
                       format: date-time
@@ -166,11 +172,11 @@ paths:
 
     get:
       tags:
-        - Categories
-      summary: Get all categories
+        - Cities
+      summary: Get all cities
       responses:
         '200':
-          description: Successful displayed all categories
+          description: Successful displayed all cities
           content:
             application/json:
               schema:
@@ -189,12 +195,12 @@ paths:
                           type: integer
                           format: int32
                           example: 1
-                        parent_id:
-                          type: string
-                          format: nullable
                         name:
                           type: string
                           example: et
+                        country_id:
+                          type: string
+                          format: nullable
                         created_at:
                           type: string
                           format: date-time
@@ -205,7 +211,7 @@ paths:
                           nullable: true
                   first_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=1
+                    example: http://localhost/api/cities?page=1
                   from:
                     type: integer
                     format: int32
@@ -216,7 +222,7 @@ paths:
                     example: 10
                   last_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=10
+                    example: http://localhost/api/cities?page=10
                   links:
                     type: array
                     items:
@@ -233,10 +239,10 @@ paths:
 
                   next_page_url:
                     type: string
-                    example: http://localhost/api/categories?page=2
+                    example: http://localhost/api/cities?page=2
                   path:
                     type: string
-                    example: http://localhost/api/categories
+                    example: http://localhost/api/cities
                   per_page:
                     type: integer
                     format: int32

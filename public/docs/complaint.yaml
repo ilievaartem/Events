@@ -1,0 +1,804 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'http://localhost/api'
+    description: local
+
+# securitySchemes:
+# BearerToken:
+# type: http
+# scheme: bearer
+# bearerFormat: JWT
+paths:
+  /complaints/filter:
+    get:
+      tags:
+        - Complaint Filter
+      summary: Get current complaint
+      parameters:
+        - in: query
+          name: phrase
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+
+        - in: query
+          name: author_id
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: event_id
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: cause_message
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: search_by[]
+          schema:
+            type: array
+            items:
+              type: string
+              description: get parameters for search
+              nullable: true
+        - in: query
+          name: resolve_message
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: resolver_id
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: resolved_from
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: resolved_to
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: created_from
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: created_to
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: read_from
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: read_to
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+        - in: query
+          name: assignee
+          schema:
+            type: string
+            minimum: 1
+            nullable: true
+      responses:
+        '200':
+          description: Successful displayed all complaints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: string
+                    format: int32
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+
+                        event_id:
+                          type: string
+                          format: uuid
+                        author_id:
+                          type: string
+                          format: uuid
+                        resolver_id:
+                          type: string
+                          format: uuid
+                          nullable: true
+                        assignee:
+                          type: string
+                          format: uuid
+                          nullable: true
+                        cause_message:
+                          type: string
+                        cause_description:
+                          type: string
+                        resolve_message:
+                          type: string
+                          nullable: true
+                        resolve_description:
+                          type: string
+                          nullable: true
+                        read_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        resolved_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        deleted_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        updated_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                  first_page_url:
+                    type: string
+                    example: http://localhost/api/complaints?page=1
+                  from:
+                    type: integer
+                    format: int32
+                    example: 1
+                  last_page:
+                    type: integer
+                    format: int32
+                    example: 10
+                  last_page_url:
+                    type: string
+                    example: http://localhost/api/complaints?page=10
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          format: nullable
+                        label:
+                          type: string
+                          example: &laquo; Previous
+                        active:
+                          type: boolean
+
+                  next_page_url:
+                    type: string
+                    example: http://localhost/api/complaints?page=2
+                  path:
+                    type: string
+                    example: http://localhost/api/complaints
+                  per_page:
+                    type: integer
+                    format: int32
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    format: nullable
+                  to:
+                    type: integer
+                    format: int32
+                    example: 10
+                  total:
+                    type: integer
+                    format: int32
+                    example: 99
+  /complaints/{id}:
+    get:
+      tags:
+        - Complaint
+      summary: Get current complaint
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful displayed all complaints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: string
+                      format: uuid
+
+                    event_id:
+                      type: string
+                      format: uuid
+                    author_id:
+                      type: string
+                      format: uuid
+                    resolver_id:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    assignee:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    cause_message:
+                      type: string
+                    cause_description:
+                      type: string
+                    resolve_message:
+                      type: string
+                      nullable: true
+                    resolve_description:
+                      type: string
+                      nullable: true
+                    read_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    resolved_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+
+
+                    created_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+    put:
+      tags:
+        - Update complaint
+      summary: update current complaint
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cause_message:
+                      type: string
+                cause_description:
+                  type: string
+      responses:
+        '200':
+          description: Successful updated city
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: string
+                      format: uuid
+
+                    event_id:
+                      type: string
+                      format: uuid
+                    author_id:
+                      type: string
+                      format: uuid
+                    resolver_id:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    assignee:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    cause_message:
+                      type: string
+                    cause_description:
+                      type: string
+                    resolve_message:
+                      type: string
+                      nullable: true
+                    resolve_description:
+                      type: string
+                      nullable: true
+                    read_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    resolved_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+
+                    created_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+    delete:
+      tags:
+        -  Delete complaints
+      summary: Delete complaint
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+
+      responses:
+        '200':
+          description: Successful deleted complaint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    success:
+                      type: boolean
+
+  /complaints/events/{id}/complaints:
+    post:
+      tags:
+        -  Create complaints
+      summary: Create complaint
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                    cause_message:
+                      type: string
+                    cause_description:
+                      type: string
+
+
+
+      responses:
+        '200':
+          description: Successful created complaint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: string
+                      format: uuid
+
+                    event_id:
+                      type: string
+                      format: uuid
+                    author_id:
+                      type: string
+                      format: uuid
+                    resolver_id:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    assignee:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    cause_message:
+                      type: string
+                    cause_description:
+                      type: string
+                    resolve_message:
+                      type: string
+                      nullable: true
+                    resolve_description:
+                      type: string
+                      nullable: true
+                    read_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    resolved_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+
+                    created_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+  /complaints/{id}/read:
+    patch:
+      tags:
+        -  Make complaint be read
+      summary: Make complaint be read by admin
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: Successful created complaint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: string
+                      format: uuid
+
+                    event_id:
+                      type: string
+                      format: uuid
+                    author_id:
+                      type: string
+                      format: uuid
+                    resolver_id:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    assignee:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    cause_message:
+                      type: string
+                    cause_description:
+                      type: string
+                    resolve_message:
+                      type: string
+                      nullable: true
+                    resolve_description:
+                      type: string
+                      nullable: true
+                    read_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    resolved_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+
+                    created_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+  /complaints/{id}/unassign:
+    patch:
+      tags:
+        -  Complaint unassign
+      summary: Complaint unassign by admin
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: Successful created complaint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: string
+                      format: uuid
+
+                    event_id:
+                      type: string
+                      format: uuid
+                    author_id:
+                      type: string
+                      format: uuid
+                    resolver_id:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    assignee:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    cause_message:
+                      type: string
+                    cause_description:
+                      type: string
+                    resolve_message:
+                      type: string
+                      nullable: true
+                    resolve_description:
+                      type: string
+                      nullable: true
+                    read_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    resolved_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+
+                    created_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+  /complaints/{id}/toAssign:
+    patch:
+      tags:
+        -  Complaint to assign
+      summary: Complaint to assign by admin
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                    assignee:
+                      type: string
+                      format: uuid
+      responses:
+        '200':
+          description: Successful created complaint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    id:
+                      type: string
+                      format: uuid
+
+                    event_id:
+                      type: string
+                      format: uuid
+                    author_id:
+                      type: string
+                      format: uuid
+                    resolver_id:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    assignee:
+                      type: string
+                      format: uuid
+                      nullable: true
+                    cause_message:
+                      type: string
+                    cause_description:
+                      type: string
+                    resolve_message:
+                      type: string
+                      nullable: true
+                    resolve_description:
+                      type: string
+                      nullable: true
+                    read_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    resolved_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    deleted_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+
+                    created_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    updated_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+  /complaints:
+    get:
+      tags:
+        - Complaints
+      summary: Get all complaints
+      responses:
+        '200':
+          description: Successful displayed all complaints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: string
+                    format: int32
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+
+                        event_id:
+                          type: string
+                          format: uuid
+                        author_id:
+                          type: string
+                          format: uuid
+                        resolver_id:
+                          type: string
+                          format: uuid
+                          nullable: true
+                        assignee:
+                          type: string
+                          format: uuid
+                          nullable: true
+                        cause_message:
+                          type: string
+                        cause_description:
+                          type: string
+                        resolve_message:
+                          type: string
+                          nullable: true
+                        resolve_description:
+                          type: string
+                          nullable: true
+                        read_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        resolved_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        deleted_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        updated_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                  first_page_url:
+                    type: string
+                    example: http://localhost/api/complaints?page=1
+                  from:
+                    type: integer
+                    format: int32
+                    example: 1
+                  last_page:
+                    type: integer
+                    format: int32
+                    example: 10
+                  last_page_url:
+                    type: string
+                    example: http://localhost/api/complaints?page=10
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          format: nullable
+                        label:
+                          type: string
+                          example: &laquo; Previous
+                        active:
+                          type: boolean
+
+                  next_page_url:
+                    type: string
+                    example: http://localhost/api/complaints?page=2
+                  path:
+                    type: string
+                    example: http://localhost/api/complaints
+                  per_page:
+                    type: integer
+                    format: int32
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    format: nullable
+                  to:
+                    type: integer
+                    format: int32
+                    example: 10
+                  total:
+                    type: integer
+                    format: int32
+                    example: 99
+

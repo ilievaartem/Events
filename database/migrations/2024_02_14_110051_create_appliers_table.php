@@ -16,9 +16,10 @@ return new class extends Migration {
         Schema::create(ApplierDBConstants::TABLE, function (Blueprint $table) {
             $table->uuid(ApplierDBConstants::ID)->primary();
 
-            $table->timestamps();
             $table->foreignUuid(ApplierDBConstants::EVENT_ID)->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(ApplierDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
+            $table->timestamps();
+
         });
     }
 

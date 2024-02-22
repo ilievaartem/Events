@@ -17,11 +17,11 @@ return new class extends Migration {
             $table->uuid(QuestionDBConstants::ID)->primary();
 
             $table->text(QuestionDBConstants::CONTENT);
-            $table->timestamps();
             $table->foreignUuid(QuestionDBConstants::EVENT_ID)->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(QuestionDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(QuestionDBConstants::PARENT_ID)->nullable()->references(QuestionDBConstants::ID)
                 ->on(QuestionDBConstants::TABLE)->onDelete('cascade');
+            $table->timestamps();
 
         });
     }
