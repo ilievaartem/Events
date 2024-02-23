@@ -23,6 +23,7 @@ use App\Repositories\ColorRepository;
 use App\Repositories\CommentRepository;
 use App\Repositories\ComplaintRepository;
 use App\Repositories\CountryRepository;
+use App\Repositories\EventFilterDBRepository;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Repositories\Interfaces\ColorRepositoryInterface;
 use App\Repositories\Interfaces\CommentRepositoryInterface;
@@ -31,11 +32,13 @@ use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\ManufacturerRepository;
 use App\Repositories\EventRepository;
+use App\Repositories\FilterMailisearchRepository;
 use App\Repositories\InteresterRepository;
 use App\Repositories\Interfaces\ApplierRepositoryInterface;
 use App\Repositories\Interfaces\CityRepositoryInterface;
 use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 use App\Repositories\Interfaces\CountryRepositoryInterface;
+use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Repositories\Interfaces\InteresterRepositoryInterface;
 use App\Repositories\Interfaces\MediaRepositoryInterface;
 use App\Repositories\Interfaces\PhotoRepositoryInterface;
@@ -55,6 +58,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(EventFilterRepositoryInterface::class, function () {
+            return env('MEILISEARCH_STATUS')
+                ? new FilterMailisearchRepository(new Event())
+                : new EventFilterDBRepository(new Event());
+        });
 
         $this->app->bind(CommentRepositoryInterface::class, function () {
             return new CommentRepository(new Comment());

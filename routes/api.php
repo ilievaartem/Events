@@ -1,5 +1,7 @@
 <?php
 
+use App\Constants\DB\EventDBConstants;
+use App\Constants\Request\EventRequestConstants;
 use App\Http\Controllers\ApplierController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +23,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminIsAuthorized;
 use App\Http\Middleware\CheckAuthor;
 use App\Http\Middleware\UserIsAuthorized;
+use App\Models\Event;
+use Illuminate\Database\Eloquent\Builder;
+use Laravel\Scout\Scout;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,9 +47,11 @@ Route::get('events/search', [EventController::class, 'searchEvent']);
 Route::post('events/{id}/photos/upload', [EventController::class, 'addPhotos']);
 Route::post('events', [EventController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::get('events/filter', [EventController::class, 'filter']);
-Route::get('events/{id}', [EventController::class, 'show']);
 Route::put('events/{id}', [EventController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 Route::delete('events/{id}', [EventController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
+Route::get('events/maili/search', [EventController::class, 'mailisearch']);
+Route::get('events/{id}', [EventController::class, 'show']);
+
 //cities
 Route::get('cities', [CityController::class, 'index']);
 Route::get('cities/{id}', [CityController::class, 'show']);

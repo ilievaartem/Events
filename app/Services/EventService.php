@@ -8,13 +8,17 @@ use App\Constants\DB\EventConstants;
 use App\Constants\DB\EventDBConstants;
 use App\DTO\Event\CreateEventDTO;
 use App\DTO\Event\FilterEventDTO;
+use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Services\System\DataFormattersService;
 use Illuminate\Support\Str;
 
 class EventService
 {
-    public function __construct(private EventRepositoryInterface $eventRepository, private PhotoService $photoService)
-    {
+    public function __construct(
+        private EventRepositoryInterface $eventRepository,
+        private PhotoService $photoService,
+        private EventFilterRepositoryInterface $eventFilterRepository
+    ) {
     }
     public function create(CreateEventDTO $createEventDTO): array
     {
@@ -87,7 +91,7 @@ class EventService
     }
     public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
-        return $this->eventRepository->filterEvents($filterEventDTO);
+        return $this->eventFilterRepository->filterEvents($filterEventDTO);
     }
     public function updatePhotos(string $id, ?string $mainPhoto, string $mainPhotoExtension, ?array $photos): array
     {

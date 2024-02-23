@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\DB\EventDBConstants;
 use App\DTO\Event\CreateEventDTO;
 use App\Http\Requests\EventCreateRequest;
 use App\Http\Requests\Events\EventFilterRequest;
@@ -44,7 +45,46 @@ class EventController extends Controller
 
         return response()->json($this->eventService->searchEvent($title, $description));
     }
+    public function mailisearch(Request $request)
+    {
+        $city_id = $request->input(EventRequestConstants::CITY_ID);
+        $country_id = $request->input(EventRequestConstants::COUNTRY_ID);
+        $start_date_min = $request->input(EventRequestConstants::START_DATE_MIN);
+        $start_date_max = $request->input(EventRequestConstants::START_DATE_MAX);
 
+        // return Event::
+        // ->wheres(EventDBConstants::START_DATE, '>' . $start_date_min);
+        // index('events')
+        // ->
+        // search('', [
+        //     'filter' => ['start_date >=' . $start_date_min]
+        // ]);
+        return Event::search()->query(function ($builder) use ($start_date_min, $city_id) {
+            $builder->when($city_id != null, function ($query) use ($city_id) {
+                return $query->where(EventDBConstants::CITY_ID, $city_id);
+            });
+            // $builder->where('start_date', '<', $start_date_min);
+
+            // ->where('country_id', $country_id);
+        })
+            ->paginate();
+
+        // ->when($city_id != null, function ($query) use ($city_id) {
+        //     return $query->where(EventDBConstants::CITY_ID, $city_id);
+        // })
+        // ->when($country_id != null, function ($query) use ($country_id) {
+        //     return $query->where('country_id', $country_id);
+        // })
+        // ->when($start_date_min != null, function ($query) use ($start_date_min) {
+        //     return $query->where(EventDBConstants::START_DATE, '>', $start_date_min);
+
+        // })
+        // ->when($start_date_max != null, function ($query) use ($start_date_max) {
+        //     return $query->where(EventDBConstants::START_DATE, '<', $start_date_max);
+        // })
+        // ->paginate(10);
+        // ->toArray();
+    }
     /**
      * @param Request $request
      *

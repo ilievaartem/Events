@@ -63,8 +63,25 @@ class Event extends Model
     public function toSearchableArray()
     {
         return [
-            'id' => (int) $this->id,
-            'title' => $this->title,
+            EventDBConstants::TITLE => $this->title,
+            EventDBConstants::LONGITUDE => $this->longitude,
+            EventDBConstants::LATITUDE => $this->latitude,
+            EventDBConstants::DESCRIPTION => $this->description,
+            EventDBConstants::STREET_NAME => $this->street_name,
+            EventDBConstants::PLACE_NAME => $this->place_name,
+            EventDBConstants::START_DATE => $this->start_date,
+            EventDBConstants::START_TIME => $this->start_time,
+            EventDBConstants::FINISH_DATE => $this->finish_date,
+            EventDBConstants::FINISH_TIME => $this->finish_time,
+            EventDBConstants::AGE_FROM => $this->age_from,
+            EventDBConstants::AGE_TO => $this->age_to,
+            EventDBConstants::CATEGORIES_IDS => $this->categories_ids,
+            EventDBConstants::TAGS_IDS => $this->tags_ids,
+            EventDBConstants::RATING => $this->rating,
+            EventDBConstants::AUTHOR_ID => $this->author_id,
+            EventDBConstants::PARENT_ID => $this->parent_id,
+            EventDBConstants::CITY_ID => $this->city_id,
+            EventDBConstants::COUNTRY_ID => $this->country_id,
         ];
     }
     protected static function boot()
@@ -81,6 +98,9 @@ class Event extends Model
                     : $model->setSlugNumber($asciiRepresentation));
             }
             $model->{$model->getKeyName()} = (string) Str::orderedUuid();
+        });
+        static::updating(function ($model) {
+            $this->$model->searchable();
         });
     }
 
