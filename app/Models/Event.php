@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Malhal\Geographical\Geographical;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 
 class Event extends Model
 {
     use HasFactory;
     use Geographical;
+    use Searchable;
 
 
     protected $fillable = [
@@ -58,7 +60,13 @@ class Event extends Model
     protected $casts = [
         EventDBConstants::ID => 'string',
     ];
-
+    public function toSearchableArray()
+    {
+        return [
+            'id' => (int) $this->id,
+            'title' => $this->title,
+        ];
+    }
     protected static function boot()
     {
         parent::boot();
