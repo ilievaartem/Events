@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Request\QuestionRequestConstants;
+use App\Services\AuthWrapperService;
 use App\Services\QuestionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,9 +11,10 @@ use Ramsey\Uuid\Uuid;
 
 class QuestionController extends Controller
 {
-    public function __construct(private QuestionService $questionService)
-    {
-        $this->questionService = $questionService;
+    public function __construct(
+        private QuestionService $questionService,
+        private readonly AuthWrapperService $authWrapperService
+    ) {
     }
     public function index(Request $request): JsonResponse
     {
@@ -26,7 +28,7 @@ class QuestionController extends Controller
     {
         $eventId = $request->input(QuestionRequestConstants::EVENT_ID);
         $parentId = $request->input(QuestionRequestConstants::PARENT_ID);
-        $authorId = auth()->user()->getAuthIdentifier();
+        $authorId = $this->authWrapperService->getAuthIdentifier();
         $content = $request->input(QuestionRequestConstants::CONTENT);
         return response()->json($this->questionService->create($eventId, $authorId, $parentId, $content));
     }
@@ -37,7 +39,5 @@ class QuestionController extends Controller
     public function delete(string $id): JsonResponse
     {
         return response()->json(['success' => $this->questionService->delete($id)]);
-
-
     }
 }

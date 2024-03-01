@@ -1,6 +1,8 @@
 <?php
 
 use App\Constants\DB\EventDBConstants;
+use App\Constants\Search\EventSearchConstants;
+use App\Models\Event;
 
 return [
 
@@ -133,32 +135,41 @@ return [
     */
 
     'meilisearch' => [
+        'status' => env('MEILISEARCH_STATUS'),
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
-            'events' => [
+            Event::class => [
+
                 'filterableAttributes' => [
-                    EventDBConstants::LONGITUDE,
-                    EventDBConstants::LATITUDE,
-                    EventDBConstants::START_DATE,
-                    EventDBConstants::START_TIME,
-                    EventDBConstants::FINISH_DATE,
-                    EventDBConstants::FINISH_TIME,
-                    EventDBConstants::AGE_FROM,
-                    EventDBConstants::AGE_TO,
-                    EventDBConstants::CATEGORIES_IDS,
-                    EventDBConstants::TAGS_IDS,
-                    EventDBConstants::RATING,
-                    EventDBConstants::AUTHOR_ID,
-                    EventDBConstants::PARENT_ID,
-                    EventDBConstants::CITY_ID,
-                    EventDBConstants::COUNTRY_ID,
+                    EventSearchConstants::START_DATE,
+                    EventSearchConstants::START_TIME,
+                    EventSearchConstants::_GEO,
+                    EventSearchConstants::FINISH_DATE,
+                    EventSearchConstants::FINISH_TIME,
+                    EventSearchConstants::AGE_FROM,
+                    EventSearchConstants::AGE_TO,
+                    EventSearchConstants::CATEGORIES_IDS,
+                    EventSearchConstants::TAGS_IDS,
+                    EventSearchConstants::RATING,
+                    EventSearchConstants::AUTHOR_ID,
+                    EventSearchConstants::PARENT_ID,
+                    EventSearchConstants::CITY_ID,
+                    EventSearchConstants::COUNTRY_ID,
+
+                ],
+
+                'searchableAttributes' => [
+                    EventSearchConstants::TITLE,
+                    EventSearchConstants::DESCRIPTION,
+                    EventSearchConstants::STREET_NAME,
+                    EventSearchConstants::PLACE_NAME,
                 ],
                 'sortableAttributes' => [
-                    EventDBConstants::TITLE,
-                    EventDBConstants::DESCRIPTION,
-                    EventDBConstants::STREET_NAME,
-                    EventDBConstants::PLACE_NAME,
+                    EventSearchConstants::TITLE,
+                    EventSearchConstants::DESCRIPTION,
+                    EventSearchConstants::STREET_NAME,
+                    EventSearchConstants::PLACE_NAME,
                 ],
             ],
         ],

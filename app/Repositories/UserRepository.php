@@ -17,6 +17,10 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         return User::where(UserDBConstants::NAME, $name)->find(UserDBConstants::ID);
     }
+    public function checkIsUserExistByUserId(string $userId): bool
+    {
+        return User::where(UserDBConstants::ID, $userId)->exists();
+    }
     public function getPhotoPathById(string $id): string
     {
         return User::query()->where(UserDBConstants::ID, $id)->value(UserDBConstants::AVATAR);

@@ -66,7 +66,14 @@ class UserService
         $this->userRepository->update($user, $id);
         return $this->userRepository->show($id);
     }
-
+    public function checkIsUserExistByUserId(string $userId): bool
+    {
+        return $this->userRepository->checkIsUserExistByUserId($userId);
+    }
+    public function checkIsUserDoesNotExistByUserId(string $userId): bool
+    {
+        return !$this->userRepository->checkIsUserExistByUserId($userId);
+    }
     public function updatePhotos(string $id, ?string $photo, string $photoExtension): array
     {
         $alreadyExistedPhotosPaths = $this->userRepository->getPhotoPathById($id);

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Constants\DB\EventDBConstants;
+use App\Constants\Request\EventRequestConstants;
+use App\Constants\Search\EventSearchConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -59,31 +61,35 @@ class Event extends Model
 
     protected $casts = [
         EventDBConstants::ID => 'string',
+        EventDBConstants::PHOTOS => 'array',
     ];
     public function toSearchableArray()
     {
         return [
-            EventDBConstants::TITLE => $this->title,
-            EventDBConstants::LONGITUDE => $this->longitude,
-            EventDBConstants::LATITUDE => $this->latitude,
-            EventDBConstants::DESCRIPTION => $this->description,
-            EventDBConstants::STREET_NAME => $this->street_name,
-            EventDBConstants::PLACE_NAME => $this->place_name,
-            EventDBConstants::START_DATE => $this->start_date,
-            EventDBConstants::START_TIME => $this->start_time,
-            EventDBConstants::FINISH_DATE => $this->finish_date,
-            EventDBConstants::FINISH_TIME => $this->finish_time,
-            EventDBConstants::AGE_FROM => $this->age_from,
-            EventDBConstants::AGE_TO => $this->age_to,
-            EventDBConstants::CATEGORIES_IDS => $this->categories_ids,
-            EventDBConstants::TAGS_IDS => $this->tags_ids,
-            EventDBConstants::RATING => $this->rating,
-            EventDBConstants::AUTHOR_ID => $this->author_id,
-            EventDBConstants::PARENT_ID => $this->parent_id,
-            EventDBConstants::CITY_ID => $this->city_id,
-            EventDBConstants::COUNTRY_ID => $this->country_id,
+            EventSearchConstants::TITLE => $this->title,
+            EventSearchConstants::_GEO => [
+                EventSearchConstants::LATITUDE => (float) $this->latitude,
+                EventSearchConstants::LONGITUDE => (float) $this->longitude,
+            ],
+            EventSearchConstants::DESCRIPTION => $this->description,
+            EventSearchConstants::STREET_NAME => $this->street_name,
+            EventSearchConstants::PLACE_NAME => $this->place_name,
+            EventSearchConstants::START_DATE => strtotime($this->start_date),
+            EventSearchConstants::START_TIME => strtotime($this->start_time),
+            EventSearchConstants::FINISH_DATE => strtotime($this->finish_date),
+            EventSearchConstants::FINISH_TIME => strtotime($this->finish_time),
+            EventSearchConstants::AGE_FROM => $this->age_from,
+            EventSearchConstants::AGE_TO => $this->age_to,
+            EventSearchConstants::CATEGORIES_IDS => $this->categories_ids,
+            EventSearchConstants::TAGS_IDS => $this->tags_ids,
+            EventSearchConstants::RATING => $this->rating,
+            EventSearchConstants::AUTHOR_ID => $this->author_id,
+            EventSearchConstants::PARENT_ID => $this->parent_id,
+            EventSearchConstants::CITY_ID => $this->city_id,
+            EventSearchConstants::COUNTRY_ID => $this->country_id,
         ];
     }
+
     protected static function boot()
     {
         parent::boot();
@@ -129,7 +135,7 @@ class Event extends Model
             ->where(EventDBConstants::SLUG, 'like', $slugToFind . '%')
             ->orderBy(EventDBConstants::SLUG, 'desc')->first();
 
-        return ($event === null) ? null : $event->slug;
+        return($event === null) ? null : $event->slug;
 
     }
     public function comments(): HasMany
@@ -158,7 +164,7 @@ class Event extends Model
     }
     public function events(): HasMany
     {
-        return $this->hasMany(Event::class);
+        return $this->hasMany(Event::class, EventDBConstants::ID);
     }
     public function event(): BelongsTo
     {
@@ -175,5 +181,13 @@ class Event extends Model
     public function appliers(): HasMany
     {
         return $this->hasMany(Applier::class);
+    }
+    public function chats(): HasMany
+    {
+        return $this->hasMany(Chat::class);
+    }
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
     }
 }

@@ -2,25 +2,27 @@
 
 namespace App\Models;
 
-use App\Constants\DB\QuestionDBConstants;
+use App\Constants\DB\ChatDBConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-class Question extends Model
+class Chat extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        QuestionDBConstants::CONTENT,
-        QuestionDBConstants::EVENT_ID,
-        QuestionDBConstants::AUTHOR_ID,
-        QuestionDBConstants::PARENT_ID,
+        ChatDBConstants::TOPIC,
+        ChatDBConstants::AUTHOR_ID,
+        ChatDBConstants::EVENT_ID,
+        ChatDBConstants::MEMBER_ID,
+        ChatDBConstants::LAST_MESSAGE_TEXT,
+        ChatDBConstants::LAST_MESSAGE_AUTHOR_ID,
     ];
     protected $casts = [
-        QuestionDBConstants::ID => 'string',
+        ChatDBConstants::ID => 'string',
     ];
     public $incrementing = false;
     protected $keyType = 'string';
@@ -36,17 +38,16 @@ class Question extends Model
     {
         return $this->belongsTo(Event::class);
     }
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    public function question(): BelongsTo
+    public function member(): BelongsTo
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(User::class);
     }
-    public function questions(): HasMany
+    public function message(): HasMany
     {
-        return $this->hasMany(Question::class, QuestionDBConstants::ID);
+        return $this->hasMany(Message::class);
     }
-
 }

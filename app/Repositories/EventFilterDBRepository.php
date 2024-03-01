@@ -17,19 +17,48 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
     {
         $this->model = $model;
     }
+
     public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
+
         return Event::query()
-            ->when($filterEventDTO->getPhrase() != null && $filterEventDTO->getSearchBy() != null, function (Builder $query) use ($filterEventDTO) {
-                dd($filterEventDTO->getSearchBy()[EventDBConstants::TITLE]);
+            ->when($filterEventDTO->getPhrase() != null && $filterEventDTO->getSearchBy() == null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(function (Builder $query) use ($filterEventDTO) {
                     $query
-                        ->whereIn(EventDBConstants::TITLE, $filterEventDTO->getSearchBy()[EventDBConstants::TITLE])
-                        ->orWhereIn(EventDBConstants::DESCRIPTION, $filterEventDTO->getSearchBy())
-                        ->orWhereIn(EventDBConstants::PLACE_NAME, $filterEventDTO->getSearchBy())
-                        ->orWhereIn(EventDBConstants::STREET_NAME, $filterEventDTO->getSearchBy());
+                        ->where(EventDBConstants::TITLE, 'like', '%' . $filterEventDTO->getPhrase() . '%')
+                        ->orWhere(EventDBConstants::DESCRIPTION, 'like', '%' . $filterEventDTO->getPhrase() . '%')
+                        ->orWhere(EventDBConstants::PLACE_NAME, 'like', '%' . $filterEventDTO->getPhrase() . '%')
+                        ->orWhere(EventDBConstants::STREET_NAME, 'like', '%' . $filterEventDTO->getPhrase() . '%');
                 });
             })
+            ->when($filterEventDTO->getPhrase() != null && $filterEventDTO->getSearchBy() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(function (Builder $query) use ($filterEventDTO) {
+                    $query
+                        ->when(array_key_exists(EventDBConstants::TITLE, $filterEventDTO->getSearchBy()), function (Builder $query) use ($filterEventDTO) {
+                            $query->where(EventDBConstants::TITLE, 'like', '%' . $filterEventDTO->getPhrase() . '%');
+                        })
+                        ->when(array_key_exists(EventDBConstants::DESCRIPTION, $filterEventDTO->getSearchBy()), function (Builder $query) use ($filterEventDTO) {
+                            $query->orWhere(EventDBConstants::DESCRIPTION, 'like', '%' . $filterEventDTO->getPhrase() . '%');
+                        })
+                        ->when(array_key_exists(EventDBConstants::PLACE_NAME, $filterEventDTO->getSearchBy()), function (Builder $query) use ($filterEventDTO) {
+                            $query->orWhere(EventDBConstants::PLACE_NAME, 'like', '%' . $filterEventDTO->getPhrase() . '%');
+                        })
+                        ->when(array_key_exists(EventDBConstants::STREET_NAME, $filterEventDTO->getSearchBy()), function (Builder $query) use ($filterEventDTO) {
+                            $query->orWhere(EventDBConstants::STREET_NAME, 'like', '%' . $filterEventDTO->getPhrase() . '%');
+                        });
+                });
+            })
+            ->when($filterEventDTO->getLongitude() !== null
+                && $filterEventDTO->getLatitude() !== null
+                && $filterEventDTO->getGeoRadius() !== null, function (Builder $query) use ($filterEventDTO) {
+                    return
+                        $query->geofence(
+                            $filterEventDTO->getLatitude(),
+                            $filterEventDTO->getLongitude(),
+                            0,
+                            $filterEventDTO->getGeoRadius()
+                        );
+                })
             ->when($filterEventDTO->getStartDateMin() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::START_DATE, '>', $filterEventDTO->getStartDateMin());
             })
@@ -60,17 +89,11 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
             ->when($filterEventDTO->getFinishTimeMax() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::FINISH_TIME, '<', $filterEventDTO->getFinishTimeMax());
             })
-            ->when($filterEventDTO->getLongitude() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where(EventDBConstants::LONGITUDE, $filterEventDTO->getLongitude());
-            })
-            ->when($filterEventDTO->getLatitude() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where(EventDBConstants::LONGITUDE, $filterEventDTO->getLatitude());
-            })
             ->when($filterEventDTO->getAgeFrom() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where(EventDBConstants::AGE_FROM, $filterEventDTO->getAgeFrom());
+                return $query->where(EventDBConstants::AGE_FROM, '>=', $filterEventDTO->getAgeFrom());
             })
             ->when($filterEventDTO->getAgeTo() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where(EventDBConstants::AGE_TO, $filterEventDTO->getAgeTo());
+                return $query->where(EventDBConstants::AGE_TO, '<=', $filterEventDTO->getAgeTo());
             })
             ->when($filterEventDTO->getAuthorId() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::AUTHOR_ID, $filterEventDTO->getAuthorId());
@@ -82,8 +105,9 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
                 return $query->where(EventDBConstants::CITY_ID, $filterEventDTO->getCityId());
             })
             ->when($filterEventDTO->getCountryId() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where('country_id', '=', $filterEventDTO->getCountryId());
+                return $query->where(EventDBConstants::COUNTRY_ID, $filterEventDTO->getCountryId());
             })
+
             ->paginate(self::PER_PAGE)
             ->toArray();
     }

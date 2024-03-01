@@ -16,6 +16,24 @@ use Illuminate\Database\Eloquent\Builder;
 class EventRepository extends BaseRepository implements EventRepositoryInterface
 {
     private const PER_PAGE = 10;
+    public function checkIsEventExistByEventId(string $eventId): bool
+    {
+        return $this->model->where(EventDBConstants::ID, $eventId)->exists();
+    }
+    public function checkIsEventHasCurrentAuthorId(string $eventId, string $authorId): bool
+    {
+        return $this->model->where(EventDBConstants::ID, $eventId)
+            ->where(EventDBConstants::AUTHOR_ID, $authorId)->exists();
+    }
+    public function getAuthorIdByEventId(string $eventId): ?string
+    {
+        return $this->model->where(EventDBConstants::ID, $eventId)->first()->author_id;
+    }
+    public function getTopicById(string $id): ?string
+    {
+        return $this->model->where(EventDBConstants::ID, $id)->first()->title;
+
+    }
 
     public function getByIdWithComments(int $id): array
     {
@@ -25,18 +43,28 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
             }
         ])->find($id)->toArray();
     }
-    public function getAllPhotosById(string $id): ?array
+    public function getEventPhotosById(string $id): ?array
     {
-        return Event::query()->select(['photos', 'main_photo'])->find($id)->toArray();
+        return Event::query()->select([EventDBConstants::PHOTOS])->find($id)->toArray();
+    }
+    public function getEventMainPhotoById(string $id): ?string
+    {
+        return $this->model->where(EventDBConstants::ID, $id)->first()->main_photo;
     }
 
-    public function updatePhotos(string $id, string $mainPhotoPath, array $photosPaths): bool
+    public function updatePhotos(string $id, array $photosPaths): bool
     {
-        return Event::query()->where('id', $id)->update([
-            'main_photo' => $mainPhotoPath,
-            'photos' => $photosPaths
+        return Event::query()->where(EventDBConstants::ID, $id)->update([
+            EventDBConstants::PHOTOS => $photosPaths
         ]);
     }
+    public function updateMainPhoto(string $id, string $mainPhotoPath): bool
+    {
+        return Event::query()->where(EventDBConstants::ID, $id)->update([
+            EventDBConstants::MAIN_PHOTO => $mainPhotoPath
+        ]);
+    }
+
     public function searchEvent(?string $title, ?string $description): array
     {
         return Event::when($title != null, function ($query) use ($title) {

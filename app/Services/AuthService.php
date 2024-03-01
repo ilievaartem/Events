@@ -12,12 +12,14 @@ use App\Constants\Role\UserRoleConstants;
 
 class AuthService
 {
-    public function __construct(private readonly AuthRepository $authRepository)
-    {
+    public function __construct(
+        private readonly AuthRepository $authRepository,
+        private readonly AuthWrapperService $authWrapperService
+    ) {
     }
     public function login(string $email, string $password): array
     {
-        if ($token = auth()->attempt([UserRequestConstants::EMAIL => $email, UserRequestConstants::PASSWORD => $password])) {
+        if ($token = $this->authWrapperService->makeAttempt($email, $password)) {
             return $this->respondWithToken($token);
         }
         throw new AuthException("User is not authorize");
@@ -38,13 +40,20 @@ class AuthService
                 UserRequestConstants::PASSWORD => $password,
             ];
             $this->authRepository->register($user);
-            return $this->respondWithToken(auth()->attempt([UserRequestConstants::EMAIL => $email, UserRequestConstants::PASSWORD => $password]));
+            return $this->respondWithToken($this->authWrapperService->makeAttempt($email, $password));
 
         }
         throw new AuthException("User is already registered ");
 
     }
-    public function respondWithToken($token): array
+
+
+    /**
+     * @param string $token
+     *
+     * @return array
+     */
+    private function respondWithToken(string $token): array
     {
         return [
             'access_token' => $token,

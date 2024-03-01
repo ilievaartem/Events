@@ -1,23 +1,17 @@
 <?php
 
-namespace App\Constants\Request;
+namespace App\Constants\Search;
 
-class EventRequestConstants
+class EventSearchConstants
 {
     public const ID = "id";
-    public const TABLE = "products";
+    public const TABLE = "events";
     public const TITLE = "title";
-    public const PHRASE = "phrase";
-    public const RATING = "rating";
-    public const GEO_RADIUS = "geo_radius";
-    public const RATING_MIN = "rating_min";
-    public const RATING_MAX = "rating_max";
-    public const CATEGORIES_IDS = "categories_ids";
-    public const TAGS_IDS = "tags_ids";
-    public const DESCRIPTION = "description";
     public const SLUG = "slug";
-    public const LONGITUDE = "longitude";
-    public const LATITUDE = "latitude";
+    public const LONGITUDE = "lng";
+    public const LATITUDE = "lat";
+    public const _GEO = "_geo";
+
     public const AUTHOR_ID = "author_id";
     public const STREET_NAME = "street_name";
     public const BUILDING = "building";
@@ -37,19 +31,15 @@ class EventRequestConstants
     public const CITY_ID = "city_id";
     public const COUNTRY_ID = "country_id";
     public const ADDITIONAL_AUTHOR = "additional_author";
+    public const CATEGORIES_IDS = "categories_ids";
     public const PHOTOS = "photos";
     public const MAIN_PHOTO = "main_photo";
+    public const TAGS_IDS = "tags_ids";
+    public const RATING = "rating";
+    public const DESCRIPTION = "description";
     public const SHORT_DESCRIPTION = "short_description";
     public const IS_ONLINE = "is_online";
     public const IS_OFFLINE = "is_offline";
-    public const SEARCH_BY = "search_by";
-    public const START_DATE_MIN = "start_date_min";
-    public const START_DATE_MAX = "start_date_max";
-    public const FINISH_DATE_MIN = "finish_date_min";
-    public const FINISH_DATE_MAX = "finish_date_max";
-    public const START_TIME_MIN = "start_time_min";
-    public const START_TIME_MAX = "start_time_max";
-    public const FINISH_TIME_MIN = "finish_time_min";
-    public const FINISH_TIME_MAX = "finish_time_max";
+
 
 }

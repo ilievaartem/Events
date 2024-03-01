@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Applier;
 use App\Models\Category;
+use App\Models\Chat;
 use App\Models\City;
 use App\Models\Color;
 use App\Models\Comment;
@@ -13,11 +14,13 @@ use App\Models\Manufacturer;
 use App\Models\Event;
 use App\Models\Interester;
 use App\Models\Media;
+use App\Models\Message;
 use App\Models\Question;
 use App\Models\Tag;
 use App\Models\User;
 use App\Repositories\ApplierRepository;
 use App\Repositories\CategoryRepository;
+use App\Repositories\ChatRepository;
 use App\Repositories\CityRepository;
 use App\Repositories\ColorRepository;
 use App\Repositories\CommentRepository;
@@ -35,20 +38,25 @@ use App\Repositories\EventRepository;
 use App\Repositories\FilterMailisearchRepository;
 use App\Repositories\InteresterRepository;
 use App\Repositories\Interfaces\ApplierRepositoryInterface;
+use App\Repositories\Interfaces\ChatRepositoryInterface;
 use App\Repositories\Interfaces\CityRepositoryInterface;
 use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 use App\Repositories\Interfaces\CountryRepositoryInterface;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Repositories\Interfaces\InteresterRepositoryInterface;
 use App\Repositories\Interfaces\MediaRepositoryInterface;
+use App\Repositories\Interfaces\MessageRepositoryInterface;
 use App\Repositories\Interfaces\PhotoRepositoryInterface;
 use App\Repositories\Interfaces\QuestionRepositoryInterface;
 use App\Repositories\Interfaces\TagRepositoryInterface;
 use App\Repositories\MediaRepository;
+use App\Repositories\MessageRepository;
 use App\Repositories\PhotoRepository;
 use App\Repositories\QuestionRepository;
 use App\Repositories\TagRepository;
 use App\Repositories\UserRepository;
+use App\Services\AuthWrapperService;
+use App\Services\Interfaces\AuthWrapperServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -59,13 +67,21 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(EventFilterRepositoryInterface::class, function () {
-            return env('MEILISEARCH_STATUS')
+            return config('scout.meilisearch.status')
                 ? new FilterMailisearchRepository(new Event())
                 : new EventFilterDBRepository(new Event());
         });
-
+        $this->app->singleton(AuthWrapperServiceInterface::class, function () {
+            return new AuthWrapperService();
+        });
         $this->app->bind(CommentRepositoryInterface::class, function () {
             return new CommentRepository(new Comment());
+        });
+        $this->app->bind(ChatRepositoryInterface::class, function () {
+            return new ChatRepository(new Chat());
+        });
+        $this->app->bind(MessageRepositoryInterface::class, function () {
+            return new MessageRepository(new Message());
         });
         $this->app->bind(TagRepositoryInterface::class, function () {
             return new TagRepository(new Tag());

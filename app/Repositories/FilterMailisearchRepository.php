@@ -7,6 +7,7 @@ use App\DTO\Event\FilterEventDTO;
 use App\Models\Event;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Meilisearch\Endpoints\Indexes;
 
 class FilterMailisearchRepository implements EventFilterRepositoryInterface
 {
@@ -19,74 +20,149 @@ class FilterMailisearchRepository implements EventFilterRepositoryInterface
     }
     public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
-        return Event::search()->query(function ($builder) use ($filterEventDTO) {
-            $builder
-                ->when($filterEventDTO->getPhrase() != null && $filterEventDTO->getSearchBy() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(function (Builder $query) use ($filterEventDTO) {
-                        $query
-                            ->whereIn(EventDBConstants::TITLE, $filterEventDTO->getSearchBy())
-                            ->orWhereIn(EventDBConstants::DESCRIPTION, $filterEventDTO->getSearchBy())
-                            ->orWhereIn(EventDBConstants::PLACE_NAME, $filterEventDTO->getSearchBy())
-                            ->orWhereIn(EventDBConstants::STREET_NAME, $filterEventDTO->getSearchBy());
-                    });
-                })
-                ->when($filterEventDTO->getStartDateMin() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::START_DATE, '>', $filterEventDTO->getStartDateMin());
-                })
-                ->when($filterEventDTO->getStartDateMax() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::START_DATE, '<', $filterEventDTO->getStartDateMax());
-                })
-                ->when($filterEventDTO->getFinishDateMin() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::FINISH_DATE, '>', $filterEventDTO->getFinishDateMin());
-                })
-                ->when($filterEventDTO->getFinishDateMax() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::FINISH_DATE, '<', $filterEventDTO->getFinishDateMax());
-                })
-                ->when($filterEventDTO->getRatingMin() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::RATING, '>', $filterEventDTO->getRatingMin());
-                })
-                ->when($filterEventDTO->getRatingMax() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::RATING, '<', $filterEventDTO->getRatingMax());
-                })
-                ->when($filterEventDTO->getStartTimeMin() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::START_TIME, '>', $filterEventDTO->getStartTimeMin());
-                })
-                ->when($filterEventDTO->getStartTimeMax() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::START_TIME, '<', $filterEventDTO->getStartTimeMax());
-                })
-                ->when($filterEventDTO->getFinishTimeMin() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::FINISH_TIME, '>', $filterEventDTO->getFinishTimeMin());
-                })
-                ->when($filterEventDTO->getFinishTimeMax() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::FINISH_TIME, '<', $filterEventDTO->getFinishTimeMax());
-                })
-                ->when($filterEventDTO->getLongitude() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::LONGITUDE, $filterEventDTO->getLongitude());
-                })
-                ->when($filterEventDTO->getLatitude() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::LONGITUDE, $filterEventDTO->getLatitude());
-                })
-                ->when($filterEventDTO->getAgeFrom() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::AGE_FROM, $filterEventDTO->getAgeFrom());
-                })
-                ->when($filterEventDTO->getAgeTo() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::AGE_TO, $filterEventDTO->getAgeTo());
-                })
-                ->when($filterEventDTO->getAuthorId() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::AUTHOR_ID, $filterEventDTO->getAuthorId());
-                })
-                ->when($filterEventDTO->getParentId() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::PARENT_ID, $filterEventDTO->getParentId());
-                })
-                ->when($filterEventDTO->getCityId() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where(EventDBConstants::CITY_ID, $filterEventDTO->getCityId());
-                })
-                ->when($filterEventDTO->getCountryId() != null, function (Builder $query) use ($filterEventDTO) {
-                    return $query->where('country_id', '=', $filterEventDTO->getCountryId());
-                });
+        // return Event::index('events')->search(
+        //     '',
+        //     [
+        //         'filter' => '_geoRadius(45.472735, 9.184019, 2000)'
+        //     ]
+        // )
+        //     ->paginate(self::PER_PAGE)
+        //     ->toArray();
+        return Event::search(
 
-        })
+            $filterEventDTO->getPhrase() == null
+            ? ''
+            : $filterEventDTO->getPhrase(),
+
+            function (Indexes $meiliSearch, string $query, array $options) use ($filterEventDTO) {
+
+                if (
+                    $filterEventDTO->getLongitude() !== null
+                    && $filterEventDTO->getLatitude() !== null
+                    && $filterEventDTO->getGeoRadius() !== null
+                ) {
+                    empty($options['filter'])
+                        ? $options['filter'] = '_geoRadius(' . $filterEventDTO->getLatitude()
+                        . ', ' . $filterEventDTO->getLongitude() . ', ' . $filterEventDTO->getGeoRadius() . ')'
+                        : $options['filter'] .= ' AND ' . '_geoRadius(' . $filterEventDTO->getLatitude()
+                        . ', ' . $filterEventDTO->getLongitude() . ', ' . $filterEventDTO->getGeoRadius() . ')';
+
+
+                }
+
+                if (!empty($filterEventDTO->getSearchBy())) {
+                    if (array_key_exists(EventDBConstants::TITLE, $filterEventDTO->getSearchBy())) {
+                        $options['attributesToSearchOn'][] = EventDBConstants::TITLE;
+
+                    }
+                    if (array_key_exists(EventDBConstants::DESCRIPTION, $filterEventDTO->getSearchBy())) {
+                        $options['attributesToSearchOn'][] = EventDBConstants::DESCRIPTION;
+
+                    }
+                    if (array_key_exists(EventDBConstants::PLACE_NAME, $filterEventDTO->getSearchBy())) {
+                        $options['attributesToSearchOn'][] = EventDBConstants::PLACE_NAME;
+
+                    }
+                    if (array_key_exists(EventDBConstants::STREET_NAME, $filterEventDTO->getSearchBy())) {
+                        $options['attributesToSearchOn'][] = EventDBConstants::STREET_NAME;
+
+                    }
+                }
+
+                if ($filterEventDTO->getStartTimeMinUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::START_TIME . '>' . $filterEventDTO->getStartTimeMinUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::START_TIME . '>' . $filterEventDTO->getStartTimeMinUnix();
+                }
+                if ($filterEventDTO->getStartTimeMaxUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::START_TIME . '<' . $filterEventDTO->getStartTimeMaxUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::START_TIME . '<' . $filterEventDTO->getStartTimeMaxUnix();
+                }
+                if ($filterEventDTO->getStartDateMinUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::START_DATE . '>' . $filterEventDTO->getStartDateMinUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::START_DATE . '>' . $filterEventDTO->getStartDateMinUnix();
+                }
+                if ($filterEventDTO->getStartDateMaxUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::START_DATE . '<' . $filterEventDTO->getStartDateMaxUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::START_DATE . '<' . $filterEventDTO->getStartDateMaxUnix();
+                }
+                if ($filterEventDTO->getFinishDateMinUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::FINISH_DATE . '>' . $filterEventDTO->getFinishDateMinUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::FINISH_DATE . '>' . $filterEventDTO->getFinishDateMinUnix();
+                }
+                if ($filterEventDTO->getFinishDateMaxUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::FINISH_DATE . '<' . $filterEventDTO->getFinishDateMaxUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::FINISH_DATE . '<' . $filterEventDTO->getFinishDateMaxUnix();
+                }
+                if ($filterEventDTO->getFinishTimeMinUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::FINISH_TIME . '>' . $filterEventDTO->getFinishTimeMinUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::FINISH_TIME . '>' . $filterEventDTO->getFinishTimeMinUnix();
+                }
+                if ($filterEventDTO->getFinishTimeMaxUnix() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::FINISH_TIME . '<' . $filterEventDTO->getFinishTimeMaxUnix()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::FINISH_TIME . '<' . $filterEventDTO->getFinishTimeMaxUnix();
+                }
+                if ($filterEventDTO->getRatingMin() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::RATING . '>' . $filterEventDTO->getRatingMin()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::RATING . '>' . $filterEventDTO->getRatingMin();
+                }
+                if ($filterEventDTO->getRatingMax() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::RATING . '<' . $filterEventDTO->getRatingMax()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::RATING . '<' . $filterEventDTO->getRatingMax();
+                }
+
+
+                if ($filterEventDTO->getAgeFrom() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::AGE_FROM . '>=' . $filterEventDTO->getAgeFrom()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::AGE_FROM . '>=' . $filterEventDTO->getAgeFrom();
+                }
+                if ($filterEventDTO->getAgeTo() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::AGE_TO . '<=' . $filterEventDTO->getAgeTo()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::AGE_TO . '<=' . $filterEventDTO->getAgeTo();
+                }
+                if ($filterEventDTO->getAuthorId() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::AUTHOR_ID . '=' . $filterEventDTO->getAuthorId()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::AUTHOR_ID . '=' . $filterEventDTO->getAuthorId();
+                }
+                if ($filterEventDTO->getParentId() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::PARENT_ID . '=' . $filterEventDTO->getParentId()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::PARENT_ID . '=' . $filterEventDTO->getParentId();
+                }
+                if ($filterEventDTO->getCityId() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::CITY_ID . '=' . $filterEventDTO->getCityId()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::CITY_ID . '=' . $filterEventDTO->getCityId();
+                }
+                if ($filterEventDTO->getCountryId() != null) {
+                    empty($options['filter'])
+                        ? $options['filter'] = EventDBConstants::COUNTRY_ID . '=' . $filterEventDTO->getCountryId()
+                        : $options['filter'] .= ' AND ' . EventDBConstants::COUNTRY_ID . '=' . $filterEventDTO->getCountryId();
+                }
+
+                return $meiliSearch->search($query, $options);
+            }
+        )
             ->paginate(self::PER_PAGE)
             ->toArray();
+
+
+
+
+
+
+
     }
 }

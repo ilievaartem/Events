@@ -9,8 +9,18 @@ use App\Http\Requests\Events\EventFilterRequest;
 use App\Http\Requests\Events\EventUpdateRequest;
 use App\Constants\Request\EventRequestConstants;
 use App\DTO\Event\FilterEventDTO;
+use App\DTO\Photos\CreatePhotoDTO;
+use App\DTO\Photos\CreatePhotosDTO;
+use App\Factory\Event\DeleteMainPhotoEventDTOFactory;
+use App\Factory\Event\DeletePhotosEventDTOFactory;
+use App\Factory\Event\UploadPhotosEventDTOFactory;
+use App\Factory\Event\UploadPhotoEventDTOFactory;
 use App\Factory\FilterEventDTOFactory;
+use App\Http\Requests\Events\EventDeleteMainPhotoRequest;
+use App\Http\Requests\Events\EventDeletePhotosRequest;
+use App\Http\Requests\Events\EventUploadPhotosRequest;
 use App\Models\Event;
+use App\Services\AuthWrapperService;
 use Illuminate\Http\Request;
 use App\Services\EventService;
 use Illuminate\Http\JsonResponse;
@@ -22,8 +32,10 @@ use Ramsey\Uuid\Uuid;
 class EventController extends Controller
 {
 
-    public function __construct(private readonly EventService $eventService)
-    {
+    public function __construct(
+        private readonly EventService $eventService,
+        private readonly AuthWrapperService $authWrapperService
+    ) {
     }
 
     public function index(): JsonResponse
@@ -45,46 +57,7 @@ class EventController extends Controller
 
         return response()->json($this->eventService->searchEvent($title, $description));
     }
-    public function mailisearch(Request $request)
-    {
-        $city_id = $request->input(EventRequestConstants::CITY_ID);
-        $country_id = $request->input(EventRequestConstants::COUNTRY_ID);
-        $start_date_min = $request->input(EventRequestConstants::START_DATE_MIN);
-        $start_date_max = $request->input(EventRequestConstants::START_DATE_MAX);
 
-        // return Event::
-        // ->wheres(EventDBConstants::START_DATE, '>' . $start_date_min);
-        // index('events')
-        // ->
-        // search('', [
-        //     'filter' => ['start_date >=' . $start_date_min]
-        // ]);
-        return Event::search()->query(function ($builder) use ($start_date_min, $city_id) {
-            $builder->when($city_id != null, function ($query) use ($city_id) {
-                return $query->where(EventDBConstants::CITY_ID, $city_id);
-            });
-            // $builder->where('start_date', '<', $start_date_min);
-
-            // ->where('country_id', $country_id);
-        })
-            ->paginate();
-
-        // ->when($city_id != null, function ($query) use ($city_id) {
-        //     return $query->where(EventDBConstants::CITY_ID, $city_id);
-        // })
-        // ->when($country_id != null, function ($query) use ($country_id) {
-        //     return $query->where('country_id', $country_id);
-        // })
-        // ->when($start_date_min != null, function ($query) use ($start_date_min) {
-        //     return $query->where(EventDBConstants::START_DATE, '>', $start_date_min);
-
-        // })
-        // ->when($start_date_max != null, function ($query) use ($start_date_max) {
-        //     return $query->where(EventDBConstants::START_DATE, '<', $start_date_max);
-        // })
-        // ->paginate(10);
-        // ->toArray();
-    }
     /**
      * @param Request $request
      *
@@ -120,7 +93,7 @@ class EventController extends Controller
             appliers: $request->input(EventRequestConstants::APPLIERS),
             interestars: $request->input(EventRequestConstants::INTERESTARS),
             rating: $request->input(EventRequestConstants::RATING),
-            authorId: auth()->user()->getAuthIdentifier(),
+            authorId: $this->authWrapperService->getAuthIdentifier(),
             parentId: $request->input(EventRequestConstants::PARENT_ID),
             cityId: $request->input(EventRequestConstants::CITY_ID),
             countryId: $request->input(EventRequestConstants::COUNTRY_ID),
@@ -196,25 +169,49 @@ class EventController extends Controller
     {
         return response()->json($this->eventService->show($id));
     }
-    public function addPhotos(Request $request, string $id)
-    {
 
-        if ($request->hasFile('photos')) {
-            $files = $request->file('photos');
-            // $filePath = "/event/5/photos/kVUdh5oL.jpg";
-            // Storage::disk('local')->delete($filePath);
+    public function addPhotos(
+        EventUploadPhotosRequest $request,
+        UploadPhotoEventDTOFactory $uploadPhotoEventDTOFactory,
+        UploadPhotosEventDTOFactory $uploadPhotosEventDTOFactory,
+        string $id
+    ) {
+        $createDTOPhoto = $uploadPhotoEventDTOFactory->make($request, $id);
+        $createDTOPhotos = $uploadPhotosEventDTOFactory->make($request, $id);
 
-            $formattedFiles = $this->eventService->formatFilesContent($id, $files);
-            $mainPhoto = $request->file('main_photo');
-            $mainPhotoExtension = $request->file('main_photo')->extension();
-            return response()->json(
-                $this->eventService->updatePhotos(
-                    $id,
-                    file_get_contents($mainPhoto),
-                    $mainPhotoExtension,
-                    $formattedFiles
-                )
-            );
-        }
+
+        return response()->json(
+            $this->eventService->updatePhotos(
+                $id,
+                $createDTOPhoto,
+                $createDTOPhotos,
+            )
+        );
+    }
+    public function deletePhotos(
+        EventDeletePhotosRequest $request,
+        DeletePhotosEventDTOFactory $deletePhotosEventDTOFactory,
+        string $id
+    ): JsonResponse {
+        $deleteDTOPhotos = $deletePhotosEventDTOFactory->make($request, $id);
+        return response()->json(
+            $this->eventService->deletePhotos(
+                $id,
+                $deleteDTOPhotos
+            )
+        );
+    }
+    public function deleteMainPhoto(
+        EventDeleteMainPhotoRequest $request,
+        DeleteMainPhotoEventDTOFactory $deleteMainPhotoEventDTOFactory,
+        string $id
+    ): JsonResponse {
+        $deleteDTOPhotos = $deleteMainPhotoEventDTOFactory->make($request, $id);
+        return response()->json(
+            $this->eventService->deleteMainPhoto(
+                $id,
+                $deleteDTOPhotos
+            )
+        );
     }
 }

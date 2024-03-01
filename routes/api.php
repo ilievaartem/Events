@@ -11,11 +11,13 @@ use App\Http\Controllers\ManufacturerController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\InteresterController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TestController;
@@ -45,6 +47,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('events', [EventController::class, 'index']);
 Route::get('events/search', [EventController::class, 'searchEvent']);
 Route::post('events/{id}/photos/upload', [EventController::class, 'addPhotos']);
+Route::patch('events/{id}/photos/delete', [EventController::class, 'deletePhotos']);
+Route::patch('events/{id}/photos/deleteMain', [EventController::class, 'deleteMainPhoto']);
 Route::post('events', [EventController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::get('events/filter', [EventController::class, 'filter']);
 Route::put('events/{id}', [EventController::class, 'update'])->middleware([AdminIsAuthorized::class]);
@@ -84,7 +88,18 @@ Route::get('tags/{id}', [TagController::class, 'show']);
 Route::post('tags', [TagController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::put('tags/{id}', [TagController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 Route::delete('tags/{id}', [TagController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
-
+//messages
+Route::get('messages', [MessageController::class, 'index']);
+Route::get('messages/{id}', [MessageController::class, 'show']);
+Route::delete('messages/{id}', [MessageController::class, 'delete']);
+Route::post('events/{eventId}/messages', [MessageController::class, 'create']);
+//chats
+Route::get('chats', [ChatController::class, 'index']);
+Route::get('chats/author', [ChatController::class, 'getAllAuthorChat']);
+Route::get('chats/member', [ChatController::class, 'getAllMemberChat']);
+Route::get('chats/{id}', [ChatController::class, 'show']);
+Route::get('chats/{id}/messages', [ChatController::class, 'getChatWithAllMessages']);
+Route::delete('chats/{id}', [ChatController::class, 'delete']);
 //auth
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);

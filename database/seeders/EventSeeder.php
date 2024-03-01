@@ -32,7 +32,7 @@ class EventSeeder extends Seeder
     public function run(): void
     {
         $events = [];
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10000; $i++) {
             $allCategoryIds = Category::query()->select(CategoryDBConstants::ID)->get()->pluck(CategoryDBConstants::ID)->toArray();
             $allTagIds = Tag::query()->select(TagDBConstants::ID)->get()->pluck(TagDBConstants::ID)->toArray();
             $events[] = [
@@ -72,6 +72,11 @@ class EventSeeder extends Seeder
 
             ];
         }
-        Event::insert($events);
+        $res = array_chunk($events, 1000);
+        foreach ($res as $event) {
+            Event::insert($event);
+
+        }
+
     }
 }

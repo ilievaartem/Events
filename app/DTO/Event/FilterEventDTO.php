@@ -10,6 +10,7 @@ class FilterEventDTO implements DTOContract
         private readonly ?string $phrase,
         private readonly ?float $longitude,
         private readonly ?float $latitude,
+        private readonly ?int $geoRadius,
         private readonly ?array $searchBy,
         private readonly ?string $startDateMin,
         private readonly ?string $startDateMax,
@@ -42,6 +43,10 @@ class FilterEventDTO implements DTOContract
     {
         return $this->latitude;
     }
+    public function getGeoRadius(): ?int
+    {
+        return $this->geoRadius;
+    }
     public function getSearchBy(): ?array
     {
         return $this->searchBy;
@@ -50,34 +55,66 @@ class FilterEventDTO implements DTOContract
     {
         return $this->startDateMin;
     }
+    public function getStartDateMinUnix(): ?int
+    {
+        return strtotime($this->startDateMin);
+    }
     public function getStartDateMax(): ?string
     {
         return $this->startDateMax;
+    }
+    public function getStartDateMaxUnix(): ?int
+    {
+        return strtotime($this->startDateMax);
     }
     public function getFinishDateMin(): ?string
     {
         return $this->finishDateMin;
     }
+    public function getFinishDateMinUnix(): ?int
+    {
+        return strtotime($this->finishDateMin);
+    }
     public function getFinishDateMax(): ?string
     {
         return $this->finishDateMax;
+    }
+    public function getFinishDateMaxUnix(): ?int
+    {
+        return strtotime($this->finishDateMax);
     }
 
     public function getStartTimeMin(): ?string
     {
         return $this->startTimeMin;
     }
+    public function getStartTimeMinUnix(): ?int
+    {
+        return strtotime($this->startTimeMin);
+    }
     public function getStartTimeMax(): ?string
     {
         return $this->startTimeMax;
+    }
+    public function getStartTimeMaxUnix(): ?int
+    {
+        return strtotime($this->startTimeMax);
     }
     public function getFinishTimeMin(): ?string
     {
         return $this->finishTimeMin;
     }
+    public function getFinishTimeMinUnix(): ?int
+    {
+        return strtotime($this->finishTimeMin);
+    }
     public function getFinishTimeMax(): ?string
     {
         return $this->finishTimeMax;
+    }
+    public function getFinishTimeMaxUnix(): ?int
+    {
+        return strtotime($this->finishTimeMax);
     }
     public function getAgeFrom(): ?int
     {

@@ -41,6 +41,9 @@ class Handler extends ExceptionHandler
         $this->renderable(function (AlreadyExistException $e) {
             return response()->json($e->getMessage(), 404);
         });
+        $this->renderable(function (BadRequestException $e) {
+            return response()->json($e->getMessage(), 407);
+        });
 
     }
 }

@@ -8,6 +8,10 @@ use App\Constants\DB\EventConstants;
 use App\Constants\DB\EventDBConstants;
 use App\DTO\Event\CreateEventDTO;
 use App\DTO\Event\FilterEventDTO;
+use App\DTO\Photos\CreatePhotoDTO;
+use App\DTO\Photos\CreatePhotosDTO;
+use App\DTO\Photos\DeletePhotoDTO;
+use App\DTO\Photos\DeletePhotosDTO;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Services\System\DataFormattersService;
 use Illuminate\Support\Str;
@@ -93,47 +97,115 @@ class EventService
     {
         return $this->eventFilterRepository->filterEvents($filterEventDTO);
     }
-    public function updatePhotos(string $id, ?string $mainPhoto, string $mainPhotoExtension, ?array $photos): array
+    public function deletePhotos(string $id, DeletePhotosDTO $photos): bool
     {
-        $alreadyExistedPhotosPaths = $this->unionPhotos($this->eventRepository->getAllPhotosById($id));
-        $mainPhotoPath = $this->photoService->getMainPhotoPath($id, $mainPhotoExtension);
-        $photosPaths = $this->photoService->getPhotosPaths($id, $photos);
-        $this->eventRepository->updatePhotos($id, $mainPhotoPath, $photosPaths);
-        $this->photoService->loadPhotos($mainPhoto, $mainPhotoPath, $photos, );
-        $this->photoService->deleteOldPhotos($alreadyExistedPhotosPaths);
+        $oldPhotosPaths = $this->eventRepository->getEventPhotosById($id);
+        if ($oldPhotosPaths === null) {
+            return true;
+        }
+        $this->eventRepository->updatePhotos(
+            $id,
+            $this->getPhotosPathForUpdate($oldPhotosPaths, $photos->getPhotos()),
+        );
+        return $this->photoService->deleteOldPhotos($photos->getPhotos());
+    }
+    public function deleteMainPhoto(string $id): bool
+    {
+        $oldMainPhotoPath = $this->eventRepository->getEventMainPhotoById($id);
+        if ($oldMainPhotoPath === null) {
+            return true;
+        }
+        $this->eventRepository->updateMainPhoto($id, '');
+        return $this->photoService->deleteOldPhoto($oldMainPhotoPath);
+    }
+
+    private function getPhotosPathForUpdate(array $photosFromDB, array $photoToDelete): array
+    {
+
+
+        $photosKeysToUpdate = array_diff_key(
+            array_flip(array_values($photosFromDB[EventDBConstants::PHOTOS])),
+            array_flip($photoToDelete),
+        );
+        return array_keys($photosKeysToUpdate);
+    }
+
+
+    public function updatePhotos(string $id, ?CreatePhotoDTO $photo, ?CreatePhotosDTO $photos)
+    {
+        $this->uploadMainPhoto($id, $photo);
+        $this->uploadPhotos($id, $photos);
         return $this->eventRepository->show($id);
     }
-
-    public function formatFilesContent(string $id, array $files): array
+    public function uploadMainPhoto(string $id, ?CreatePhotoDTO $photo): void
     {
-        foreach ($files as $file) {
-            $formatPhotos[] = [
-                'path' => "/event/" . $id . "/photos/" . Str::random(8) . "." . $file->extension(),
-                'photo' => file_get_contents($file),
-            ];
+        if ($photo == null) {
+            return;
         }
-        return $formatPhotos;
-    }
-    private function unionPhotos(array $photos): ?array
-    {
-        if (!empty($photos['main_photo']) && !empty($photos['photos'])) {
-
-            return [
-                ...$photos['photos'],
-                $photos['main_photo'],
-
-            ];
-        }
-        if (!empty($photos['main_photo'])) {
-            return [
-                $photos['main_photo']
-            ];
-        }
-        if (!empty($photos['photos'])) {
-            return $photos['photos'];
-        }
-        return [];
+        $mainPhotoPath = $photo->getPathForDB();
+        $this->eventRepository->updateMainPhoto($id, $mainPhotoPath);
+        $photoContent = $this->photoService->getPhotoContentForEvent($photo);
+        $this->photoService->storagePhoto($mainPhotoPath, $photoContent);
 
     }
+    public function uploadPhotos(string $id, ?CreatePhotosDTO $photos): void
+    {
+        if ($photos == null) {
+            return;
+        }
+        $oldPhotosPaths = $this->eventRepository->getEventPhotosById($id);
+        $photosPaths = $this->photoService->getPhotosPaths($photos);
+        $PhotosPathsForUpdate = $photosPaths;
+
+        if ($oldPhotosPaths != null) {
+            $PhotosPathsForUpdate = array_merge($oldPhotosPaths[EventDBConstants::PHOTOS], $photosPaths);
+        }
+        $this->eventRepository->updatePhotos($id, $PhotosPathsForUpdate);
+        $photoContentAndPath = $this->photoService->getPhotosContentAndPath($photos);
+        $this->photoService->storagePhotos($photoContentAndPath);
+
+    }
+    public function checkIsEventExistByEventId(string $eventId): bool
+    {
+        return $this->eventRepository->checkIsEventExistByEventId($eventId);
+    }
+    public function checkIsEventDoesNotExistByEventId(string $eventId): bool
+    {
+        return !$this->eventRepository->checkIsEventExistByEventId($eventId);
+    }
+    public function checkIsEventHasCurrentAuthorId(string $eventId, string $authorId): bool
+    {
+        return $this->eventRepository->checkIsEventHasCurrentAuthorId($eventId, $authorId);
+    }
+    public function checkIsEventHasNotCurrentAuthorId(string $eventId, string $authorId): bool
+    {
+        return !$this->eventRepository->checkIsEventHasCurrentAuthorId($eventId, $authorId);
+    }
+    public function getTopicById(string $id): ?string
+    {
+        return $this->eventRepository->getTopicById($id);
+    }
+    public function getAuthorIdByEventId(string $eventId): ?string
+    {
+        return $this->eventRepository->getAuthorIdByEventId($eventId);
+    }
+    public function getPhotoPathForDB(string $id, string $extension): ?string
+    {
+        return $this->photoService->getMainPhotoPath($id, $extension);
+    }
+
+    public function getMakePhotosDTO(?array $files, string $id): array
+    {
+        return $this->photoService->makePhotosDTO($files, $id);
+    }
+    private function getUnionPhotos(?array $photos): ?array
+    {
+        return $this->photoService->unionPhotos($photos);
+    }
+    public function getPhotoExtensionsForValidation(): string
+    {
+        return $this->photoService->makePhotoExtensionsForValidation();
+    }
+
 
 }
