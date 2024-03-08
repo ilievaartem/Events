@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('categories_events', function (Blueprint $table) {
+        Schema::create('category_event', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('category_id');
             $table->foreignUuid('event_id')->references('id')->on('events')->onDelete('cascade');

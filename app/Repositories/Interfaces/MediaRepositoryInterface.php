@@ -2,22 +2,12 @@
 
 namespace App\Repositories\Interfaces;
 
-interface MediaRepositoryInterface
+interface MediaRepositoryInterface extends BaseRepositoryInterface
 {
-    public function index(): array;
 
-    public function insert(array $data): bool;
-
-    public function create(array $data): array;
-
-    public function getPhotoPathById(string $id): ?string;
-    public function getPhotoTypeById(string $id): string;
-    public function updatePhoto(string $id, string $photoPath, string $photoExtension): bool;
-
-    public function delete(string $id): bool;
-
-    public function update(array $data, string $id): bool;
+    public function getPhotoPathById(string $id): string;
+    public function getMediaByCommentId(string $commentId): array;
+    public function checkIsExistByCommentId(string $commentId): bool;
 
 
-    public function show(int|string $id): ?array;
 }

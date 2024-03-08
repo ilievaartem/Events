@@ -22,27 +22,17 @@ class MediaSeeder extends Seeder
      */
     public function run(): void
     {
+        $eventsIds = Event::query()->select(EventDBConstants::ID)->get()->pluck(EventDBConstants::ID)->toArray();
+        $userIds = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
+        $commentsIds = Comment::query()->select(CommentDBConstants::ID)->get()->pluck(CommentDBConstants::ID)->toArray();
         $media = [];
         for ($i = 0; $i < 100; $i++) {
             $media[] = [
                 MediaDBConstants::ID => Uuid::uuid7()->toString(),
-                MediaDBConstants::EVENT_ID => Arr::random(Event::query()
-                    ->select(EventDBConstants::ID)
-                    ->get()
-                    ->pluck(EventDBConstants::ID)
-                    ->toArray()),
-                MediaDBConstants::AUTHOR_ID => Arr::random(User::query()
-                    ->select(UserDBConstants::ID)
-                    ->get()
-                    ->pluck(UserDBConstants::ID)
-                    ->toArray()),
-                MediaDBConstants::COMMENT_ID => Arr::random(Comment::query()
-                    ->select(CommentDBConstants::ID)
-                    ->get()
-                    ->pluck(CommentDBConstants::ID)
-                    ->toArray()),
-                MediaDBConstants::PATH => fake()->filePath(),
-                MediaDBConstants::TYPE => fake()->fileExtension(),
+                MediaDBConstants::EVENT_ID => Arr::random($eventsIds),
+                MediaDBConstants::AUTHOR_ID => Arr::random($userIds),
+                MediaDBConstants::COMMENT_ID => Arr::random($commentsIds),
+                MediaDBConstants::PATH => fake()->filePath()
             ];
         }
         Media::insert($media);

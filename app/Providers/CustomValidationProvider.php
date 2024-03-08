@@ -22,9 +22,10 @@ class CustomValidationProvider extends ServiceProvider
     {
         Validator::extend('custom_event_path', function ($attribute, $value, $parameters, $validator) {
 
-            $pattern = "/^\/event\/[a-f0-9\-]+\/photos\/[a-zA-Z0-9]+\.(jpg|jpeg|png)$/";
+            $pattern = "/^\/events\/[a-f0-9\-]+\/photos\/[a-zA-Z0-9]+\.(jpg|jpeg|png)$/";
 
             return preg_match($pattern, $value);
         });
+
     }
 }

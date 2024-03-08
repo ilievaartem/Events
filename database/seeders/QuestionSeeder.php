@@ -22,20 +22,14 @@ class QuestionSeeder extends Seeder
 
     public function run(): void
     {
+        $eventsIds = Event::query()->select(EventDBConstants::ID)->get()->pluck(EventDBConstants::ID)->toArray();
+        $userIds = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
         $questions = [];
         for ($i = 0; $i < 100; $i++) {
             $questions[] = [
                 QuestionDBConstants::ID => Uuid::uuid7()->toString(),
-                QuestionDBConstants::EVENT_ID => Arr::random(Event::query()
-                    ->select(EventDBConstants::ID)
-                    ->get()
-                    ->pluck(EventDBConstants::ID)
-                    ->toArray()),
-                QuestionDBConstants::AUTHOR_ID => Arr::random(User::query()
-                    ->select(UserDBConstants::ID)
-                    ->get()
-                    ->pluck(UserDBConstants::ID)
-                    ->toArray()),
+                QuestionDBConstants::EVENT_ID => Arr::random($eventsIds),
+                QuestionDBConstants::AUTHOR_ID => Arr::random($userIds),
                 QuestionDBConstants::PARENT_ID => null,
                 QuestionDBConstants::CONTENT => fake()->realText(),
             ];

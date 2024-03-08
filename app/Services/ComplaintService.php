@@ -23,44 +23,41 @@ class ComplaintService
     }
     public function show(string $id): ?array
     {
-        $show = $this->complaintRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Complaint is not found");
+
+        $this->checkIsExist($id);
+
+        return $this->complaintRepository->show($id);
     }
     public function read(string $id): ?array
     {
-        if ($this->complaintRepository->show($id) != null) {
-            $complaint = [
-                ComplaintDBConstants::READ_AT => now(),
-            ];
-            $this->complaintRepository->update($complaint, $id);
-            return $this->complaintRepository->show($id);
-        }
-        throw new NotFoundException("Complaint is not found");
+        $this->checkIsExist($id);
+
+        $complaint = [
+            ComplaintDBConstants::READ_AT => now(),
+        ];
+        $this->complaintRepository->update($complaint, $id);
+        return $this->complaintRepository->show($id);
     }
     public function toAssign(string $complaintId, string $assigneeId): ?array
     {
-        if ($this->complaintRepository->show($complaintId) != null) {
-            $complaint = [
-                ComplaintDBConstants::ASSIGNEE => $assigneeId,
-            ];
-            $this->complaintRepository->update($complaint, $complaintId);
-            return $this->complaintRepository->show($complaintId);
-        }
-        throw new NotFoundException("Complaint is not found");
+        $this->checkIsExist($complaintId);
+
+        $complaint = [
+            ComplaintDBConstants::ASSIGNEE => $assigneeId,
+        ];
+        $this->complaintRepository->update($complaint, $complaintId);
+        return $this->complaintRepository->show($complaintId);
+
     }
     public function unassign(string $id): ?array
     {
-        if ($this->complaintRepository->show($id) != null) {
-            $complaint = [
-                ComplaintDBConstants::ASSIGNEE => null,
-            ];
-            $this->complaintRepository->update($complaint, $id);
-            return $this->complaintRepository->show($id);
-        }
-        throw new NotFoundException("Complaint is not found");
+        $this->checkIsExist($id);
+
+        $complaint = [
+            ComplaintDBConstants::ASSIGNEE => null,
+        ];
+        $this->complaintRepository->update($complaint, $id);
+        return $this->complaintRepository->show($id);
     }
     public function create(string $eventId, string $authorId, string $causeMessage, string $causeDescription): ?array
     {
@@ -79,6 +76,8 @@ class ComplaintService
     }
     public function update(string $complaintId, string $resolverId, string $resolveMessage, string $resolveDescription): array
     {
+        $this->checkIsExist($complaintId);
+
         $complaint = [
             ComplaintDBConstants::RESOLVER_ID => $resolverId,
             ComplaintDBConstants::RESOLVE_MESSAGE => $resolveMessage,
@@ -115,5 +114,12 @@ class ComplaintService
             }
         }
         return null;
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->complaintRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Complaint is not found");
+
+        }
     }
 }

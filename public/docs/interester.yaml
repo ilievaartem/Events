@@ -7,12 +7,57 @@ servers:
   - url: 'http://localhost/api'
     description: local
 
-# securitySchemes:
-# BearerToken:
-# type: http
-# scheme: bearer
-# bearerFormat: JWT
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
+  /events/{id}/appliers:
+    put:
+      tags:
+        - Create/delete interester
+      summary: create or delete interester
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      security:
+        - BearerToken: [ ]
+      responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '404':
+          description: User or Event not exist
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                UserIsNotExist:
+                  value: User is not found
+                EventIsNotExist:
+                  value: Event is not found
+        '400':
+          description: Interester is author
+          content:
+            application/json:
+              schema:
+                example: Applier is event author
+        '200':
+          description: Successful created/updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                      success:
+                        type: boolean
 
   /interesters/{id}:
     get:
@@ -26,6 +71,12 @@ paths:
             type: string
           required: true
       responses:
+        '404':
+          description: Interester is not exist
+          content:
+            application/json:
+              schema:
+                example: Interester is not found
         '200':
           description: Successful displayed all interesters
           content:
@@ -46,77 +97,13 @@ paths:
                     created_at:
                       type: string
                       format: date-time
-                      nullable: true
                     updated_at:
                       type: string
                       format: date-time
-                      nullable: true
 
-    delete:
-      tags:
-        -  Delete interesters
-      summary: Delete interester
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
 
-      responses:
-        '200':
-          description: Successful deleted interester
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                    success:
-                      type: boolean
 
   /interesters:
-    post:
-      tags:
-        -  Create interesters
-      summary: Create interester
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                event_id:
-                  type: string
-                author_id:
-                  type: string
-
-
-      responses:
-        '200':
-          description: Successful created interester
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                    id:
-                      type: string
-                      format: uuid
-                    event_id:
-                      type: string
-                    author_id:
-                      type: string
-                      format: uuid
-
-                    created_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-                    updated_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-
     get:
       tags:
         - Interesters
@@ -149,11 +136,9 @@ paths:
                         created_at:
                           type: string
                           format: date-time
-                          nullable: true
                         updated_at:
                           type: string
                           format: date-time
-                          nullable: true
                   first_page_url:
                     type: string
                     example: http://localhost/api/interesters?page=1

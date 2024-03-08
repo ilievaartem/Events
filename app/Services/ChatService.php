@@ -25,23 +25,10 @@ class ChatService
     }
     public function show(string $id): ?array
     {
-        $show = $this->chatRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Chat is not found");
+        $this->checkIsExist($id);
+        return $this->chatRepository->show($id);
     }
-    public function create(string $topic, string $authorId, string $memberId, string $lastMessageText, string $lastMessageAuthorId): ?array
-    {
-        $chat = [
-            ChatDBConstants::TOPIC => $topic,
-            ChatDBConstants::AUTHOR_ID => $authorId,
-            ChatDBConstants::MEMBER_ID => $memberId,
-            ChatDBConstants::LAST_MESSAGE_TEXT => $lastMessageText,
-            ChatDBConstants::LAST_MESSAGE_AUTHOR_ID => $lastMessageAuthorId,
-        ];
-        return $this->chatRepository->create($chat);
-    }
+
     public function makeNewChat(
         string $authorId,
         string $eventId,
@@ -66,6 +53,7 @@ class ChatService
         string $lastMessageAuthorId,
         string $chatId
     ): bool {
+        $this->checkIsExist($chatId);
         $dataForUpdate = [
             ChatDBConstants::LAST_MESSAGE_TEXT => $lastMessageText,
             ChatDBConstants::LAST_MESSAGE_AUTHOR_ID => $lastMessageAuthorId,
@@ -78,7 +66,7 @@ class ChatService
     }
     public function checkIsChatExistById(string $chatId): bool
     {
-        return $this->chatRepository->checkIsChatExistById($chatId);
+        return $this->chatRepository->checkIsExist($chatId);
     }
     public function getChatId(string $eventId, string $authorId, string $memberId): ?string
     {
@@ -90,27 +78,27 @@ class ChatService
     }
     public function update(array $data, string $id): array
     {
+        $this->checkIsExist($id);
         $this->chatRepository->update($data, $id);
         return $this->chatRepository->show($id);
     }
     public function getChatAuthorByChatId(string $chatId): ?string
     {
+        $this->checkIsExist($chatId);
         return $this->chatRepository->getChatAuthorByChatId($chatId);
     }
     public function getChatMemberByChatId(string $chatId): ?string
     {
+        $this->checkIsExist($chatId);
         return $this->chatRepository->getChatMemberByChatId($chatId);
     }
     public function getChatWithAllMessages(string $chatId): array
     {
-        $getById = $this->checkIsChatExistById($chatId);
-        if ($getById != null) {
-            return $this->makeResponseForChatWithAllMessages(
-                $chatId,
-                $this->chatRepository->getChatWithAllMessages($chatId)
-            );
-        }
-        throw new NotFoundException("Chat is not found");
+        $this->checkIsExist($chatId);
+        return $this->makeResponseForChatWithAllMessages(
+            $chatId,
+            $this->chatRepository->getChatWithAllMessages($chatId)
+        );
     }
     public function getAllAuthorChat(string $authorId): ?array
     {
@@ -125,5 +113,12 @@ class ChatService
         $chatsWithMessages[ChatDBConstants::AUTHOR_ID] = $this->getChatAuthorByChatId($chatId);
         $chatsWithMessages[ChatDBConstants::MEMBER_ID] = $this->getChatMemberByChatId($chatId);
         return $chatsWithMessages;
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->chatRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Chat is not found");
+
+        }
     }
 }

@@ -10,7 +10,6 @@ use App\Repositories\Interfaces\ChatRepositoryInterface;
 
 class ChatRepository extends BaseRepository implements ChatRepositoryInterface
 {
-    private const PER_PAGE = 10;
     public function getChatAuthorByChatId(string $chatId): ?string
     {
         return $this->model->query()->where(ChatDBConstants::ID, $chatId)->first()->author_id;

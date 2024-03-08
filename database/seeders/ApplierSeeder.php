@@ -22,19 +22,13 @@ class ApplierSeeder extends Seeder
     {
 
         $appliers = [];
+        $eventsIds = Event::query()->select(EventDBConstants::ID)->get()->pluck(EventDBConstants::ID)->toArray();
+        $userIds = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
         for ($i = 0; $i < 100; $i++) {
             $appliers[] = [
                 ApplierDBConstants::ID => Uuid::uuid7()->toString(),
-                ApplierDBConstants::EVENT_ID => Arr::random(Event::query()
-                    ->select(EventDBConstants::ID)
-                    ->get()
-                    ->pluck(EventDBConstants::ID)
-                    ->toArray()),
-                ApplierDBConstants::AUTHOR_ID => Arr::random(User::query()
-                    ->select(UserDBConstants::ID)
-                    ->get()
-                    ->pluck(UserDBConstants::ID)
-                    ->toArray()),
+                ApplierDBConstants::EVENT_ID => Arr::random($eventsIds),
+                ApplierDBConstants::AUTHOR_ID => Arr::random($userIds),
             ];
         }
         Applier::insert($appliers);

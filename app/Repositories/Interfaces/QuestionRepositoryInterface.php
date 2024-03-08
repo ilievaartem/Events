@@ -2,19 +2,9 @@
 
 namespace App\Repositories\Interfaces;
 
-interface QuestionRepositoryInterface
+interface QuestionRepositoryInterface extends BaseRepositoryInterface
 {
-    public function index(): array;
+    public function getQuestionsByAuthorID(string $userId): array;
+    public function checkIsQuestionHasCurrentAuthorId(string $eventId, string $authorId): bool;
 
-    public function insert(array $data): bool;
-
-    public function create(array $data): array;
-
-
-    public function delete(string $id): bool;
-
-    public function update(array $data, string $id): bool;
-
-
-    public function show(int|string $id): ?array;
 }

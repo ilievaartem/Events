@@ -37,8 +37,6 @@ return new class extends Migration {
             $table->time(EventDBConstants::FINISH_TIME);
             $table->unsignedTinyInteger(EventDBConstants::AGE_FROM);
             $table->unsignedTinyInteger(EventDBConstants::AGE_TO);
-            $table->jsonb(EventDBConstants::CATEGORIES_IDS)->nullable();
-            $table->jsonb(EventDBConstants::TAGS_IDS)->nullable();
             $table->jsonb(EventDBConstants::APPLIERS)->nullable();
             $table->jsonb(EventDBConstants::INTERESTARS)->nullable();
             $table->float(EventDBConstants::RATING)->nullable();

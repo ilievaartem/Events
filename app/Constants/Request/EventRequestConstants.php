@@ -7,6 +7,7 @@ class EventRequestConstants
     public const ID = "id";
     public const TABLE = "products";
     public const TITLE = "title";
+    public const CITY = "city";
     public const PHRASE = "phrase";
     public const RATING = "rating";
     public const GEO_RADIUS = "geo_radius";

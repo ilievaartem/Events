@@ -2,32 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\DB\EventDBConstants;
 use App\DTO\Event\CreateEventDTO;
-use App\Http\Requests\EventCreateRequest;
 use App\Http\Requests\Events\EventFilterRequest;
-use App\Http\Requests\Events\EventUpdateRequest;
 use App\Constants\Request\EventRequestConstants;
-use App\DTO\Event\FilterEventDTO;
-use App\DTO\Photos\CreatePhotoDTO;
-use App\DTO\Photos\CreatePhotosDTO;
-use App\Factory\Event\DeleteMainPhotoEventDTOFactory;
+
 use App\Factory\Event\DeletePhotosEventDTOFactory;
 use App\Factory\Event\UploadPhotosEventDTOFactory;
 use App\Factory\Event\UploadPhotoEventDTOFactory;
-use App\Factory\FilterEventDTOFactory;
-use App\Http\Requests\Events\EventDeleteMainPhotoRequest;
+use App\Factory\Event\FilterEventDTOFactory;
+use App\Http\Requests\Events\EventCreateRequest;
 use App\Http\Requests\Events\EventDeletePhotosRequest;
 use App\Http\Requests\Events\EventUploadPhotosRequest;
-use App\Models\Event;
 use App\Services\AuthWrapperService;
 use Illuminate\Http\Request;
 use App\Services\EventService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Ramsey\Uuid\Uuid;
 
 class EventController extends Controller
 {
@@ -63,19 +52,16 @@ class EventController extends Controller
      *
      * @return JsonResponse
      */
-    public function create(Request $request): JsonResponse
+    public function create(EventCreateRequest $request): JsonResponse
     {
         $createEventDTO = new CreateEventDTO(
 
             title: $request->input(EventRequestConstants::TITLE),
-            // slug: $request->input(EventRequestConstants::SLUG),
             longitude: $request->input(EventRequestConstants::LONGITUDE),
             latitude: $request->input(EventRequestConstants::LATITUDE),
             additionalAuthors: $request->input(EventRequestConstants::ADDITIONAL_AUTHOR),
             description: $request->input(EventRequestConstants::DESCRIPTION),
             shortDescription: $request->input(EventRequestConstants::SHORT_DESCRIPTION),
-            mainPhoto: $request->input(EventRequestConstants::MAIN_PHOTO),
-            photos: $request->input(EventRequestConstants::PHOTOS),
             streetName: $request->input(EventRequestConstants::STREET_NAME),
             building: $request->input(EventRequestConstants::STREET_NAME),
             placeName: $request->input(EventRequestConstants::PLACE_NAME),
@@ -103,7 +89,6 @@ class EventController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         $title = $request->input(EventRequestConstants::TITLE);
-        $slug = $request->input(EventRequestConstants::SLUG);
         $longitude = $request->input(EventRequestConstants::LONGITUDE);
         $latitude = $request->input(EventRequestConstants::LATITUDE);
         $additional_author = $request->input(EventRequestConstants::ADDITIONAL_AUTHOR);
@@ -122,20 +107,15 @@ class EventController extends Controller
         $age_to = $request->input(EventRequestConstants::AGE_TO);
         $categories_ids = $request->input(EventRequestConstants::CATEGORIES_IDS);
         $tags_ids = $request->input(EventRequestConstants::TAGS_IDS);
-        $appliers = $request->input(EventRequestConstants::APPLIERS);
-        $interestars = $request->input(EventRequestConstants::INTERESTARS);
         $parent_id = $request->input(EventRequestConstants::PARENT_ID);
         $city_id = $request->input(EventRequestConstants::CITY_ID);
         $country_id = $request->input(EventRequestConstants::COUNTRY_ID);
         $event = [
             EventRequestConstants::TITLE => $title,
-            EventRequestConstants::SLUG => $slug,
             EventRequestConstants::LONGITUDE => $longitude,
             EventRequestConstants::LATITUDE => $latitude,
             EventRequestConstants::ADDITIONAL_AUTHOR => $additional_author,
             EventRequestConstants::DESCRIPTION => $description,
-                // EventRequestConstants::MAIN_PHOTO => $main_photo,
-                // EventRequestConstants::PHOTOS => $photos,
             EventRequestConstants::STREET_NAME => $street_name,
             EventRequestConstants::BUILDING => $building,
             EventRequestConstants::PLACE_NAME => $place_name,
@@ -150,20 +130,20 @@ class EventController extends Controller
             EventRequestConstants::AGE_TO => $age_to,
             EventRequestConstants::CATEGORIES_IDS => json_encode($categories_ids),
             EventRequestConstants::TAGS_IDS => json_encode($tags_ids),
-            EventRequestConstants::APPLIERS => $appliers,
-            EventRequestConstants::INTERESTARS => $interestars,
-                // EventRequestConstants::RATING => $rating,
             EventRequestConstants::PARENT_ID => $parent_id,
             EventRequestConstants::CITY_ID => $city_id,
             EventRequestConstants::COUNTRY_ID => $country_id,
         ];
         return response()->json($this->eventService->update($event, $id));
     }
+
     public function delete(string $id): JsonResponse
     {
         return response()->json(['success' => $this->eventService->delete($id)]);
-
-
+    }
+    public function similar(Request $request, string $id): JsonResponse
+    {
+        return response()->json($this->eventService->similar($id, $request->input(EventRequestConstants::CITY)));
     }
     public function show(string $id): JsonResponse
     {
@@ -201,17 +181,8 @@ class EventController extends Controller
             )
         );
     }
-    public function deleteMainPhoto(
-        EventDeleteMainPhotoRequest $request,
-        DeleteMainPhotoEventDTOFactory $deleteMainPhotoEventDTOFactory,
-        string $id
-    ): JsonResponse {
-        $deleteDTOPhotos = $deleteMainPhotoEventDTOFactory->make($request, $id);
-        return response()->json(
-            $this->eventService->deleteMainPhoto(
-                $id,
-                $deleteDTOPhotos
-            )
-        );
+    public function deleteMainPhoto(string $id): JsonResponse
+    {
+        return response()->json($this->eventService->deleteMainPhoto($id, ));
     }
 }

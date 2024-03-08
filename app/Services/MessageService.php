@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Constants\DB\MessageDBConstants;
 use App\Exceptions\BadRequestException;
+use App\Exceptions\ConflictException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\MessageRepositoryInterface;
 
@@ -27,17 +28,17 @@ class MessageService
     }
     public function show(string $id): ?array
     {
-        $show = $this->messageRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Message is not found");
+        $this->checkIsExist($id);
+        return $this->messageRepository->show($id);
     }
-    public function create(string $eventId, string $receiverId, string $responderId, string $text): array
+    private function checkIsReceiverEqualToResponder(string $receiverId, string $responderId): bool
     {
-
+        return $receiverId == $responderId ? true : false;
+    }
+    private function validateDataForCreate(string $eventId, string $receiverId, string $responderId): void
+    {
         if (
-            $receiverId == $responderId
+            $this->checkIsReceiverEqualToResponder($receiverId, $responderId)
         ) {
             throw new BadRequestException("Receiver is equal to the responder");
 
@@ -59,7 +60,12 @@ class MessageService
         ) {
             throw new NotFoundException("Event has not current authors");
         }
+    }
+    public function create(string $eventId, string $receiverId, string $responderId, string $text): array
+    {
 
+
+        $this->validateDataForCreate($eventId, $receiverId, $responderId);
         $chatAuthorId = $this->eventService->getAuthorIdByEventId($eventId);
         $chatAuthorId == $receiverId
             ? $chatMemberId = $responderId
@@ -108,9 +114,31 @@ class MessageService
     {
         return $this->messageRepository->delete($id);
     }
-    public function update(array $data, string $id): array
+    public function update(string $text, string $id): array
     {
-        $this->messageRepository->update($data, $id);
+        $this->checkIsExist($id);
+        $this->checkIsUpdateAvailable($id);
+        $this->messageRepository->update($this->formatForUpdate($text), $id);
         return $this->messageRepository->show($id);
+    }
+    private function formatForUpdate(string $text): array
+    {
+        return [
+            MessageDBConstants::TEXT => $text
+        ];
+    }
+    public function getMessageCreatedAt(string $id): string
+    {
+        return $this->messageRepository->getMessageCreatedAt($id);
+    }
+    private function checkIsUpdateAvailable(string $id): void
+    {
+        now()->diffInMinutes($this->getMessageCreatedAt($id)) < 3 ?: throw new ConflictException("Time for update run out");
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->messageRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Message is not found");
+        }
     }
 }

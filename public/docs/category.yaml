@@ -7,11 +7,12 @@ servers:
   - url: 'http://localhost/api'
     description: local
 
-# securitySchemes:
-# BearerToken:
-# type: http
-# scheme: bearer
-# bearerFormat: JWT
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
 
   /categories/{id}:
@@ -64,6 +65,8 @@ paths:
         required: true
 
       responses:
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
         '200':
           description: Successful deleted category
           content:
@@ -93,6 +96,33 @@ paths:
                   type: string
                   example: test Category
       responses:
+        '404':
+          description: Category is not exist
+          content:
+            application/json:
+              schema:
+                example: Category is not found
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                NameIsNotString:
+                  value:
+                    message: 'The name field must be a string.'
+                    error:
+                        name: 'The name field must be a string.'
+                NameIsNotPresent:
+                  value:
+                    message: 'The name field is required.'
+                    error:
+                        name: 'The name field is required.'
         '200':
           description: Successful updated category
           content:
@@ -138,6 +168,28 @@ paths:
 
 
       responses:
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                NameIsNotString:
+                  value:
+                    message: 'The name field must be a string.'
+                    error:
+                        name: 'The name field must be a string.'
+                NameIsNotPresent:
+                  value:
+                    message: 'The name field is required.'
+                    error:
+                        name: 'The name field is required.'
+
         '200':
           description: Successful created category
           content:

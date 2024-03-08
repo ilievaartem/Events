@@ -2,26 +2,13 @@
 
 namespace App\Repositories\Interfaces;
 
-interface UserRepositoryInterface
+interface UserRepositoryInterface extends BaseRepositoryInterface
 {
-    public function index(): array;
 
-    public function insert(array $data): bool;
-
-    public function create(array $data): array;
-
-
-    public function delete(string $id): bool;
-
-    public function update(array $data, int $id): bool;
 
     public function getPhotoPathById(string $id): ?string;
     public function updatePhoto(string $id, string $photoPath): bool;
-    public function checkIsUserExistByUserId(string $userId): bool;
-
-    public function show(int|string $id): ?array;
-    public function userEvents(string $id): ?array;
-
-
+    public function getBannedAtById(string $id): ?string;
+    public function updateBannedAt(string $id, array $bannedAt): bool;
     public function searchByName(string $name): ?int;
 }

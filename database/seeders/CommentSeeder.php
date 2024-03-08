@@ -23,19 +23,13 @@ class CommentSeeder extends Seeder
     {
 
         $comments = [];
+        $eventsIds = Event::query()->select(EventDBConstants::ID)->get()->pluck(EventDBConstants::ID)->toArray();
+        $userIds = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
         for ($i = 0; $i < 100; $i++) {
             $comments[] = [
                 CommentDBConstants::ID => Uuid::uuid7()->toString(),
-                CommentDBConstants::EVENT_ID => Arr::random(Event::query()
-                    ->select(EventDBConstants::ID)
-                    ->get()
-                    ->pluck(EventDBConstants::ID)
-                    ->toArray()),
-                CommentDBConstants::AUTHOR_ID => Arr::random(User::query()
-                    ->select(UserDBConstants::ID)
-                    ->get()
-                    ->pluck(UserDBConstants::ID)
-                    ->toArray()),
+                CommentDBConstants::EVENT_ID => Arr::random($eventsIds),
+                CommentDBConstants::AUTHOR_ID => Arr::random($userIds),
                 CommentDBConstants::CONTENT => fake()->sentence(),
             ];
         }

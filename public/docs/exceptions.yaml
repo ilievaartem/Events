@@ -1,0 +1,56 @@
+components:
+  responses:
+    userIsNotAuthorize:
+      content:
+          application/json:
+            schema:
+              example: User is not authorize
+    adminIsNotAuthorize:
+      content:
+          application/json:
+            schema:
+              example: Admin is not authorize
+    tokenTimeRunOut:
+      content:
+          application/json:
+            schema:
+              example: Token time is run out
+    appliers:
+      UserAndEventNotExist:
+          content:
+            application/json:
+              schema:
+              examples:
+                UserIsNotExist:
+                  value: User is not found
+                EventIsNotExist:
+                  value: Event is not found
+      ApplierIsAuthor:
+          content:
+            application/json:
+              schema:
+                example: Applier is event author
+      ApplierIsNotExist:
+          content:
+            application/json:
+              schema:
+                example: Applier is not found
+
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist
+        # EventIsNotExist:
+        #   description: Current user is not exist

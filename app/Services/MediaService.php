@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Constants\DB\MediaDBConstants;
+use App\Constants\File\PathsConstants;
+use App\DTO\Photos\CreatePhotosDTO;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\MediaRepositoryInterface;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
 
 class MediaService
 {
@@ -23,42 +26,57 @@ class MediaService
     }
     public function show(string $id): ?array
     {
-        $show = $this->mediaRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Media is not found");
+        $this->checkIsExist($id);
+        return $this->mediaRepository->show($id);
     }
-    public function create(string $commentId, string $photo, string $photoExtension): array
-    {
-        $photoPath = $this->photoService->makeMainPhotoDirectoryNameForMedia($commentId, $photoExtension);
-        $eventId = $this->commentService->getEventId($commentId);
-        $authorId = $this->commentService->getAuthorId($commentId);
-        $media = [
-            MediaDBConstants::PATH => $photoPath,
-            MediaDBConstants::TYPE => $photoExtension,
-            MediaDBConstants::EVENT_ID => $eventId,
-            MediaDBConstants::AUTHOR_ID => $authorId,
-            MediaDBConstants::COMMENT_ID => $commentId,
 
-        ];
-        $this->photoService->loadPhoto($photo, $photoPath);
-
-        return $this->mediaRepository->create($media);
-
-    }
     public function delete(string $id): bool
     {
-        return $this->mediaRepository->delete($id);
-    }
+        $this->checkIsExist($id);
+        $oldPath = $this->mediaRepository->getPhotoPathById($id);
+        $this->mediaRepository->delete($id);
+        return $this->photoService->deleteOldPhoto($oldPath);
 
-    public function updatePhoto(string $id, ?string $photo, string $photoExtension): array
+    }
+    public function getPhotosDTO(?array $files, string $id): array
     {
-        $alreadyExistedPhotosPaths = $this->mediaRepository->getPhotoPathById($id);
-        $photoPath = $this->photoService->makeMainPhotoDirectoryNameForMedia($id, $photoExtension);
-        $this->mediaRepository->updatePhoto($id, $photoPath, $photoExtension);
-        $this->photoService->loadPhoto($photo, $photoPath);
-        $this->photoService->deleteOldPhoto($alreadyExistedPhotosPaths);
-        return $this->mediaRepository->show($id);
+        return $this->photoService->makePhotosDTO($files, $id, PathsConstants::ENTITY_MEDIA);
+    }
+    public function getMediaByCommentId(string $commentId): ?array
+    {
+        $checkIsMediaExist = $this->mediaRepository->checkIsExistByCommentId($commentId);
+
+        if ($checkIsMediaExist == false) {
+            return null;
+        }
+        return $this->mediaRepository->getMediaByCommentId($commentId);
+    }
+    public function uploadPhotos(string $commentId, CreatePhotosDTO $photos): array
+    {
+        $this->formatForInsert($commentId, $photos);
+        $this->photoService->storagePhotos($this->photoService->getPhotosContentAndPath($photos));
+        return $this->getMediaByCommentId($commentId);
+    }
+    private function formatForInsert(string $commentId, CreatePhotosDTO $photos): void
+    {
+        $photoPaths = $this->photoService->getPhotosPaths($photos);
+        $eventId = $this->commentService->getEventId($commentId);
+        $authorId = $this->commentService->getAuthorId($commentId);
+        foreach ($photoPaths as $path) {
+            $media[] = [
+                MediaDBConstants::ID => Str::orderedUuid(),
+                MediaDBConstants::PATH => $path,
+                MediaDBConstants::EVENT_ID => $eventId,
+                MediaDBConstants::AUTHOR_ID => $authorId,
+                MediaDBConstants::COMMENT_ID => $commentId,
+            ];
+        }
+        $this->mediaRepository->insert($media);
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->mediaRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Media is not found");
+        }
     }
 }

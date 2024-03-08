@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Request\MessageRequestConstants;
+use App\Http\Requests\Messages\MessageCreateRequest;
+use App\Http\Requests\Messages\MessageUpdateRequest;
 use App\Services\AuthWrapperService;
 use App\Services\MessageService;
 use Illuminate\Http\JsonResponse;
@@ -23,16 +25,16 @@ class MessageController extends Controller
     {
         return response()->json($this->messageService->show($id));
     }
-    public function create(Request $request, string $eventId): JsonResponse
+    public function create(MessageCreateRequest $request, string $eventId): JsonResponse
     {
         $receiverId = $request->input(MessageRequestConstants::RECEIVER_ID);
         $responderId = $this->authWrapperService->getAuthIdentifier();
         $text = $request->input(MessageRequestConstants::TEXT);
         return response()->json($this->messageService->create($eventId, $receiverId, $responderId, $text));
     }
-    public function update(Request $request, string $id): JsonResponse
+    public function update(MessageUpdateRequest $request, string $id): JsonResponse
     {
-        return response()->json($this->messageService->update($request->all(), $id));
+        return response()->json($this->messageService->update($request->input(MessageRequestConstants::TEXT), $id));
     }
     public function delete(string $id): JsonResponse
     {

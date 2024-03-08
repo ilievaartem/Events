@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Constants\Request\UserRequestConstants;
+use App\Exceptions\ConflictException;
 use App\Services\Interfaces\AuthWrapperServiceInterface;
+use Exception;
 
 class AuthWrapperService implements AuthWrapperServiceInterface
 {
@@ -13,6 +15,9 @@ class AuthWrapperService implements AuthWrapperServiceInterface
     }
     public function getAuthIdentifier(): mixed
     {
+        if (auth()->user() === null) {
+            throw new ConflictException('Token time is run out');
+        }
         return auth()->user()->getAuthIdentifier();
     }
     public function makeAttempt(string $email, string $password): mixed

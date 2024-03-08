@@ -21,20 +21,14 @@ class ComplaintsSeeder extends Seeder
 
     public function run(): void
     {
+        $eventsIds = Event::query()->select(EventDBConstants::ID)->get()->pluck(EventDBConstants::ID)->toArray();
+        $userIds = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
         $complaints = [];
         for ($i = 0; $i < 10; $i++) {
             $complaints[] = [
                 ComplaintDBConstants::ID => Uuid::uuid7()->toString(),
-                ComplaintDBConstants::EVENT_ID => Arr::random(Event::query()
-                    ->select(EventDBConstants::ID)
-                    ->get()
-                    ->pluck(EventDBConstants::ID)
-                    ->toArray()),
-                ComplaintDBConstants::AUTHOR_ID => Arr::random(User::query()
-                    ->select(UserDBConstants::ID)
-                    ->get()
-                    ->pluck(UserDBConstants::ID)
-                    ->toArray()),
+                ComplaintDBConstants::EVENT_ID => Arr::random($eventsIds),
+                ComplaintDBConstants::AUTHOR_ID => Arr::random($userIds),
                 ComplaintDBConstants::RESOLVER_ID => null,
                 ComplaintDBConstants::ASSIGNEE => null,
                 ComplaintDBConstants::CAUSE_MESSAGE => fake()->sentence(),

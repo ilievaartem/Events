@@ -4,20 +4,7 @@ namespace App\Repositories\Interfaces;
 
 use App\DTO\Complaint\FilterComplaintDTO;
 
-interface ComplaintRepositoryInterface
+interface ComplaintRepositoryInterface extends BaseRepositoryInterface
 {
-    public function index(): array;
-
-    public function insert(array $data): bool;
-
-    public function create(array $data): array;
-
-
-    public function delete(string $id): bool;
-
-    public function update(array $data, string $id): bool;
-
-
-    public function show(int|string $id): ?array;
     public function filter(FilterComplaintDTO $filterComplaintDTO): ?array;
 }

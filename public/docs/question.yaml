@@ -7,11 +7,12 @@ servers:
   - url: 'http://localhost/api'
     description: local
 
-# securitySchemes:
-# BearerToken:
-# type: http
-# scheme: bearer
-# bearerFormat: JWT
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
 
   /questions/{id}:
@@ -26,6 +27,12 @@ paths:
             type: string
           required: true
       responses:
+        '404':
+          description: Question is not exist
+          content:
+            application/json:
+              schema:
+                example: Question is not found
         '200':
           description: Successful displayed all questions
           content:
@@ -66,8 +73,10 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
+      security:
+        - BearerToken: [ ]
       requestBody:
         content:
           application/json:
@@ -77,8 +86,31 @@ paths:
                 content:
                   type: string
       responses:
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                ContentIsNotString:
+                  value:
+                    message: 'The content field must be a string.'
+                    error:
+                        content: 'The content field must be a string.'
+                ContentIsNotPresent:
+                  value:
+                    message: 'The content field is required.'
+                    error:
+                        content: 'The content field is required.'
+        '404':
+          description: Question is not exist
+          content:
+            application/json:
+              schema:
+                example: Question is not found
         '200':
-          description: Successful updated city
+          description: Successful updated question
           content:
             application/json:
               schema:
@@ -118,8 +150,15 @@ paths:
         schema:
           type: string
         required: true
-
+      security:
+        - BearerToken: [ ]
       responses:
+        '404':
+          description: Question is not exist
+          content:
+            application/json:
+              schema:
+                example: Question is not found
         '200':
           description: Successful deleted question
           content:
@@ -129,27 +168,27 @@ paths:
                 properties:
                     success:
                       type: boolean
-
-  /questions:
+  /events/{id}/questions:
     post:
       tags:
         -  Create questions
       summary: Create question
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      security:
+        - BearerToken: [ ]
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-
                     content:
                       type: string
-                    event_id:
-                      type: string
-                      format: uuid
-                    author_id:
-                      type: string
-                      format: uuid
                     parent_id:
                       type: string
                       format: uuid
@@ -157,6 +196,41 @@ paths:
 
 
       responses:
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                ContentIsNotString:
+                  value:
+                    message: 'The content field must be a string.'
+                    error:
+                        content: 'The content field must be a string.'
+                ContentIsNotPresent:
+                  value:
+                    message: 'The content field is required.'
+                    error:
+                        content: 'The content field is required.'
+                ParentIdIsNotValidUUID:
+                  value:
+                    message: 'The parent id field must be a valid UUID.'
+                    error:
+                        parent_id: 'The parent id field must be a valid UUID.'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '404':
+          description: Author or Event not exist
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                UserIsNotExist:
+                  value: User is not found
+                EventIsNotExist:
+                  value: Event is not found
         '200':
           description: Successful created question
           content:
@@ -188,7 +262,7 @@ paths:
                       type: string
                       format: date-time
                       nullable: true
-
+  /questions:
     get:
       tags:
         - Questions

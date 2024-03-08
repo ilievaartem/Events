@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\CommentRepositoryInterface;
 use App\Constants\DB\CommentDBConstants;
+use App\Exceptions\AuthException;
 
 class CommentService
 {
@@ -21,12 +22,21 @@ class CommentService
         ];
         return $this->commentRepository->create($comment);
     }
+    public function checkIsAuthor(string $id, string $userId): void
+    {
+        $this->checkIsExist($id);
+        if ($this->commentRepository->checkIsExistCommentByAuthor($id, $userId) == false) {
+            throw new AuthException("Current user did not create that comment");
+        }
+    }
     public function getEventId(string $commentId): string
     {
+        $this->checkIsExist($commentId);
         return $this->commentRepository->getEventId($commentId);
     }
     public function getAuthorId(string $commentId): string
     {
+        $this->checkIsExist($commentId);
         return $this->commentRepository->getAuthorId($commentId);
     }
     public function index(): array
@@ -39,11 +49,10 @@ class CommentService
     }
     public function show(string $id): ?array
     {
-        $show = $this->commentRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Comment is not found");
+
+        $this->checkIsExist($id);
+
+        return $this->commentRepository->show($id);
     }
     public function delete(string $id): bool
     {
@@ -51,7 +60,20 @@ class CommentService
     }
     public function update(array $data, string $id): array
     {
+        $this->checkIsExist($id);
+
         $this->commentRepository->update($data, $id);
         return $this->commentRepository->show($id);
+    }
+    public function getCommentsByAuthorId(string $id): array
+    {
+        return $this->commentRepository->getCommentsByAuthorID($id);
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->commentRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Comment is not found");
+
+        }
     }
 }

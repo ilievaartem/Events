@@ -20,6 +20,7 @@ class TagService
     }
     public function update(array $data, int $id): array
     {
+        $this->checkIsExist($id);
         $this->tagRepository->update($data, $id);
         return $this->tagRepository->show($id);
     }
@@ -33,11 +34,14 @@ class TagService
     }
     public function show(int $id): ?array
     {
-        $show = $this->tagRepository->show($id);
-        if ($show != null) {
-            return $show;
+        $this->checkIsExist($id);
+        return $this->tagRepository->show($id);
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->tagRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Tag is not found");
         }
-        throw new NotFoundException("Tag is not found");
     }
 
 }

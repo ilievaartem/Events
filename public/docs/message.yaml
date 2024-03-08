@@ -1,0 +1,323 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'http://localhost/api'
+    description: local
+
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+
+  /messages/{id}:
+    get:
+      tags:
+        - Message
+      summary: Get current message
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '404':
+          description: Message is not exist
+          content:
+            application/json:
+              schema:
+                example: Message is not found
+        '200':
+          description: Successful displayed all messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: uuid
+
+                  text:
+                    type: string
+                    example: et
+                  author_id:
+                    type: string
+                    format: uuid
+                  chat_id:
+                    type: string
+                    format: uuid
+
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+
+
+    patch:
+      tags:
+        - Update message
+      summary: update current message
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      security:
+        - BearerToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: test Message
+      responses:
+        '404':
+          description: Message is not exist
+          content:
+            application/json:
+              schema:
+                example: Message is not found
+        '409':
+          description: time run out
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                TimeForUpdateRunOut:
+                  value: Time to update run out
+                TokenTimeRunOut:
+                  value: Token time is run out
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                TextIsNotString:
+                  value:
+                    message: 'The text field must be a string.'
+                    error:
+                        text: 'The text field must be a string.'
+                TextIsNotPresent:
+                  value:
+                    message: 'The text field is required.'
+                    error:
+                        text: 'The text field is required.'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '200':
+          description: Successful updated message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: uuid
+
+                  text:
+                    type: string
+                    example: et
+                  author_id:
+                    type: string
+                    format: uuid
+                  chat_id:
+                    type: string
+                    format: uuid
+
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+  /events/{id}/messages:
+    post:
+      tags:
+        -  Create message
+      summary: Create message
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: test Message
+                receiver_id:
+                  type: string
+                  format: uuid
+      security:
+        - BearerToken: [ ]
+      responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '404':
+          description: Receiver or Event not exist
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                ReceiverIsNotExist:
+                  value: Receiver does not found
+                EventIsNotExist:
+                  value: Event does not found
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                TextIsNotString:
+                  value:
+                    message: 'The text field must be a string.'
+                    error:
+                        text: 'The text field must be a string.'
+                TextIsNotPresent:
+                  value:
+                    message: 'The text field is required.'
+                    error:
+                        text: 'The text field is required.'
+                ReceiverIdIsNotValidUUID:
+                  value:
+                    message: 'The receiver id field must be a valid UUID.'
+                    error:
+                        text: 'The receiver id field must be a valid UUID.'
+                ReceiverIdIsNotPresent:
+                  value:
+                    message: 'The receiver id field is required.'
+                    error:
+                        text: 'The receiver id field is required.'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '200':
+          description: Successful created message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    chat_id:
+                      type: string
+                      format: uuid
+                    text:
+                      type: string
+                      example: eligendi
+
+  /messages:
+    get:
+      tags:
+        - Messages
+      summary: Get all messages
+      responses:
+        '200':
+          description: Successful displayed all messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    format: int32
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: uuid
+
+                        text:
+                          type: string
+                          example: et
+                        author_id:
+                          type: string
+                          format: uuid
+                        chat_id:
+                          type: string
+                          format: uuid
+
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+                  first_page_url:
+                    type: string
+                    example: http://localhost/api/messages?page=1
+                  from:
+                    type: integer
+                    format: int32
+                    example: 1
+                  last_page:
+                    type: integer
+                    format: int32
+                    example: 10
+                  last_page_url:
+                    type: string
+                    example: http://localhost/api/messages?page=10
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          format: nullable
+                        label:
+                          type: string
+                          example: &laquo; Previous
+                        active:
+                          type: boolean
+
+                  next_page_url:
+                    type: string
+                    example: http://localhost/api/messages?page=2
+                  path:
+                    type: string
+                    example: http://localhost/api/messages
+                  per_page:
+                    type: integer
+                    format: int32
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    format: nullable
+                  to:
+                    type: integer
+                    format: int32
+                    example: 10
+                  total:
+                    type: integer
+                    format: int32
+                    example: 99
+

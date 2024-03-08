@@ -21,11 +21,10 @@ class CountryService
     }
     public function show(int $id): ?array
     {
-        $show = $this->countyRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Country is not found");
+
+        $this->checkIsExist($id);
+
+        return $this->countyRepository->show($id);
     }
     public function create(array $data): array
     {
@@ -37,8 +36,17 @@ class CountryService
     }
     public function update(array $data, int $id): array
     {
+        $this->checkIsExist($id);
+
         $this->countyRepository->update($data, $id);
         return $this->countyRepository->show($id);
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->countyRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Country is not found");
+
+        }
     }
 
 }

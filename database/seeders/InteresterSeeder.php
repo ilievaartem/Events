@@ -20,20 +20,14 @@ class InteresterSeeder extends Seeder
      */
     public function run(): void
     {
+        $eventsIds = Event::query()->select(EventDBConstants::ID)->get()->pluck(EventDBConstants::ID)->toArray();
+        $userIds = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
         $interesters = [];
         for ($i = 0; $i < 100; $i++) {
             $interesters[] = [
                 InteresterDBConstants::ID => Uuid::uuid7()->toString(),
-                InteresterDBConstants::EVENT_ID => Arr::random(Event::query()
-                    ->select(EventDBConstants::ID)
-                    ->get()
-                    ->pluck(EventDBConstants::ID)
-                    ->toArray()),
-                InteresterDBConstants::AUTHOR_ID => Arr::random(User::query()
-                    ->select(UserDBConstants::ID)
-                    ->get()
-                    ->pluck(UserDBConstants::ID)
-                    ->toArray()),
+                InteresterDBConstants::EVENT_ID => Arr::random($eventsIds),
+                InteresterDBConstants::AUTHOR_ID => Arr::random($userIds),
             ];
         }
         Interester::insert($interesters);

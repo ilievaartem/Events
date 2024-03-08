@@ -2,18 +2,9 @@
 
 namespace App\Repositories\Interfaces;
 
-interface CityRepositoryInterface
+interface CityRepositoryInterface extends BaseRepositoryInterface
 {
-    public function index(): array;
+    public function getIdByName(string $name): int;
+    public function checkIsCityExistByName(string $name): bool;
 
-
-    public function create(array $data): array;
-
-
-    public function delete(int $id): bool;
-
-    public function update(array $data, int $id): bool;
-
-
-    public function show(int|string $id): ?array;
 }

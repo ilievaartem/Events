@@ -62,6 +62,9 @@ class Event extends Model
     protected $casts = [
         EventDBConstants::ID => 'string',
         EventDBConstants::PHOTOS => 'array',
+        EventDBConstants::CATEGORIES_IDS => 'array',
+        EventDBConstants::TAGS_IDS => 'array',
+
     ];
     public function toSearchableArray()
     {

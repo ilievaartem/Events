@@ -33,16 +33,19 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->renderable(function (AuthException $e) {
-            return response()->json($e->getMessage(), 400);
+            return response()->json($e->getMessage(), 401);
         });
         $this->renderable(function (NotFoundException $e) {
             return response()->json($e->getMessage(), 404);
         });
         $this->renderable(function (AlreadyExistException $e) {
-            return response()->json($e->getMessage(), 404);
+            return response()->json($e->getMessage());
         });
         $this->renderable(function (BadRequestException $e) {
-            return response()->json($e->getMessage(), 407);
+            return response()->json($e->getMessage(), 400);
+        });
+        $this->renderable(function (ConflictException $e) {
+            return response()->json($e->getMessage(), 409);
         });
 
     }

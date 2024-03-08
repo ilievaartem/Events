@@ -7,12 +7,45 @@ servers:
   - url: 'http://localhost/api'
     description: local
 
-# securitySchemes:
-# BearerToken:
-# type: http
-# scheme: bearer
-# bearerFormat: JWT
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
 paths:
+  /events/{id}/appliers:
+    put:
+      tags:
+        - Create/delete applier
+      summary: create or delete applier
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      security:
+        - BearerToken: [ ]
+      responses:
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '404':
+          $ref: 'exceptions.yaml#/components/responses/appliers/UserAndEventNotExist'
+        '400':
+          $ref: 'exceptions.yaml#/components/responses/appliers/ApplierIsAuthor'
+        '200':
+          description: Successful created/updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                      success:
+                        type: boolean
 
   /appliers/{id}:
     get:
@@ -26,6 +59,8 @@ paths:
             type: string
           required: true
       responses:
+        '404':
+          $ref: 'exceptions.yaml#/components/responses/appliers/ApplierIsNotExist'
         '200':
           description: Successful displayed all appliers
           content:
@@ -46,77 +81,11 @@ paths:
                     created_at:
                       type: string
                       format: date-time
-                      nullable: true
                     updated_at:
                       type: string
                       format: date-time
-                      nullable: true
-
-    delete:
-      tags:
-        -  Delete appliers
-      summary: Delete applier
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-
-      responses:
-        '200':
-          description: Successful deleted applier
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                    success:
-                      type: boolean
 
   /appliers:
-    post:
-      tags:
-        -  Create appliers
-      summary: Create applier
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                event_id:
-                  type: string
-                author_id:
-                  type: string
-
-
-      responses:
-        '200':
-          description: Successful created applier
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                    id:
-                      type: string
-                      format: uuid
-                    event_id:
-                      type: string
-                    author_id:
-                      type: string
-                      format: uuid
-
-                    created_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-                    updated_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-
     get:
       tags:
         - Appliers
@@ -149,11 +118,9 @@ paths:
                         created_at:
                           type: string
                           format: date-time
-                          nullable: true
                         updated_at:
                           type: string
                           format: date-time
-                          nullable: true
                   first_page_url:
                     type: string
                     example: http://localhost/api/appliers?page=1

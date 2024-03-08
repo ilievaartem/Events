@@ -28,7 +28,8 @@ class AuthController extends Controller
         $name = $request->input(UserRequestConstants::NAME);
         $email = $request->input(UserRequestConstants::EMAIL);
         $password = $request->input(UserRequestConstants::PASSWORD);
-        return response()->json($this->authService->register($name, $email, $password));
+        $telephone = $request->input(UserRequestConstants::TELEPHONE);
+        return response()->json($this->authService->register($name, $email, $telephone, $password));
 
 
     }

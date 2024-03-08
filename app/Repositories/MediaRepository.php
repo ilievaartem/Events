@@ -8,7 +8,16 @@ use App\Repositories\Interfaces\MediaRepositoryInterface;
 
 class MediaRepository extends BaseRepository implements MediaRepositoryInterface
 {
-    public function getPhotoPathById(string $id): ?string
+    public function getMediaByCommentId(string $commentId): array
+    {
+        return Media::query()->where(MediaDBConstants::COMMENT_ID, $commentId)->paginate(self::PER_PAGE)->toArray();
+    }
+
+    public function checkIsExistByCommentId(string $commentId): bool
+    {
+        return Media::query()->where(MediaDBConstants::COMMENT_ID, $commentId)->exists();
+    }
+    public function getPhotoPathById(string $id): string
     {
         return Media::query()->where(MediaDBConstants::ID, $id)->value(MediaDBConstants::PATH);
     }
@@ -19,8 +28,5 @@ class MediaRepository extends BaseRepository implements MediaRepositoryInterface
             MediaDBConstants::TYPE => $photoExtension
         ]);
     }
-    public function getPhotoTypeById(string $id): string
-    {
-        return Media::query()->select(MediaDBConstants::TYPE)->find($id);
-    }
+
 }

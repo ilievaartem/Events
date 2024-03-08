@@ -2,16 +2,20 @@
 
 namespace App\Services;
 
+use App\Constants\DB\CityDBConstants;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Constants\DB\EventConstants;
 use App\Constants\DB\EventDBConstants;
+use App\Constants\File\PathsConstants;
 use App\DTO\Event\CreateEventDTO;
 use App\DTO\Event\FilterEventDTO;
 use App\DTO\Photos\CreatePhotoDTO;
 use App\DTO\Photos\CreatePhotosDTO;
 use App\DTO\Photos\DeletePhotoDTO;
 use App\DTO\Photos\DeletePhotosDTO;
+use App\Exceptions\AuthException;
+use App\Models\Event;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Services\System\DataFormattersService;
 use Illuminate\Support\Str;
@@ -21,24 +25,19 @@ class EventService
     public function __construct(
         private EventRepositoryInterface $eventRepository,
         private PhotoService $photoService,
+        private CityService $cityService,
         private EventFilterRepositoryInterface $eventFilterRepository
     ) {
     }
     public function create(CreateEventDTO $createEventDTO): array
     {
-
-
-
-        return $this->eventRepository->create([
+        $event = $this->eventRepository->create([
             EventDBConstants::TITLE => $createEventDTO->getTitle(),
-                // EventDBConstants::SLUG => $createEventDTO->getSlug(),
             EventDBConstants::LONGITUDE => $createEventDTO->getLongitude(),
             EventDBConstants::LATITUDE => $createEventDTO->getLatitude(),
             EventDBConstants::ADDITIONAL_AUTHOR => $createEventDTO->getAdditionalAuthors(),
             EventDBConstants::DESCRIPTION => $createEventDTO->getDescription(),
             EventDBConstants::SHORT_DESCRIPTION => $createEventDTO->getShortDescription(),
-            EventDBConstants::MAIN_PHOTO => $createEventDTO->getMainPhoto(),
-            EventDBConstants::PHOTOS => $createEventDTO->getPhotos(),
             EventDBConstants::STREET_NAME => $createEventDTO->getStreetName(),
             EventDBConstants::BUILDING => $createEventDTO->getBuilding(),
             EventDBConstants::PLACE_NAME => $createEventDTO->getPlaceName(),
@@ -51,8 +50,6 @@ class EventService
             EventDBConstants::FINISH_TIME => $createEventDTO->getFinishTime(),
             EventDBConstants::AGE_FROM => $createEventDTO->getAgeFrom(),
             EventDBConstants::AGE_TO => $createEventDTO->getAgeTo(),
-            EventDBConstants::CATEGORIES_IDS => $createEventDTO->getCategoriesIds(),
-            EventDBConstants::TAGS_IDS => $createEventDTO->getTagsIds(),
             EventDBConstants::APPLIERS => $createEventDTO->getAppliers(),
             EventDBConstants::INTERESTARS => $createEventDTO->getInterestars(),
             EventDBConstants::RATING => $createEventDTO->getRating(),
@@ -61,6 +58,10 @@ class EventService
             EventDBConstants::CITY_ID => $createEventDTO->getCityId(),
             EventDBConstants::COUNTRY_ID => $createEventDTO->getCountryId(),
         ]);
+        $eventId = $event[EventDBConstants::ID];
+        $this->eventRepository->addTagsIds($eventId, $createEventDTO->getTagsIds());
+        $this->eventRepository->addCategoriesIds($eventId, $createEventDTO->getCategoriesIds());
+        return $event;
 
     }
     public function index(): array
@@ -71,21 +72,39 @@ class EventService
         }
         throw new NotFoundException("Events is not found");
     }
-    public function show(string $id): ?array
+    public function show(string $id): array
     {
-        $show = $this->eventRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Event is not found");
-
+        $this->checkIsExist($id);
+        return $this->eventRepository->show($id);
     }
     public function delete(string $id): bool
     {
         return $this->eventRepository->delete($id);
     }
+
+    private function formatEventForSimilar(string $id, ?string $city): array
+    {
+        $event = $this->eventRepository->getInfoForSimilar($id);
+        if ($city != null) {
+            $city = $this->cityService->getIdByName($city);
+        }
+        $event[EventDBConstants::CITY_ID] = $city;
+        return $event;
+
+    }
+    public function similar(string $id, ?string $city): array
+    {
+        $this->checkIsExist($id);
+        return $this->eventRepository->getSimilarEvents($this->formatEventForSimilar($id, $city));
+    }
+    public function getEventsByAuthorId(string $id): array
+    {
+        return $this->eventRepository->getEventsByAuthorID($id);
+    }
     public function update(array $data, string $id): array
     {
+        $this->checkIsExist($id);
+
         $this->eventRepository->update($data, $id);
         return $this->eventRepository->show($id);
     }
@@ -99,6 +118,7 @@ class EventService
     }
     public function deletePhotos(string $id, DeletePhotosDTO $photos): bool
     {
+
         $oldPhotosPaths = $this->eventRepository->getEventPhotosById($id);
         if ($oldPhotosPaths === null) {
             return true;
@@ -115,7 +135,7 @@ class EventService
         if ($oldMainPhotoPath === null) {
             return true;
         }
-        $this->eventRepository->updateMainPhoto($id, '');
+        $this->eventRepository->updateMainPhoto($id, null);
         return $this->photoService->deleteOldPhoto($oldMainPhotoPath);
     }
 
@@ -133,12 +153,16 @@ class EventService
 
     public function updatePhotos(string $id, ?CreatePhotoDTO $photo, ?CreatePhotosDTO $photos)
     {
+        $this->checkIsExist($id);
+
         $this->uploadMainPhoto($id, $photo);
         $this->uploadPhotos($id, $photos);
         return $this->eventRepository->show($id);
     }
     public function uploadMainPhoto(string $id, ?CreatePhotoDTO $photo): void
     {
+        $this->checkIsExist($id);
+
         if ($photo == null) {
             return;
         }
@@ -150,6 +174,8 @@ class EventService
     }
     public function uploadPhotos(string $id, ?CreatePhotosDTO $photos): void
     {
+        $this->checkIsExist($id);
+
         if ($photos == null) {
             return;
         }
@@ -165,13 +191,20 @@ class EventService
         $this->photoService->storagePhotos($photoContentAndPath);
 
     }
+    public function checkIsAuthor(string $id, string $userId): void
+    {
+        $this->checkIsExist($id);
+        if ($this->checkIsEventHasCurrentAuthorId($id, $userId) == false) {
+            throw new AuthException("Current user did not create that event");
+        }
+    }
     public function checkIsEventExistByEventId(string $eventId): bool
     {
-        return $this->eventRepository->checkIsEventExistByEventId($eventId);
+        return $this->eventRepository->checkIsExist($eventId);
     }
     public function checkIsEventDoesNotExistByEventId(string $eventId): bool
     {
-        return !$this->eventRepository->checkIsEventExistByEventId($eventId);
+        return !$this->eventRepository->checkIsExist($eventId);
     }
     public function checkIsEventHasCurrentAuthorId(string $eventId, string $authorId): bool
     {
@@ -183,29 +216,39 @@ class EventService
     }
     public function getTopicById(string $id): ?string
     {
+        $this->checkIsExist($id);
+
         return $this->eventRepository->getTopicById($id);
     }
     public function getAuthorIdByEventId(string $eventId): ?string
     {
+        $this->checkIsExist($eventId);
+
         return $this->eventRepository->getAuthorIdByEventId($eventId);
     }
-    public function getPhotoPathForDB(string $id, string $extension): ?string
+    public function getMainPhotoPathForDB(string $id, string $extension): ?string
     {
-        return $this->photoService->getMainPhotoPath($id, $extension);
+        $this->checkIsExist($id);
+
+        return $this->photoService->makePhotoDirectoryNameForEvent($id, $extension, PathsConstants::ENTITY_EVENT);
     }
 
-    public function getMakePhotosDTO(?array $files, string $id): array
+    public function getPhotosDTO(?array $files, string $id): array
     {
-        return $this->photoService->makePhotosDTO($files, $id);
+        $this->checkIsExist($id);
+        return $this->photoService->makePhotosDTO($files, $id, PathsConstants::ENTITY_EVENT);
     }
-    private function getUnionPhotos(?array $photos): ?array
-    {
-        return $this->photoService->unionPhotos($photos);
-    }
+
     public function getPhotoExtensionsForValidation(): string
     {
         return $this->photoService->makePhotoExtensionsForValidation();
     }
 
+    public function checkIsExist(string $id): void
+    {
+        if ($this->eventRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Event is not found");
 
+        }
+    }
 }

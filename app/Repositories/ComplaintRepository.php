@@ -9,7 +9,6 @@ use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 
 class ComplaintRepository extends BaseRepository implements ComplaintRepositoryInterface
 {
-    private const PER_PAGE = 10;
 
     public function filter(FilterComplaintDTO $filterComplaintDTO): ?array
     {

@@ -24,18 +24,17 @@ class CommentController extends Controller
         return response()->json($this->commentService->index());
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(Request $request, string $eventId): JsonResponse
     {
-        $eventId = $request->input(CommentRequestConstants::EVENT_ID);
         $authorId = $this->authWrapperService->getAuthIdentifier();
         $content = $request->input(CommentRequestConstants::CONTENT);
         return response()->json($this->commentService->create($eventId, $authorId, $content));
     }
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, string $id): JsonResponse
     {
         return response()->json($this->commentService->update($request->all(), $id));
     }
-    public function delete(int $id): JsonResponse
+    public function delete(string $id): JsonResponse
     {
         return response()->json($this->commentService->delete($id));
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Request\QuestionRequestConstants;
+use App\Http\Requests\Questions\QuestionsCreateRequest;
+use App\Http\Requests\Questions\QuestionsUpdateRequest;
 use App\Services\AuthWrapperService;
 use App\Services\QuestionService;
 use Illuminate\Http\JsonResponse;
@@ -24,15 +26,14 @@ class QuestionController extends Controller
     {
         return response()->json($this->questionService->show($id));
     }
-    public function create(Request $request): JsonResponse
+    public function create(QuestionsCreateRequest $request, string $eventId): JsonResponse
     {
-        $eventId = $request->input(QuestionRequestConstants::EVENT_ID);
         $parentId = $request->input(QuestionRequestConstants::PARENT_ID);
         $authorId = $this->authWrapperService->getAuthIdentifier();
         $content = $request->input(QuestionRequestConstants::CONTENT);
         return response()->json($this->questionService->create($eventId, $authorId, $parentId, $content));
     }
-    public function update(Request $request, string $id): JsonResponse
+    public function update(QuestionsUpdateRequest $request, string $id): JsonResponse
     {
         return response()->json($this->questionService->update($request->all(), $id));
     }

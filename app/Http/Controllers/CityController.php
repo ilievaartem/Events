@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Request\CityRequestConstants;
 use App\Services\CityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,10 +21,10 @@ class CityController extends Controller
     {
         return response()->json($this->cityService->show($id));
     }
-    public function create(Request $request): JsonResponse
+    public function create(Request $request, string $countryId): JsonResponse
     {
-
-        return response()->json($this->cityService->create($request->all()));
+        $name = $request->input(CityRequestConstants::NAME);
+        return response()->json($this->cityService->create($countryId, $name));
     }
     public function update(Request $request, int $id): JsonResponse
     {

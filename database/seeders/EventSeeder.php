@@ -31,10 +31,14 @@ class EventSeeder extends Seeder
 
     public function run(): void
     {
+        $allAuthors = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
+        $allCities = City::query()->select(CityDBConstants::ID)->get()->pluck(CityDBConstants::ID)->toArray();
+        $allCountries = Country::query()->select(CountryDBConstants::ID)->get()->pluck(CountryDBConstants::ID)->toArray();
         $events = [];
         for ($i = 0; $i < 10000; $i++) {
-            $allCategoryIds = Category::query()->select(CategoryDBConstants::ID)->get()->pluck(CategoryDBConstants::ID)->toArray();
-            $allTagIds = Tag::query()->select(TagDBConstants::ID)->get()->pluck(TagDBConstants::ID)->toArray();
+            $authors = Arr::random($allAuthors);
+            $cities = Arr::random($allCities);
+            $countries = Arr::random($allCountries);
             $events[] = [
                 EventDBConstants::ID => Uuid::uuid7()->toString(),
                 EventDBConstants::TITLE => fake()->title(),
@@ -58,24 +62,21 @@ class EventSeeder extends Seeder
                 EventDBConstants::FINISH_TIME => fake()->time(),
                 EventDBConstants::AGE_FROM => random_int(0, 18),
                 EventDBConstants::AGE_TO => random_int(40, 100),
-                EventDBConstants::CATEGORIES_IDS => json_encode(array_slice(shuffle($allCategoryIds) ? $allCategoryIds : array_reverse($allCategoryIds), 0, mt_rand(3, 5))),
-                EventDBConstants::TAGS_IDS => json_encode(array_slice(shuffle($allTagIds) ? $allTagIds : array_reverse($allTagIds), 0, mt_rand(3, 5))),
                 EventDBConstants::APPLIERS => null,
                 EventDBConstants::INTERESTARS => null,
                 EventDBConstants::RATING => null,
                 EventDBConstants::IS_ONLINE => null,
                 EventDBConstants::IS_OFFLINE => null,
-                EventDBConstants::AUTHOR_ID => Arr::random(User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray()),
+                EventDBConstants::AUTHOR_ID => $authors,
                 EventDBConstants::PARENT_ID => null,
-                EventDBConstants::CITY_ID => Arr::random(City::query()->select(CityDBConstants::ID)->get()->pluck(CityDBConstants::ID)->toArray()),
-                EventDBConstants::COUNTRY_ID => Arr::random(Country::query()->select(CountryDBConstants::ID)->get()->pluck(CountryDBConstants::ID)->toArray()),
+                EventDBConstants::CITY_ID => $cities,
+                EventDBConstants::COUNTRY_ID => $countries,
 
             ];
         }
         $res = array_chunk($events, 1000);
         foreach ($res as $event) {
             Event::insert($event);
-
         }
 
     }

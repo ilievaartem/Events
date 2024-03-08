@@ -68,7 +68,9 @@ class User extends Authenticatable implements JWTSubject
     }
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            $this->name
+        ];
     }
 
     public function events(): HasMany

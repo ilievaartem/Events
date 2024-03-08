@@ -7,11 +7,12 @@ servers:
   - url: 'http://localhost/api'
     description: local
 
-# securitySchemes:
-# BearerToken:
-# type: http
-# scheme: bearer
-# bearerFormat: JWT
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
 
   /countries/{id}:
@@ -26,6 +27,12 @@ paths:
             type: integer
           required: true
       responses:
+        '404':
+          description: country is not exist
+          content:
+            application/json:
+              schema:
+                example: country is not found
         '200':
           description: Successful displayed all countries
           content:
@@ -59,8 +66,19 @@ paths:
         schema:
           type: integer
         required: true
-
+      security:
+        - BearerToken: [ ]
       responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '404':
+          description: country is not exist
+          content:
+            application/json:
+              schema:
+                example: country is not found
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful deleted country
           content:
@@ -80,6 +98,8 @@ paths:
         schema:
           type: integer
         required: true
+      security:
+        - BearerToken: [ ]
       requestBody:
         content:
           application/json:
@@ -90,6 +110,33 @@ paths:
                   type: string
                   example: test Country
       responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                ContentIsNotString:
+                  value:
+                    message: 'The name field must be a string.'
+                    error:
+                        name: 'The name field must be a string.'
+                ContentIsNotPresent:
+                  value:
+                    message: 'The name field is required.'
+                    error:
+                        name: 'The name field is required.'
+        '404':
+          description: country is not exist
+          content:
+            application/json:
+              schema:
+                example: country is not found
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful updated country
           content:
@@ -117,6 +164,9 @@ paths:
       tags:
         -  Create countries
       summary: Create country
+
+      security:
+        - BearerToken: [ ]
       requestBody:
         content:
           application/json:
@@ -129,6 +179,27 @@ paths:
 
 
       responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                ContentIsNotString:
+                  value:
+                    message: 'The name field must be a string.'
+                    error:
+                        name: 'The name field must be a string.'
+                ContentIsNotPresent:
+                  value:
+                    message: 'The name field is required.'
+                    error:
+                        name: 'The name field is required.'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful created country
           content:

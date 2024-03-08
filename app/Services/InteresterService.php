@@ -3,13 +3,17 @@
 namespace App\Services;
 
 use App\Constants\DB\InteresterDBConstants;
+use App\Exceptions\BadRequestException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\InteresterRepositoryInterface;
 
 class InteresterService
 {
-    public function __construct(private InteresterRepositoryInterface $interesterRepository)
-    {
+    public function __construct(
+        private InteresterRepositoryInterface $interesterRepository,
+        private EventService $eventService,
+        private UserService $userService
+    ) {
 
     }
     public function index(): array
@@ -22,27 +26,43 @@ class InteresterService
     }
     public function show(string $id): ?array
     {
-        $show = $this->interesterRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Interester is not found");
+        $this->checkIsExist($id);
+        return $this->interesterRepository->show($id);
     }
-    public function create(string $eventId, string $authorId): array
+    public function formatForCreate(string $eventId, string $authorId): array
     {
-        $interester = [
+        return [
             InteresterDBConstants::EVENT_ID => $eventId,
             InteresterDBConstants::AUTHOR_ID => $authorId
         ];
-        return $this->interesterRepository->create($interester);
     }
-    public function delete(string $id): bool
+    public function checkIsInteresterExist(string $eventId, string $userId): bool
     {
-        return $this->interesterRepository->delete($id);
+        return $this->interesterRepository->checkIsInteresterExist($eventId, $userId);
     }
-    public function update(array $data, string $id): array
+    public function getIdByEventIdAndUserId(string $eventId, string $userId): string
     {
-        $this->interesterRepository->update($data, $id);
-        return $this->interesterRepository->show($id);
+        return $this->interesterRepository->getIdByEventIdAndUserId($eventId, $userId);
+    }
+    private function checkIsInteresterEventAuthor(string $eventId, string $applierId): void
+    {
+        if ($this->eventService->getAuthorIdByEventId($eventId) == $applierId) {
+            throw new BadRequestException("Interester is event author");
+        }
+    }
+    public function update(string $eventId, string $userId): bool|array
+    {
+        $this->userService->checkIsExist($userId);
+        $this->eventService->checkIsExist($eventId);
+        $this->checkIsInteresterEventAuthor($eventId, $userId);
+        return $this->checkIsInteresterExist($eventId, $userId) === false
+            ? $this->interesterRepository->create($this->formatForCreate($eventId, $userId))
+            : $this->interesterRepository->delete($this->interesterRepository->getIdByEventIdAndUserId($eventId, $userId));
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->interesterRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Interester is not found");
+        }
     }
 }

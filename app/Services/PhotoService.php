@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\File\PathsConstants;
 use App\Constants\Request\PhotoRequestConstants;
 use App\DTO\Photos\CreatePhotoDTO;
 use App\DTO\Photos\CreatePhotosDTO;
@@ -14,9 +15,9 @@ class PhotoService
     public function __construct(private PhotoRepositoryInterface $photoRepository)
     {
     }
-    public function makeMainPhotoDirectoryNameForEvent(string $id, string $photoExtension): string
+    public function makePhotoDirectoryNameForEvent(string $id, string $photoExtension, string $entityName): string
     {
-        return '/event/' . $id . '/photos/' . Str::random(8) . '.' . $photoExtension;
+        return $entityName . $id . PathsConstants::PHOTOS . Str::random(8) . '.' . $photoExtension;
     }
     public function makeMainPhotoDirectoryNameForUser(string $id, string $photoExtension): string
     {
@@ -31,7 +32,7 @@ class PhotoService
         return file_get_contents($photoPath->getCurrentPath());
     }
 
-    public function makePhotosDTO(?array $files, string $id): ?array
+    public function makePhotosDTO(?array $files, string $id, string $entityName): ?array
     {
         if ($files == null) {
             return null;
@@ -41,7 +42,7 @@ class PhotoService
             $formatPhotos[] = new CreatePhotoDTO(
                 $file->path(),
                 $file->extension(),
-                $this->getMainPhotoPath($id, $file->extension())
+                $this->makePhotoDirectoryNameForEvent($id, $file->extension(), $entityName)
             );
 
         }
@@ -86,22 +87,7 @@ class PhotoService
         }
         return $photosForStorage;
     }
-    public function makeMainPhotosDirectoryNameForEvent(string $id, ?array $photos): array
-    {
-        $photos_directory = [];
-        foreach ($photos as $photo) {
-            $photos_directory[] = $photo['path'];
-        }
-        return $photos_directory;
-    }
-    public function makeMainPhotosDirectoryNameForEventSuper(string $id, ?array $photos): array
-    {
-        $photos_directory = [];
-        foreach ($photos as $photo) {
-            $photos_directory[] = $this->makeMainPhotoDirectoryNameForEvent($id, $photo->getExtension());
-        }
-        return $photos_directory;
-    }
+
     public function storagePhoto(string $directory, string $photo): void
     {
         $this->photoRepository->savePhoto($directory, $photo);
@@ -113,12 +99,6 @@ class PhotoService
         }
     }
 
-    public function getMainPhotoPath(string $id, string $mainPhotoExtension): string
-    {
-        return $this->makeMainPhotoDirectoryNameForEvent($id, $mainPhotoExtension);
-
-    }
-
     public function getPhotosPaths(?CreatePhotosDTO $photos): array
     {
         $photos_directory = [];
@@ -128,13 +108,6 @@ class PhotoService
         return $photos_directory;
 
     }
-    // public function loadPhotos(?string $mainPhoto, ?string $mainPhotoPath, ?array $photos): void
-    // {
-
-    //     $this->storagePhoto($mainPhotoPath, $mainPhoto);
-    //     $this->storagePhotos($photos);
-
-    // }
 
     public function loadPhoto(string $photo, string $photoPath): void
     {

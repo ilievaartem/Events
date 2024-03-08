@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Request\MediaRequestConstants;
+use App\Factory\Media\UploadCommentMediaDTOFactory;
+use App\Http\Requests\Media\MediaCreateRequest;
 use App\Services\MediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,22 +23,23 @@ class MediaController extends Controller
     {
         return response()->json($this->mediaService->show($id));
     }
-    public function create(Request $request, string $commentId): JsonResponse
-    {
-        $photo = $request->file(MediaRequestConstants::PHOTO);
-        $photoExtension = $request->file(MediaRequestConstants::PHOTO)->extension();
-        return response()->json($this->mediaService->create($commentId, $photo, $photoExtension));
-    }
-    public function update(Request $request, string $id): JsonResponse
-    {
-        $photo = $request->file(MediaRequestConstants::PHOTO);
-        $photoExtension = $request->file(MediaRequestConstants::PHOTO)->extension();
-        return response()->json($this->mediaService->updatePhoto($id, $photo, $photoExtension));
-    }
+
     public function delete(string $id): JsonResponse
     {
         return response()->json(['success' => $this->mediaService->delete($id)]);
+    }
+    public function addPhotos(
+        MediaCreateRequest $request,
+        UploadCommentMediaDTOFactory $uploadCommentMediaDTOFactory,
+        string $id
+    ) {
+        $createDTOPhotos = $uploadCommentMediaDTOFactory->make($request, $id);
 
-
+        return response()->json(
+            $this->mediaService->uploadPhotos(
+                $id,
+                $createDTOPhotos
+            )
+        );
     }
 }

@@ -11,6 +11,7 @@ class UserDBConstants
     public const TELEPHONE = "telephone";
     public const AVATAR = "avatar";
     public const ROLE = "role";
+    public const BANNED_AT = "banned_at";
     public const ROLE_USER = "user";
     public const EMAIL_VERIFIED_AT = "email_verified_at";
 

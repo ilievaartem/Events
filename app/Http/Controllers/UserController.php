@@ -8,6 +8,8 @@ use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Constants\Request\UserRequestConstants;
+use App\Factory\User\UploadUserAvatarDTOFactory;
+use App\Http\Requests\Users\UserUploadAvatarRequest;
 use Ramsey\Uuid\Uuid;
 
 class UserController extends Controller
@@ -41,8 +43,10 @@ class UserController extends Controller
     public function delete(string $id): JsonResponse
     {
         return response()->json(['success' => $this->userService->delete($id)]);
-
-
+    }
+    public function banned(string $id): JsonResponse
+    {
+        return response()->json($this->userService->banned($id));
     }
     public function show(string $id): JsonResponse
     {
@@ -52,19 +56,30 @@ class UserController extends Controller
     {
         return response()->json($this->userService->userEvents($id));
     }
-    public function addPhoto(Request $request, string $id)
+    public function userQuestions(string $id): JsonResponse
     {
+        return response()->json($this->userService->userQuestions($id));
+    }
+    public function userComments(string $id): JsonResponse
+    {
+        return response()->json($this->userService->userComments($id));
+    }
+    public function addPhoto(
+        UserUploadAvatarRequest $request,
+        UploadUserAvatarDTOFactory $uploadUserAvatarDTOFactory,
+        string $id
+    ): JsonResponse {
+        $createDTOPhotos = $uploadUserAvatarDTOFactory->make($request, $id);
 
-
-        $photo = $request->file('photo');
-        $photoExtension = $request->file('photo')->extension();
         return response()->json(
-            $this->userService->updatePhotos(
+            $this->userService->uploadPhotos(
                 $id,
-                file_get_contents($photo),
-                $photoExtension
+                $createDTOPhotos
             )
         );
-
+    }
+    public function deletePhoto(string $id): JsonResponse
+    {
+        return response()->json(['success' => $this->userService->deletePhoto($id)]);
     }
 }

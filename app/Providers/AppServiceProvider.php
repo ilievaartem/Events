@@ -12,6 +12,7 @@ use App\Models\Complaint;
 use App\Models\Country;
 use App\Models\Manufacturer;
 use App\Models\Event;
+use App\Models\EventArchive;
 use App\Models\Interester;
 use App\Models\Media;
 use App\Models\Message;
@@ -26,6 +27,7 @@ use App\Repositories\ColorRepository;
 use App\Repositories\CommentRepository;
 use App\Repositories\ComplaintRepository;
 use App\Repositories\CountryRepository;
+use App\Repositories\EventArchiveRepository;
 use App\Repositories\EventFilterDBRepository;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Repositories\Interfaces\ColorRepositoryInterface;
@@ -42,6 +44,7 @@ use App\Repositories\Interfaces\ChatRepositoryInterface;
 use App\Repositories\Interfaces\CityRepositoryInterface;
 use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 use App\Repositories\Interfaces\CountryRepositoryInterface;
+use App\Repositories\Interfaces\EventArchiveRepositoryInterface;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Repositories\Interfaces\InteresterRepositoryInterface;
 use App\Repositories\Interfaces\MediaRepositoryInterface;
@@ -88,6 +91,9 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->bind(EventRepositoryInterface::class, function () {
             return new EventRepository(new Event());
+        });
+        $this->app->bind(EventArchiveRepositoryInterface::class, function () {
+            return new EventArchiveRepository(new EventArchive());
         });
         $this->app->bind(UserRepositoryInterface::class, function () {
             return new UserRepository(new User());

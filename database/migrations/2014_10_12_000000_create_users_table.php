@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string(UserDBConstants::NAME);
             $table->string(UserDBConstants::EMAIL)->unique();
             $table->string(UserDBConstants::ROLE)->default(UserDBConstants::ROLE_USER);
+            $table->dateTime(UserDBConstants::BANNED_AT)->nullable()->default(null);
             $table->string(UserDBConstants::TELEPHONE);
             $table->string(UserDBConstants::AVATAR)->nullable();
             $table->timestamp(UserDBConstants::EMAIL_VERIFIED_AT)->nullable();

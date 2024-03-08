@@ -2,12 +2,13 @@
 
 namespace App\Repositories;
 
+use App\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class BaseRepository
+abstract class BaseRepository implements BaseRepositoryInterface
 {
     protected $model;
-    private const PER_PAGE = 10;
+    public const PER_PAGE = 10;
 
     public function __construct(Model $model)
     {
@@ -30,13 +31,17 @@ abstract class BaseRepository
         $delete = $this->model->where('id', $id)->delete();
         return true;
     }
-    public function show(int|string $id): ?array
+    public function show(int|string $id): array
     {
         return $this->model->find($id)->toArray();
     }
     public function index(): array
     {
         return $this->model->paginate(self::PER_PAGE)->toArray();
+    }
+    public function checkIsExist(int|string $id): bool
+    {
+        return $this->model->where('id', $id)->exists();
     }
 
 }

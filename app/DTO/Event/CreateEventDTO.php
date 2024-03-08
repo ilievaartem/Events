@@ -6,22 +6,16 @@ use App\DTO\Contracts\DTOContract;
 
 class CreateEventDTO implements DTOContract
 {
-    private string $categoriesIdsStr;
     private ?string $additionalAuthorsStr;
-    private ?string $tagsIdsStr;
-    private ?string $photosStr;
     private ?string $appliersStr;
     private ?string $interestarsStr;
     public function __construct(
         private readonly string $title,
-        // private readonly string $slug,
         private readonly float $longitude,
         private readonly float $latitude,
         private readonly ?array $additionalAuthors,
         private readonly string $description,
         private readonly string $shortDescription,
-        private readonly ?string $mainPhoto,
-        private readonly ?array $photos,
         private readonly string $streetName,
         private readonly ?string $building,
         private readonly ?string $placeName,
@@ -44,10 +38,7 @@ class CreateEventDTO implements DTOContract
         private readonly int $cityId,
         private readonly int $countryId,
     ) {
-        $this->categoriesIdsStr = json_encode($categoriesIds);
         $this->additionalAuthorsStr = json_encode($additionalAuthors);
-        $this->photosStr = json_encode($photos);
-        $this->tagsIdsStr = json_encode($tagsIds);
         $this->appliersStr = json_encode($appliers);
         $this->interestarsStr = json_encode($interestars);
     }
@@ -56,10 +47,7 @@ class CreateEventDTO implements DTOContract
     {
         return $this->title;
     }
-    // public function getSlug(): string
-    // {
-    //     return $this->slug;
-    // }
+
     public function getAdditionalAuthors(): ?string
     {
         return $this->additionalAuthorsStr;
@@ -80,14 +68,7 @@ class CreateEventDTO implements DTOContract
     {
         return $this->shortDescription;
     }
-    public function getMainPhoto(): ?string
-    {
-        return $this->mainPhoto;
-    }
-    public function getPhotos(): ?string
-    {
-        return $this->photosStr;
-    }
+
     public function getStreetName(): string
     {
         return $this->streetName;
@@ -146,9 +127,10 @@ class CreateEventDTO implements DTOContract
     {
         return $this->ageTo;
     }
-    public function getTagsIds(): ?string
+
+    public function getTagsIds(): ?array
     {
-        return $this->tagsIdsStr;
+        return $this->tagsIds;
     }
     public function getAppliers(): ?string
     {
@@ -158,9 +140,9 @@ class CreateEventDTO implements DTOContract
     {
         return $this->interestarsStr;
     }
-    public function getCategoriesIds(): string
+    public function getCategoriesIds(): ?array
     {
-        return $this->categoriesIdsStr;
+        return $this->categoriesIds;
     }
     public function getRating(): ?float
     {

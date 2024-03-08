@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\DB\UserDBConstants;
 use App\Repositories\AuthRepository;
 use Illuminate\Support\Facades\Hash;
 use App\Exceptions\AuthException;
@@ -29,15 +30,16 @@ class AuthService
     {
         return $this->respondWithToken($token);
     }
-    public function register(string $username, string $email, string $password)
+    public function register(string $username, string $email, string $telephone, string $password)
     {
 
         if (!$this->authRepository->isUserExist($email)) {
             $user = [
-                UserRequestConstants::NAME => $username,
-                UserRequestConstants::EMAIL => $email,
-                UserRequestConstants::ROLE => UserRoleConstants::ROLE_USER,
-                UserRequestConstants::PASSWORD => $password,
+                UserDBConstants::NAME => $username,
+                UserDBConstants::EMAIL => $email,
+                UserDBConstants::TELEPHONE => $telephone,
+                UserDBConstants::ROLE => UserRoleConstants::ROLE_USER,
+                UserDBConstants::PASSWORD => $password,
             ];
             $this->authRepository->register($user);
             return $this->respondWithToken($this->authWrapperService->makeAttempt($email, $password));

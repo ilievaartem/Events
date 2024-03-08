@@ -7,11 +7,12 @@ servers:
   - url: 'http://localhost/api'
     description: local
 
-# securitySchemes:
-# BearerToken:
-# type: http
-# scheme: bearer
-# bearerFormat: JWT
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
 
   /cities/{id}:
@@ -26,6 +27,12 @@ paths:
             type: integer
           required: true
       responses:
+        '404':
+          description: City is not exist
+          content:
+            application/json:
+              schema:
+                example: City is not found
         '200':
           description: Successful displayed all cities
           content:
@@ -64,8 +71,20 @@ paths:
         schema:
           type: integer
         required: true
+      security:
+        - BearerToken: [ ]
 
       responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '404':
+          description: City is not exist
+          content:
+            application/json:
+              schema:
+                example: City is not found
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful deleted city
           content:
@@ -85,6 +104,8 @@ paths:
         schema:
           type: integer
         required: true
+      security:
+        - BearerToken: [ ]
       requestBody:
         content:
           application/json:
@@ -95,6 +116,33 @@ paths:
                   type: string
                   example: test City
       responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                NameIsNotString:
+                  value:
+                    message: 'The name field must be a string.'
+                    error:
+                        name: 'The name field must be a string.'
+                NameIsNotPresent:
+                  value:
+                    message: 'The name field is required.'
+                    error:
+                        name: 'The name field is required.'
+        '404':
+          description: City is not exist
+          content:
+            application/json:
+              schema:
+                example: City is not found
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful updated city
           content:
@@ -140,8 +188,40 @@ paths:
                   type: integer
                   example: 3
 
-
+      security:
+        - BearerToken: [ ]
       responses:
+        '409':
+          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '422':
+          description: Incorrect entering data
+          content:
+            application/json:
+              schema:
+               type: object
+              examples:
+                NameIsNotString:
+                  value:
+                    message: 'The name field must be a string.'
+                    error:
+                        name: 'The name field must be a string.'
+                NameIsNotPresent:
+                  value:
+                    message: 'The name field is required.'
+                    error:
+                        name: 'The name field is required.'
+                CountryIdIsNotValidUUID:
+                  value:
+                    message: 'The country id field must be a valid UUID.'
+                    error:
+                        country: 'The country id field must be a valid UUID.'
+                CountryIdIsNotPresent:
+                  value:
+                    message: 'The country id field is required.'
+                    error:
+                        country: 'The country id field is required.'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful created city
           content:

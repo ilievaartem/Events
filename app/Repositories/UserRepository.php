@@ -11,19 +11,24 @@ use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
-    private const PER_PAGE = 10;
 
     public function searchByName(?string $name): ?int
     {
         return User::where(UserDBConstants::NAME, $name)->find(UserDBConstants::ID);
     }
-    public function checkIsUserExistByUserId(string $userId): bool
+    public function updateBannedAt(string $id, array $bannedAt): bool
     {
-        return User::where(UserDBConstants::ID, $userId)->exists();
+        return User::query()->where(UserDBConstants::ID, $id)->update($bannedAt);
     }
-    public function getPhotoPathById(string $id): string
+
+
+    public function getPhotoPathById(string $id): ?string
     {
         return User::query()->where(UserDBConstants::ID, $id)->value(UserDBConstants::AVATAR);
+    }
+    public function getBannedAtById(string $id): ?string
+    {
+        return User::query()->where(UserDBConstants::ID, $id)->value(UserDBConstants::BANNED_AT);
     }
     public function updatePhoto(string $id, string $photoPath): bool
     {
@@ -31,11 +36,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             UserDBConstants::AVATAR => $photoPath,
         ]);
     }
-    public function userEvents(string $userId): array
-    {
 
-        return Event::where(EventDBConstants::AUTHOR_ID, $userId)->paginate(self::PER_PAGE)->toArray();
-
-    }
 
 }

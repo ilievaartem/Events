@@ -25,11 +25,8 @@ class CategoryService
     }
     public function show(int $id): ?array
     {
-        $show = $this->categoryRepository->show($id);
-        if ($show != null) {
-            return $show;
-        }
-        throw new NotFoundException("Category is not found");
+        $this->checkIsExist($id);
+        return $this->categoryRepository->show($id);
     }
     public function delete(int $id): bool
     {
@@ -37,7 +34,14 @@ class CategoryService
     }
     public function update(array $data, int $id): array
     {
+        $this->checkIsExist($id);
         $this->categoryRepository->update($data, $id);
         return $this->categoryRepository->show($id);
+    }
+    public function checkIsExist(string $id): void
+    {
+        if ($this->categoryRepository->checkIsExist($id) == false) {
+            throw new NotFoundException("Category is not found");
+        }
     }
 }

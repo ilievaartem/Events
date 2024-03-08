@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Factory;
+namespace App\Factory\Event;
 
 use App\Constants\Request\EventRequestConstants;
 use App\DTO\Event\FilterEventDTO;
-use App\Http\Requests\Events\EventFilterRequest;
 use Illuminate\Http\Request;
 
 class FilterEventDTOFactory
