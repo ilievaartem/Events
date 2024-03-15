@@ -72,8 +72,7 @@ class EventController extends Controller
             startTime: $request->input(EventRequestConstants::START_TIME),
             finishDate: $request->input(EventRequestConstants::FINISH_DATE),
             finishTime: $request->input(EventRequestConstants::FINISH_TIME),
-            ageFrom: $request->input(EventRequestConstants::AGE_FROM),
-            ageTo: $request->input(EventRequestConstants::AGE_TO),
+            age: $request->input(EventRequestConstants::AGE),
             categoriesIds: $request->input(EventRequestConstants::CATEGORIES_IDS),
             tagsIds: $request->input(EventRequestConstants::TAGS_IDS),
             appliers: $request->input(EventRequestConstants::APPLIERS),
@@ -103,8 +102,7 @@ class EventController extends Controller
         $start_time = $request->input(EventRequestConstants::START_TIME);
         $finish_date = $request->input(EventRequestConstants::FINISH_DATE);
         $finish_time = $request->input(EventRequestConstants::FINISH_TIME);
-        $age_from = $request->input(EventRequestConstants::AGE_FROM);
-        $age_to = $request->input(EventRequestConstants::AGE_TO);
+        $age = $request->input(EventRequestConstants::AGE);
         $categories_ids = $request->input(EventRequestConstants::CATEGORIES_IDS);
         $tags_ids = $request->input(EventRequestConstants::TAGS_IDS);
         $parent_id = $request->input(EventRequestConstants::PARENT_ID);
@@ -126,8 +124,7 @@ class EventController extends Controller
             EventRequestConstants::START_TIME => $start_time,
             EventRequestConstants::FINISH_DATE => $finish_date,
             EventRequestConstants::FINISH_TIME => $finish_time,
-            EventRequestConstants::AGE_FROM => $age_from,
-            EventRequestConstants::AGE_TO => $age_to,
+            EventRequestConstants::AGE => $age,
             EventRequestConstants::CATEGORIES_IDS => json_encode($categories_ids),
             EventRequestConstants::TAGS_IDS => json_encode($tags_ids),
             EventRequestConstants::PARENT_ID => $parent_id,
@@ -167,6 +164,10 @@ class EventController extends Controller
                 $createDTOPhotos,
             )
         );
+    }
+    public function getEventsByAuthorId(string $authorId): JsonResponse
+    {
+        return response()->json($this->eventService->getEventsByAuthorId($authorId));
     }
     public function deletePhotos(
         EventDeletePhotosRequest $request,

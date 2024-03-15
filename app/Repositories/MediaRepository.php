@@ -8,11 +8,19 @@ use App\Repositories\Interfaces\MediaRepositoryInterface;
 
 class MediaRepository extends BaseRepository implements MediaRepositoryInterface
 {
-    public function getMediaByCommentId(string $commentId): array
+    public function getCommentMedia(string $commentId): array
     {
-        return Media::query()->where(MediaDBConstants::COMMENT_ID, $commentId)->paginate(self::PER_PAGE)->toArray();
+        return Media::query()->where(MediaDBConstants::COMMENT_ID, $commentId)->cursorPaginate(self::PER_PAGE)->toArray();
     }
+    public function getEventMedia(string $eventId): array
+    {
+        return Media::query()->where(MediaDBConstants::EVENT_ID, $eventId)->cursorPaginate(self::PER_PAGE)->toArray();
+    }
+    public function checkIsExistMediaByAuthor(string $id, string $authorId): bool
+    {
+        return Media::query()->where(MediaDBConstants::ID, $id)->where(MediaDBConstants::AUTHOR_ID, $authorId)->exists();
 
+    }
     public function checkIsExistByCommentId(string $commentId): bool
     {
         return Media::query()->where(MediaDBConstants::COMMENT_ID, $commentId)->exists();

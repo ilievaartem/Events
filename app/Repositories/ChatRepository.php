@@ -7,9 +7,17 @@ use App\Constants\DB\MessageDBConstants;
 use App\Constants\DB\UserDBConstants;
 use App\Models\Event;
 use App\Repositories\Interfaces\ChatRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class ChatRepository extends BaseRepository implements ChatRepositoryInterface
 {
+
+    public function checkIsExistChatByMember(string $id, string $memberId): bool
+    {
+        return $this->model->query()->where(ChatDBConstants::ID, $id)->where(function (Builder $query) use ($memberId) {
+            return $query->where(ChatDBConstants::MEMBER_ID, $memberId)->orWhere(ChatDBConstants::AUTHOR_ID, $memberId);
+        })->exists();
+    }
     public function getChatAuthorByChatId(string $chatId): ?string
     {
         return $this->model->query()->where(ChatDBConstants::ID, $chatId)->first()->author_id;
@@ -46,10 +54,7 @@ class ChatRepository extends BaseRepository implements ChatRepositoryInterface
             ->orderBy(MessageDBConstants::TABLE . '.' . MessageDBConstants::CREATED_AT, 'asc')
             ->cursorPaginate(self::PER_PAGE)->toArray();
     }
-    public function checkIsChatExistById(string $chatId): bool
-    {
-        return $this->model->query()->where(ChatDBConstants::ID, $chatId)->exists();
-    }
+
     public function getChatId(string $eventId, string $authorId, string $memberId): ?string
     {
         return $this->model->query()->select(ChatDBConstants::ID)->where(ChatDBConstants::AUTHOR_ID, $authorId)
@@ -57,7 +62,7 @@ class ChatRepository extends BaseRepository implements ChatRepositoryInterface
             ->where(ChatDBConstants::EVENT_ID, $eventId)
             ->first()->id;
     }
-    public function checkIsChatExist(string $eventId, string $authorId, string $memberId): bool
+    public function isChatExistForMembers(string $eventId, string $authorId, string $memberId): bool
     {
         return $this->model->query()->where(ChatDBConstants::EVENT_ID, $eventId)
             ->where(ChatDBConstants::MEMBER_ID, $memberId)->where(ChatDBConstants::AUTHOR_ID, $authorId)->exists();

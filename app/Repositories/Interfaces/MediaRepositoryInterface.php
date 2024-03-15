@@ -6,8 +6,10 @@ interface MediaRepositoryInterface extends BaseRepositoryInterface
 {
 
     public function getPhotoPathById(string $id): string;
-    public function getMediaByCommentId(string $commentId): array;
     public function checkIsExistByCommentId(string $commentId): bool;
+    public function checkIsExistMediaByAuthor(string $id, string $authorId): bool;
+    public function getCommentMedia(string $commentId): array;
 
+    public function getEventMedia(string $eventId): array;
 
 }

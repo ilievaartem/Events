@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Constants\DB\InteresterDBConstants;
 use App\Exceptions\BadRequestException;
+use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\InteresterRepositoryInterface;
 
@@ -16,13 +17,15 @@ class InteresterService
     ) {
 
     }
-    public function index(): array
+    public function EventInteresters(string $eventId): array
     {
-        $index = $this->interesterRepository->index();
-        if ($index != null) {
-            return $index;
-        }
-        throw new NotFoundException("Interesters are not found");
+        $this->eventService->checkIsExist($eventId);
+        return $this->interesterRepository->EventInteresters($eventId);
+    }
+    public function interesterCount(string $eventId): int
+    {
+        $this->eventService->checkIsExist($eventId);
+        return $this->interesterRepository->interesterCount($eventId);
     }
     public function show(string $id): ?array
     {
@@ -47,10 +50,10 @@ class InteresterService
     private function checkIsInteresterEventAuthor(string $eventId, string $applierId): void
     {
         if ($this->eventService->getAuthorIdByEventId($eventId) == $applierId) {
-            throw new BadRequestException("Interester is event author");
+            throw new ForbiddenException("Interester is event author");
         }
     }
-    public function update(string $eventId, string $userId): bool|array
+    public function changeInteresterStatus(string $eventId, string $userId): bool|array
     {
         $this->userService->checkIsExist($userId);
         $this->eventService->checkIsExist($eventId);

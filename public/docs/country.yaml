@@ -69,8 +69,7 @@ paths:
       security:
         - BearerToken: [ ]
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '404':
           description: country is not exist
           content:
@@ -110,8 +109,7 @@ paths:
                   type: string
                   example: test Country
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '422':
           description: Incorrect entering data
           content:
@@ -179,8 +177,7 @@ paths:
 
 
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '422':
           description: Incorrect entering data
           content:

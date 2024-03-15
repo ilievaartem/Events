@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Request\CountryRequestConstants;
+use App\Http\Requests\Countries\CountryCreateRequest;
+use App\Http\Requests\Countries\CountryUpdateRequest;
 use App\Services\CountryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,9 +13,8 @@ class CountryController extends Controller
 {
     public function __construct(private CountryService $countryService)
     {
-        $this->countryService = $countryService;
     }
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         return response()->json($this->countryService->index());
     }
@@ -20,19 +22,16 @@ class CountryController extends Controller
     {
         return response()->json($this->countryService->show($id));
     }
-    public function create(Request $request): JsonResponse
+    public function create(CountryCreateRequest $request): JsonResponse
     {
-
-        return response()->json($this->countryService->create($request->all()));
+        return response()->json($this->countryService->create($request->insert(CountryRequestConstants::NAME)));
     }
-    public function update(Request $request, int $id): JsonResponse
+    public function update(CountryUpdateRequest $request, int $id): JsonResponse
     {
-        return response()->json($this->countryService->update($request->all(), $id));
+        return response()->json($this->countryService->update($request->insert(CountryRequestConstants::NAME), $id));
     }
     public function delete(int $id): JsonResponse
     {
         return response()->json(['success' => $this->countryService->delete($id)]);
-
-
     }
 }

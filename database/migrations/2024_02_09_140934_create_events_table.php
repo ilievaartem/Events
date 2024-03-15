@@ -35,8 +35,7 @@ return new class extends Migration {
             $table->time(EventDBConstants::START_TIME);
             $table->date(EventDBConstants::FINISH_DATE);
             $table->time(EventDBConstants::FINISH_TIME);
-            $table->unsignedTinyInteger(EventDBConstants::AGE_FROM);
-            $table->unsignedTinyInteger(EventDBConstants::AGE_TO);
+            $table->string(EventDBConstants::AGE);
             $table->jsonb(EventDBConstants::APPLIERS)->nullable();
             $table->jsonb(EventDBConstants::INTERESTARS)->nullable();
             $table->float(EventDBConstants::RATING)->nullable();
@@ -44,7 +43,6 @@ return new class extends Migration {
             $table->boolean(EventDBConstants::IS_OFFLINE)->nullable();
             $table->foreignUuid(EventDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(EventDBConstants::PARENT_ID)->nullable()->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
-            $table->foreignId(EventDBConstants::CITY_ID)->references(CityDBConstants::ID)->on(CityDBConstants::TABLE)->onDelete('cascade');
             $table->foreignId(EventDBConstants::COUNTRY_ID)->references(CountryDBConstants::ID)->on(CountryDBConstants::TABLE)->onDelete('cascade');
             $table->timestamps();
         });

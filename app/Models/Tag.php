@@ -13,6 +13,7 @@ class Tag extends Model
     protected $fillable = [
         TagDBConstants::NAME,
     ];
+    protected $hidden = ['pivot'];
 
     public function events(): BelongsToMany
     {

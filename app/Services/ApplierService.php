@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Constants\DB\ApplierDBConstants;
 use App\Exceptions\BadRequestException;
+use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\ApplierRepositoryInterface;
 
@@ -15,13 +16,15 @@ class ApplierService
         private UserService $userService
     ) {
     }
-    public function index(): array
+    public function EventAppliers(string $eventId): array
     {
-        $index = $this->applierRepository->index();
-        if ($index != null) {
-            return $index;
-        }
-        throw new NotFoundException("Appliers are not found");
+        $this->eventService->checkIsExist($eventId);
+        return $this->applierRepository->EventAppliers($eventId);
+    }
+    public function applierCount(string $eventId): int
+    {
+        $this->eventService->checkIsExist($eventId);
+        return $this->applierRepository->applierCount($eventId);
     }
     public function show(string $id): ?array
     {
@@ -46,10 +49,10 @@ class ApplierService
     private function checkIsApplierEventAuthor(string $eventId, string $applierId): void
     {
         if ($this->eventService->getAuthorIdByEventId($eventId) == $applierId) {
-            throw new BadRequestException("Applier is event author");
+            throw new ForbiddenException("Applier is event author");
         }
     }
-    public function update(string $eventId, string $userId): bool
+    public function changeApplierStatus(string $eventId, string $userId): bool
     {
         $this->userService->checkIsExist($userId);
         $this->eventService->checkIsExist($eventId);

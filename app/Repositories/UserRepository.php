@@ -11,7 +11,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
-
+    public function getUserBannedStatus(string $id): ?string
+    {
+        return User::query()->select([UserDBConstants::BANNED_AT])->find($id);
+    }
     public function searchByName(?string $name): ?int
     {
         return User::where(UserDBConstants::NAME, $name)->find(UserDBConstants::ID);

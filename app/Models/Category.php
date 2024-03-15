@@ -16,6 +16,7 @@ class Category extends Model
         CategoryDBConstants::NAME,
 
     ];
+    protected $hidden = ['pivot'];
 
     public function events(): BelongsToMany
     {

@@ -12,7 +12,6 @@ interface BaseRepositoryInterface
     public function update(array $data, int|string $id): bool;
 
     public function delete(int|string $id): bool;
-
     public function show(int|string $id): array;
 
     public function index(): array;

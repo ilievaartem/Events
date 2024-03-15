@@ -16,17 +16,21 @@ class InteresterController extends Controller
         private readonly AuthWrapperService $authWrapperService
     ) {
     }
-    public function index(Request $request): JsonResponse
+    public function EventInteresters(string $eventId): JsonResponse
     {
-        return response()->json($this->interesterService->index());
+        return response()->json($this->interesterService->EventInteresters($eventId));
     }
     public function show(string $id): JsonResponse
     {
         return response()->json($this->interesterService->show($id));
     }
-    public function update(Request $request, string $id): JsonResponse
+    public function interesterCount(string $eventId): JsonResponse
+    {
+        return response()->json(['Interesters' => $this->interesterService->interesterCount($eventId)]);
+    }
+    public function changeInteresterStatus(Request $request, string $id): JsonResponse
     {
         $authorId = $this->authWrapperService->getAuthIdentifier();
-        return response()->json($this->interesterService->update($id, $authorId));
+        return response()->json($this->interesterService->changeInteresterStatus($id, $authorId));
     }
 }

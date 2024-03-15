@@ -9,15 +9,11 @@ use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
-
     public function __construct(
         private ChatService $chatService,
         private readonly AuthWrapperService $authWrapperService
     ) {
-    }
-    public function index(Request $request): JsonResponse
-    {
-        return response()->json($this->chatService->index());
+
     }
     public function show(string $id): JsonResponse
     {

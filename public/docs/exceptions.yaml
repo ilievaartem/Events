@@ -1,22 +1,32 @@
 components:
   responses:
     userIsNotAuthorize:
+      description: User is not authorize
       content:
           application/json:
             schema:
               example: User is not authorize
     adminIsNotAuthorize:
+      description: Admin is not authorize
       content:
           application/json:
             schema:
               example: Admin is not authorize
-    tokenTimeRunOut:
+    userIsNotFound:
+      description:  User is not found
       content:
           application/json:
             schema:
-              example: Token time is run out
+              example:  User is not found
+    eventIsNotFound:
+      description:  Event is not found
+      content:
+          application/json:
+            schema:
+              example:  Event is not found
     appliers:
       UserAndEventNotExist:
+          description:  User or Event or both is not found
           content:
             application/json:
               schema:
@@ -26,31 +36,15 @@ components:
                 EventIsNotExist:
                   value: Event is not found
       ApplierIsAuthor:
+          description: Applier is event author
           content:
             application/json:
               schema:
                 example: Applier is event author
       ApplierIsNotExist:
+          description: Applier is not found
           content:
             application/json:
               schema:
                 example: Applier is not found
 
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist
-        # EventIsNotExist:
-        #   description: Current user is not exist

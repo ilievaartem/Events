@@ -23,7 +23,14 @@ class CommentController extends Controller
     {
         return response()->json($this->commentService->index());
     }
-
+    public function getCommentsByAuthorId(string $authorId): JsonResponse
+    {
+        return response()->json($this->commentService->getCommentsByAuthorId($authorId));
+    }
+    public function getEventComments(string $eventId): JsonResponse
+    {
+        return response()->json($this->commentService->getEventComments($eventId));
+    }
     public function create(Request $request, string $eventId): JsonResponse
     {
         $authorId = $this->authWrapperService->getAuthIdentifier();

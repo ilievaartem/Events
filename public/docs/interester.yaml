@@ -14,7 +14,30 @@ components:
       scheme: bearer
       bearerFormat: JWT
 paths:
-  /events/{id}/appliers:
+  /events/{id}/interesters/count:
+    get:
+      tags:
+        - interesters count
+      summary: interesters count
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      responses:
+        '404':
+          $ref: 'exceptions.yaml#/components/responses/eventIsNotFound'
+        '200':
+          description: Successful created/updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                      Appliers:
+                        type: integer
+  /events/{id}/interesters:
     put:
       tags:
         - Create/delete interester
@@ -28,8 +51,7 @@ paths:
       security:
         - BearerToken: [ ]
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '401':
           $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
         '404':
@@ -43,12 +65,12 @@ paths:
                   value: User is not found
                 EventIsNotExist:
                   value: Event is not found
-        '400':
-          description: Interester is author
+        '403':
+          description: Interester is event author
           content:
-            application/json:
-              schema:
-                example: Applier is event author
+              application/json:
+                schema:
+                  example: Interester is event author
         '200':
           description: Successful created/updated
           content:
@@ -70,7 +92,12 @@ paths:
           schema:
             type: string
           required: true
+      security:
+        - BearerToken: [ ]
       responses:
+
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '404':
           description: Interester is not exist
           content:
@@ -108,7 +135,12 @@ paths:
       tags:
         - Interesters
       summary: Get all interesters
+      security:
+        - BearerToken: [ ]
       responses:
+
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful displayed all interesters
           content:

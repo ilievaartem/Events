@@ -15,6 +15,7 @@ use App\DTO\Photos\CreatePhotosDTO;
 use App\DTO\Photos\DeletePhotoDTO;
 use App\DTO\Photos\DeletePhotosDTO;
 use App\Exceptions\AuthException;
+use App\Exceptions\ForbiddenException;
 use App\Models\Event;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Services\System\DataFormattersService;
@@ -22,10 +23,13 @@ use Illuminate\Support\Str;
 
 class EventService
 {
+    public const EVENTS_IDS = 'events_ids';
     public function __construct(
         private EventRepositoryInterface $eventRepository,
         private PhotoService $photoService,
-        private CityService $cityService,
+        private UserService $userService,
+        private EventTagService $eventTagService,
+        private CategoryEventService $categoryEventService,
         private EventFilterRepositoryInterface $eventFilterRepository
     ) {
     }
@@ -48,8 +52,7 @@ class EventService
             EventDBConstants::START_TIME => $createEventDTO->getStartTime(),
             EventDBConstants::FINISH_DATE => $createEventDTO->getFinishDate(),
             EventDBConstants::FINISH_TIME => $createEventDTO->getFinishTime(),
-            EventDBConstants::AGE_FROM => $createEventDTO->getAgeFrom(),
-            EventDBConstants::AGE_TO => $createEventDTO->getAgeTo(),
+            EventDBConstants::AGE => $createEventDTO->getAge(),
             EventDBConstants::APPLIERS => $createEventDTO->getAppliers(),
             EventDBConstants::INTERESTARS => $createEventDTO->getInterestars(),
             EventDBConstants::RATING => $createEventDTO->getRating(),
@@ -66,7 +69,7 @@ class EventService
     }
     public function index(): array
     {
-        $index = $this->eventRepository->index();
+        $index = $this->eventRepository->getEventsWithRelations();
         if ($index != null) {
             return $index;
         }
@@ -75,7 +78,7 @@ class EventService
     public function show(string $id): array
     {
         $this->checkIsExist($id);
-        return $this->eventRepository->show($id);
+        return $this->eventRepository->getEventWithRelations($id);
     }
     public function delete(string $id): bool
     {
@@ -85,11 +88,32 @@ class EventService
     private function formatEventForSimilar(string $id, ?string $city): array
     {
         $event = $this->eventRepository->getInfoForSimilar($id);
-        if ($city != null) {
-            $city = $this->cityService->getIdByName($city);
+        $tagsIds = [];
+        $categoriesIds = [];
+        $eventsByCategoriesFormatted = [];
+        $eventsByTagsFormatted = [];
+        foreach ($event['tags'] as $tag) {
+            $tagsIds[] = $tag['id'];
         }
-        $event[EventDBConstants::CITY_ID] = $city;
-        return $event;
+        foreach ($event['categories'] as $category) {
+            $categoriesIds[] = $category['id'];
+        }
+        $eventsIdByTags = $this->eventTagService->getEventsIdByTags($tagsIds);
+        foreach ($eventsIdByTags as $tag) {
+            $eventsByTagsFormatted[] = $tag['event_id'];
+        }
+        $eventsIdByCategories = $this->categoryEventService->getEventsIdByCategories($categoriesIds);
+        foreach ($eventsIdByCategories as $category) {
+            $eventsByCategoriesFormatted[] = $category['event_id'];
+        }
+
+        if ($city != null) {
+            // $city = $this->cityService->getIdByName($city);
+        }
+        return [
+            EventDBConstants::CITY_ID => $city,
+            self::EVENTS_IDS => array_unique(array_merge($eventsByTagsFormatted, $eventsByCategoriesFormatted)),
+        ];
 
     }
     public function similar(string $id, ?string $city): array
@@ -195,7 +219,14 @@ class EventService
     {
         $this->checkIsExist($id);
         if ($this->checkIsEventHasCurrentAuthorId($id, $userId) == false) {
-            throw new AuthException("Current user did not create that event");
+            throw new ForbiddenException("Current user do not create that event");
+        }
+    }
+    public function checkIsNotAuthor(string $id, string $userId): void
+    {
+        $this->checkIsExist($id);
+        if ($this->checkIsEventHasCurrentAuthorId($id, $userId) == true) {
+            throw new ForbiddenException("Current user create that event");
         }
     }
     public function checkIsEventExistByEventId(string $eventId): bool

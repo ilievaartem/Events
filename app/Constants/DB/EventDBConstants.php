@@ -21,8 +21,7 @@ class EventDBConstants
     public const START_TIME = "start_time";
     public const FINISH_DATE = "finish_date";
     public const FINISH_TIME = "finish_time";
-    public const AGE_FROM = "age_from";
-    public const AGE_TO = "age_to";
+    public const AGE = "age";
     public const APPLIERS = "appliers";
     public const INTERESTARS = "interestars";
     public const PARENT_ID = "parent_id";

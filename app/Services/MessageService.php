@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use App\Constants\DB\MessageDBConstants;
+use App\DTO\Message\CreateMessageDTO;
+use App\Exceptions\AuthException;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ConflictException;
+use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\MessageRepositoryInterface;
 
@@ -26,6 +29,13 @@ class MessageService
         }
         throw new NotFoundException("Messages are not found");
     }
+    public function checkIsAuthor(string $id, string $userId): void
+    {
+        $this->checkIsExist($id);
+        if ($this->messageRepository->checkIsExistMessageByAuthor($id, $userId) == false) {
+            throw new ForbiddenException("Current user did not create that message");
+        }
+    }
     public function show(string $id): ?array
     {
         $this->checkIsExist($id);
@@ -40,7 +50,7 @@ class MessageService
         if (
             $this->checkIsReceiverEqualToResponder($receiverId, $responderId)
         ) {
-            throw new BadRequestException("Receiver is equal to the responder");
+            throw new ForbiddenException("Receiver is equal to the responder");
 
         }
         if (
@@ -49,11 +59,7 @@ class MessageService
             throw new NotFoundException("Receiver does not found");
 
         }
-        if (
-            $this->eventService->checkIsEventDoesNotExistByEventId($eventId)
-        ) {
-            throw new NotFoundException("Event does not found");
-        }
+        $this->eventService->checkIsExist($eventId);
         if (
             $this->eventService->checkIsEventHasNotCurrentAuthorId($eventId, $receiverId)
             && $this->eventService->checkIsEventHasNotCurrentAuthorId($eventId, $responderId)
@@ -61,38 +67,33 @@ class MessageService
             throw new NotFoundException("Event has not current authors");
         }
     }
-    public function create(string $eventId, string $receiverId, string $responderId, string $text): array
+    public function create(CreateMessageDTO $message): array
     {
-
-
-        $this->validateDataForCreate($eventId, $receiverId, $responderId);
-        $chatAuthorId = $this->eventService->getAuthorIdByEventId($eventId);
-        $chatAuthorId == $receiverId
-            ? $chatMemberId = $responderId
-            : $chatMemberId = $receiverId;
-        $this->chatService->checkIsChatExist($eventId, $chatAuthorId, $chatMemberId)
-            ? $this->createNewMessage($chatMemberId, $chatAuthorId, $text, $eventId)
-            : $this->createNewChatAndMessage($chatMemberId, $chatAuthorId, $text, $eventId, $responderId);
+        $this->validateDataForCreate($message->getEventId(), $message->getReceiverId(), $message->getResponderId());
+        $chatAuthorId = $this->eventService->getAuthorIdByEventId($message->getEventId());
+        $chatAuthorId == $message->getReceiverId()
+            ? $chatMemberId = $message->getResponderId()
+            : $chatMemberId = $message->getReceiverId();
+        $this->chatService->isChatExistForMembers($message->getEventId(), $chatAuthorId, $chatMemberId)
+            ? $this->createNewMessage($chatMemberId, $chatAuthorId, $message->getText(), $message->getEventId(), $message->getResponderId())
+            : $this->createNewChatAndMessage($chatMemberId, $chatAuthorId, $message->getText(), $message->getEventId(), $message->getResponderId());
         return [
-            MessageDBConstants::CHAT_ID => $this->chatService->getChatId($eventId, $chatAuthorId, $chatMemberId),
-            MessageDBConstants::TEXT => $text,
+            MessageDBConstants::CHAT_ID => $this->chatService->getChatId($message->getEventId(), $chatAuthorId, $chatMemberId),
+            MessageDBConstants::TEXT => $message->getText(),
         ];
         ;
-
-
-
     }
-    public function makeNewMessage(string $memberId, string $authorId, string $text, string $eventId): array
+    public function makeNewMessage(string $memberId, string $authorId, string $text, string $eventId, string $responderId): array
     {
         return [
             MessageDBConstants::CHAT_ID => $this->chatService->getChatId($eventId, $authorId, $memberId),
-            MessageDBConstants::AUTHOR_ID => $memberId,
+            MessageDBConstants::AUTHOR_ID => $responderId,
             MessageDBConstants::TEXT => $text,
         ];
     }
-    public function createNewMessage(string $memberId, string $authorId, string $text, string $eventId): void
+    public function createNewMessage(string $memberId, string $authorId, string $text, string $eventId, string $responderId): void
     {
-        $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId));
+        $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId, $responderId));
         $this->chatService->updateLastMessageTextAndAuthor(
             $text,
             $authorId,
@@ -107,7 +108,7 @@ class MessageService
         string $lastMessageAuthorId
     ): void {
         $this->chatService->makeNewChat($authorId, $eventId, $memberId, $text, $lastMessageAuthorId);
-        $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId));
+        $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId, $lastMessageAuthorId));
 
     }
     public function delete(string $id): bool
@@ -127,13 +128,9 @@ class MessageService
             MessageDBConstants::TEXT => $text
         ];
     }
-    public function getMessageCreatedAt(string $id): string
-    {
-        return $this->messageRepository->getMessageCreatedAt($id);
-    }
     private function checkIsUpdateAvailable(string $id): void
     {
-        now()->diffInMinutes($this->getMessageCreatedAt($id)) < 3 ?: throw new ConflictException("Time for update run out");
+        now()->diffInMinutes($this->messageRepository->getMessageCreatedAt($id)) < 3 ?: throw new ConflictException("Time for update run out");
     }
     public function checkIsExist(string $id): void
     {

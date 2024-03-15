@@ -8,15 +8,13 @@ use Illuminate\Support\Facades\Hash;
 use App\Constants\DB\UserDBConstants;
 use App\DTO\Photos\CreatePhotoDTO;
 use App\DTO\Photos\CreatePhotosDTO;
+use App\Exceptions\ForbiddenException;
 
 class UserService
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private PhotoService $photoService,
-        private EventService $eventService,
-        private CommentService $commentService,
-        private QuestionService $questionService
     ) {
     }
     public function create(string $name, string $email, string $role, string $telephone, string $password): array
@@ -45,21 +43,6 @@ class UserService
         return $this->userRepository->show($id);
     }
 
-    public function userEvents(string $id): array
-    {
-        $this->checkIsExist($id);
-        return $this->eventService->getEventsByAuthorId($id);
-    }
-    public function userComments(string $id): array
-    {
-        $this->checkIsExist($id);
-        return $this->commentService->getCommentsByAuthorId($id);
-    }
-    public function userQuestions(string $id): array
-    {
-        $this->checkIsExist($id);
-        return $this->questionService->getQuestionsByAuthorId($id);
-    }
     public function getBannedAtById(string $id): ?string
     {
         return $this->userRepository->getBannedAtById($id);
@@ -135,6 +118,13 @@ class UserService
     {
         if ($this->userRepository->checkIsExist($id) == false) {
             throw new NotFoundException("User is not found");
+        }
+    }
+    public function checkIsUserBanned(string $id): void
+    {
+        dd($this->userRepository->getUserBannedStatus($id));
+        if ($this->userRepository->getUserBannedStatus($id) != null) {
+            throw new ForbiddenException("User is banned");
         }
     }
 }

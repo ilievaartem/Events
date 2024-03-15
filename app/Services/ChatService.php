@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Constants\DB\ChatDBConstants;
 use App\Constants\DB\MessageDBConstants;
+use App\Exceptions\AuthException;
+use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\ChatRepositoryInterface;
 
@@ -11,9 +13,17 @@ class ChatService
 {
     public function __construct(
         private ChatRepositoryInterface $chatRepository,
-        private EventService $eventService
+        private EventService $eventService,
+        private UserService $userService
     ) {
 
+    }
+    public function checkIsMember(string $id, string $userId): void
+    {
+        $this->checkIsExist($id);
+        if ($this->chatRepository->checkIsExistChatByMember($id, $userId) == false) {
+            throw new ForbiddenException("Current user did not chat member");
+        }
     }
     public function index(): array
     {
@@ -64,17 +74,13 @@ class ChatService
     {
         return $this->chatRepository->delete($id);
     }
-    public function checkIsChatExistById(string $chatId): bool
-    {
-        return $this->chatRepository->checkIsExist($chatId);
-    }
     public function getChatId(string $eventId, string $authorId, string $memberId): ?string
     {
         return $this->chatRepository->getChatId($eventId, $authorId, $memberId);
     }
-    public function checkIsChatExist(string $eventId, string $authorId, string $memberId): bool
+    public function isChatExistForMembers(string $eventId, string $authorId, string $memberId): bool
     {
-        return $this->chatRepository->checkIsChatExist($eventId, $authorId, $memberId);
+        return $this->chatRepository->isChatExistForMembers($eventId, $authorId, $memberId);
     }
     public function update(array $data, string $id): array
     {
@@ -102,10 +108,12 @@ class ChatService
     }
     public function getAllAuthorChat(string $authorId): ?array
     {
+        $this->userService->checkIsExist($authorId);
         return $this->chatRepository->getAllAuthorChat($authorId);
     }
     public function getAllMemberChat(string $memberId): ?array
     {
+        $this->userService->checkIsExist($memberId);
         return $this->chatRepository->getAllMemberChat($memberId);
     }
     private function makeResponseForChatWithAllMessages(string $chatId, array $chatsWithMessages): array
@@ -118,7 +126,6 @@ class ChatService
     {
         if ($this->chatRepository->checkIsExist($id) == false) {
             throw new NotFoundException("Chat is not found");
-
         }
     }
 }

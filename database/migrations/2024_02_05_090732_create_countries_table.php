@@ -13,7 +13,7 @@ return new class extends Migration {
     {
         Schema::create(CountryDBConstants::TABLE, function (Blueprint $table) {
             $table->id();
-            $table->string(CountryDBConstants::NAME);
+            $table->string(CountryDBConstants::NAME)->unique();
             $table->timestamps();
         });
     }

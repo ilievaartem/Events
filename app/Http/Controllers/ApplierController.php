@@ -17,18 +17,22 @@ class ApplierController extends Controller
         private readonly AuthWrapperService $authWrapperService
     ) {
     }
-    public function index(Request $request): JsonResponse
+    public function EventAppliers(string $eventId): JsonResponse
     {
-        return response()->json($this->applierService->index());
+        return response()->json($this->applierService->EventAppliers($eventId));
+    }
+    public function applierCount(string $eventId): JsonResponse
+    {
+        return response()->json(['Appliers' => $this->applierService->applierCount($eventId)]);
     }
     public function show(string $id): JsonResponse
     {
         return response()->json($this->applierService->show($id));
     }
-    public function update(Request $request, string $id): JsonResponse
+    public function changeApplierStatus(Request $request, string $id): JsonResponse
     {
         $authorId = $this->authWrapperService->getAuthIdentifier();
-        return response()->json(['success' => $this->applierService->update($id, $authorId)]);
+        return response()->json(['success' => $this->applierService->changeApplierStatus($id, $authorId)]);
     }
 
 }

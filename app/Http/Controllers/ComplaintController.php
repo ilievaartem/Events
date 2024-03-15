@@ -27,6 +27,14 @@ class ComplaintController extends Controller
     {
         return response()->json($this->complaintService->show($id));
     }
+    public function getReceiverComplaints(string $receiverId): JsonResponse
+    {
+        return response()->json($this->complaintService->getReceiverComplaints($receiverId));
+    }
+    public function getAuthorComplaints(string $authorId): JsonResponse
+    {
+        return response()->json($this->complaintService->getAuthorComplaints($authorId));
+    }
     public function read(string $id): JsonResponse
     {
         return response()->json($this->complaintService->read($id));

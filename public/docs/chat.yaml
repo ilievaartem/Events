@@ -22,8 +22,11 @@ paths:
       security:
         - BearerToken: [ ]
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '404':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotFound'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+
         '200':
           description: Successful displayed all author chats
           content:
@@ -87,8 +90,11 @@ paths:
       security:
         - BearerToken: [ ]
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+        '404':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotFound'
+
         '200':
           description: Successful displayed all member chats
           content:

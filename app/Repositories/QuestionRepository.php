@@ -8,9 +8,17 @@ use App\Repositories\Interfaces\QuestionRepositoryInterface;
 
 class QuestionRepository extends BaseRepository implements QuestionRepositoryInterface
 {
+    public function getQuestionCreatedAt(string $id): string
+    {
+        return Question::query()->where(QuestionDBConstants::ID, $id)->value(QuestionDBConstants::CREATED_AT);
+    }
     public function getQuestionsByAuthorID(string $userId): array
     {
-        return Question::where(QuestionDBConstants::AUTHOR_ID, $userId)->paginate(self::PER_PAGE)->toArray();
+        return Question::where(QuestionDBConstants::AUTHOR_ID, $userId)->cursorPaginate(self::PER_PAGE)->toArray();
+    }
+    public function getEventQuestions(string $eventId): array
+    {
+        return Question::where(QuestionDBConstants::EVENT_ID, $eventId)->cursorPaginate(self::PER_PAGE)->toArray();
     }
     public function checkIsQuestionHasCurrentAuthorId(string $eventId, string $authorId): bool
     {

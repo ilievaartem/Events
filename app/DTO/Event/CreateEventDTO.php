@@ -26,8 +26,7 @@ class CreateEventDTO implements DTOContract
         private readonly string $startTime,
         private readonly string $finishDate,
         private readonly string $finishTime,
-        private readonly int $ageFrom,
-        private readonly int $ageTo,
+        private readonly string $age,
         private readonly array $categoriesIds,
         private readonly ?array $tagsIds,
         private readonly ?array $appliers,
@@ -119,14 +118,11 @@ class CreateEventDTO implements DTOContract
     {
         return $this->finishTime;
     }
-    public function getAgeFrom(): int
+    public function getAge(): string
     {
-        return $this->ageFrom;
+        return $this->age;
     }
-    public function getAgeTo(): int
-    {
-        return $this->ageTo;
-    }
+
 
     public function getTagsIds(): ?array
     {

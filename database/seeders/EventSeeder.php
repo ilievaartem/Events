@@ -32,13 +32,13 @@ class EventSeeder extends Seeder
     public function run(): void
     {
         $allAuthors = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
-        $allCities = City::query()->select(CityDBConstants::ID)->get()->pluck(CityDBConstants::ID)->toArray();
         $allCountries = Country::query()->select(CountryDBConstants::ID)->get()->pluck(CountryDBConstants::ID)->toArray();
+        $ageTypes = ['kids', 'teens', 'any ages', 'adult'];
         $events = [];
         for ($i = 0; $i < 10000; $i++) {
             $authors = Arr::random($allAuthors);
-            $cities = Arr::random($allCities);
             $countries = Arr::random($allCountries);
+            $ageType = Arr::random($ageTypes);
             $events[] = [
                 EventDBConstants::ID => Uuid::uuid7()->toString(),
                 EventDBConstants::TITLE => fake()->title(),
@@ -60,8 +60,7 @@ class EventSeeder extends Seeder
                 EventDBConstants::START_TIME => fake()->time(),
                 EventDBConstants::FINISH_DATE => fake()->date(),
                 EventDBConstants::FINISH_TIME => fake()->time(),
-                EventDBConstants::AGE_FROM => random_int(0, 18),
-                EventDBConstants::AGE_TO => random_int(40, 100),
+                EventDBConstants::AGE => $ageType,
                 EventDBConstants::APPLIERS => null,
                 EventDBConstants::INTERESTARS => null,
                 EventDBConstants::RATING => null,
@@ -69,7 +68,6 @@ class EventSeeder extends Seeder
                 EventDBConstants::IS_OFFLINE => null,
                 EventDBConstants::AUTHOR_ID => $authors,
                 EventDBConstants::PARENT_ID => null,
-                EventDBConstants::CITY_ID => $cities,
                 EventDBConstants::COUNTRY_ID => $countries,
 
             ];

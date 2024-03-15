@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Constants\DB\MediaDBConstants;
 use App\Constants\File\PathsConstants;
 use App\DTO\Photos\CreatePhotosDTO;
+use App\Exceptions\AuthException;
+use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\MediaRepositoryInterface;
 use Ramsey\Uuid\Uuid;
@@ -12,9 +14,20 @@ use Illuminate\Support\Str;
 
 class MediaService
 {
-    public function __construct(private MediaRepositoryInterface $mediaRepository, private PhotoService $photoService, private CommentService $commentService)
-    {
+    public function __construct(
+        private MediaRepositoryInterface $mediaRepository,
+        private PhotoService $photoService,
+        private CommentService $commentService,
+        private EventService $eventService
+    ) {
 
+    }
+    public function checkIsAuthor(string $id, string $authorId): void
+    {
+        $this->checkIsExist($id);
+        if ($this->mediaRepository->checkIsExistMediaByAuthor($id, $authorId) == false) {
+            throw new ForbiddenException("Current user did not create there media");
+        }
     }
     public function index(): array
     {
@@ -24,44 +37,51 @@ class MediaService
         }
         throw new NotFoundException("Medias are not found");
     }
-    public function show(string $id): ?array
+    public function show(string $id): array
     {
         $this->checkIsExist($id);
         return $this->mediaRepository->show($id);
     }
+    public function getCommentMedia(string $commentId): array
+    {
+        $this->commentService->checkIsExist($commentId);
+        return $this->mediaRepository->getCommentMedia($commentId);
+    }
+    public function getEventMedia(string $eventId): array
+    {
+        $this->eventService->checkIsExist($eventId);
+        return $this->mediaRepository->getEventMedia($eventId);
+    }
 
     public function delete(string $id): bool
     {
-        $this->checkIsExist($id);
+        return $this->mediaRepository->checkIsExist($id)
+            ? $this->deleteIfMediaExist($id)
+            : true;
+    }
+    private function deleteIfMediaExist(string $id): bool
+    {
         $oldPath = $this->mediaRepository->getPhotoPathById($id);
         $this->mediaRepository->delete($id);
         return $this->photoService->deleteOldPhoto($oldPath);
+    }
+    public function getPhotosDTO(?array $files, string $eventId): array
+    {
+        $this->eventService->checkIsExist($eventId);
+        return $this->photoService->makePhotosDTO($files, $eventId, PathsConstants::ENTITY_MEDIA);
+    }
 
-    }
-    public function getPhotosDTO(?array $files, string $id): array
+    public function uploadPhotos(string $commentId, string $authorId, CreatePhotosDTO $photos): array
     {
-        return $this->photoService->makePhotosDTO($files, $id, PathsConstants::ENTITY_MEDIA);
-    }
-    public function getMediaByCommentId(string $commentId): ?array
-    {
-        $checkIsMediaExist = $this->mediaRepository->checkIsExistByCommentId($commentId);
-
-        if ($checkIsMediaExist == false) {
-            return null;
-        }
-        return $this->mediaRepository->getMediaByCommentId($commentId);
-    }
-    public function uploadPhotos(string $commentId, CreatePhotosDTO $photos): array
-    {
-        $this->formatForInsert($commentId, $photos);
+        $this->commentService->checkIsExist($commentId);
+        $this->mediaRepository->insert($this->formatForInsert($commentId, $authorId, $photos));
         $this->photoService->storagePhotos($this->photoService->getPhotosContentAndPath($photos));
-        return $this->getMediaByCommentId($commentId);
+        return $this->getCommentMedia($commentId);
     }
-    private function formatForInsert(string $commentId, CreatePhotosDTO $photos): void
+    private function formatForInsert(string $commentId, string $authorId, CreatePhotosDTO $photos): array
     {
         $photoPaths = $this->photoService->getPhotosPaths($photos);
         $eventId = $this->commentService->getEventId($commentId);
-        $authorId = $this->commentService->getAuthorId($commentId);
         foreach ($photoPaths as $path) {
             $media[] = [
                 MediaDBConstants::ID => Str::orderedUuid(),
@@ -71,7 +91,7 @@ class MediaService
                 MediaDBConstants::COMMENT_ID => $commentId,
             ];
         }
-        $this->mediaRepository->insert($media);
+        return $media;
     }
     public function checkIsExist(string $id): void
     {

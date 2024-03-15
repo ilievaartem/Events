@@ -9,7 +9,6 @@ class CategoryService
 {
     public function __construct(private CategoryRepositoryInterface $categoryRepository)
     {
-
     }
     public function create(array $data): array
     {

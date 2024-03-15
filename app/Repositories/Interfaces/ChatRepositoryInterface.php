@@ -11,9 +11,10 @@ interface ChatRepositoryInterface extends BaseRepositoryInterface
     public function getAllAuthorChat(string $authorId): ?array;
     public function getAllMemberChat(string $memberId): ?array;
 
+    public function checkIsExistChatByMember(string $id, string $authorId): bool;
 
 
-    public function checkIsChatExist(string $eventId, string $authorId, string $memberId): bool;
+    public function isChatExistForMembers(string $eventId, string $authorId, string $memberId): bool;
     public function getChatWithAllMessages(string $chatId): array;
 
     public function getChatId(string $eventId, string $authorId, string $memberId): ?string;

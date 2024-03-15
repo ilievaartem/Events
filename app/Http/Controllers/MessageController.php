@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Request\MessageRequestConstants;
+use App\Factory\Message\CreateMessageDTOFactory;
 use App\Http\Requests\Messages\MessageCreateRequest;
 use App\Http\Requests\Messages\MessageUpdateRequest;
 use App\Services\AuthWrapperService;
@@ -17,27 +18,22 @@ class MessageController extends Controller
         private readonly AuthWrapperService $authWrapperService
     ) {
     }
-    public function index(Request $request): JsonResponse
-    {
-        return response()->json($this->messageService->index());
-    }
+
     public function show(string $id): JsonResponse
     {
         return response()->json($this->messageService->show($id));
     }
-    public function create(MessageCreateRequest $request, string $eventId): JsonResponse
-    {
-        $receiverId = $request->input(MessageRequestConstants::RECEIVER_ID);
-        $responderId = $this->authWrapperService->getAuthIdentifier();
-        $text = $request->input(MessageRequestConstants::TEXT);
-        return response()->json($this->messageService->create($eventId, $receiverId, $responderId, $text));
+    public function create(
+        MessageCreateRequest $request,
+        CreateMessageDTOFactory $createMessageDTOFactory,
+        string $eventId
+    ): JsonResponse {
+        $createMessageDTO = $createMessageDTOFactory->make($request, $eventId, $$this->authWrapperService->getAuthIdentifier());
+        return response()->json($this->messageService->create($createMessageDTO));
     }
     public function update(MessageUpdateRequest $request, string $id): JsonResponse
     {
         return response()->json($this->messageService->update($request->input(MessageRequestConstants::TEXT), $id));
     }
-    public function delete(string $id): JsonResponse
-    {
-        return response()->json(['success' => $this->messageService->delete($id)]);
-    }
+
 }

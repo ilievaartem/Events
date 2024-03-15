@@ -83,10 +83,18 @@ paths:
             application/json:
               schema:
                 example: Media are not found
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '401':
-          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+          description:  User is not author or not authorize
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                userIsNotAuthorize:
+                  value: User is not authorize
+                userIsNotAuthor:
+                  value: User is not author
         '200':
           description: Successful deleted question
           content:
@@ -124,19 +132,22 @@ paths:
 
 
       responses:
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
         '404':
-          description: User or Event not exist
+          description: User or Event or Comment not exist
           content:
             application/json:
               schema:
                 type: string
               examples:
-                ReceiverIsNotExist:
+                UserIsNotExist:
                   value: User does not found
                 EventIsNotExist:
                   value: Event does not found
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+                CommentIsNotExist:
+                  value: Comment does not found
+
         '422':
           description: Incorrect media type
           content:

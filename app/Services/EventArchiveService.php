@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\DTO\Event\CreateEventDTO;
 use App\DTO\Photos\CreatePhotosDTO;
-use App\Exceptions\AlreadyExistException;
+use App\Exceptions\ConflictException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\EventArchiveRepositoryInterface;
 
@@ -55,7 +55,7 @@ class EventArchiveService
     public function checkIsNotExist(string $id): void
     {
         if ($this->eventArchiveRepositoryInterface->checkIsExist($id) == true) {
-            throw new AlreadyExistException("EventArchive is already exist");
+            throw new ConflictException("EventArchive is already exist");
         }
     }
 

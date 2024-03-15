@@ -16,9 +16,9 @@ class CountrySeeder extends Seeder
     {
 
         $countries = [];
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $countries[] = [
-                CountryDBConstants::NAME => fake()->country(),
+                CountryDBConstants::NAME => fake()->unique()->country(),
             ];
         }
         Country::insert($countries);

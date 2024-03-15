@@ -66,7 +66,7 @@ paths:
 
       responses:
         '401':
-          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful deleted category
           content:
@@ -103,9 +103,8 @@ paths:
               schema:
                 example: Category is not found
         '401':
-          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
+
         '422':
           description: Incorrect entering data
           content:
@@ -169,9 +168,8 @@ paths:
 
       responses:
         '401':
-          $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
+
         '422':
           description: Incorrect entering data
           content:

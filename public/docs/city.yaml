@@ -75,8 +75,7 @@ paths:
         - BearerToken: [ ]
 
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '404':
           description: City is not exist
           content:
@@ -116,8 +115,7 @@ paths:
                   type: string
                   example: test City
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '422':
           description: Incorrect entering data
           content:
@@ -191,8 +189,7 @@ paths:
       security:
         - BearerToken: [ ]
       responses:
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '422':
           description: Incorrect entering data
           content:

@@ -2,48 +2,50 @@
 
 namespace App\Services;
 
+use App\Constants\DB\CountryDBConstants;
+use App\Exceptions\ConflictException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\CountryRepositoryInterface;
 
 class CountryService
 {
-    public function __construct(private CountryRepositoryInterface $countyRepository)
+    public function __construct(private CountryRepositoryInterface $countryRepository)
     {
-        $this->countyRepository = $countyRepository;
     }
     public function index(): array
     {
-        $index = $this->countyRepository->index();
-        if ($index != null) {
-            return $index;
-        }
-        throw new NotFoundException("Countries are not found");
+        return $this->countryRepository->index();
     }
-    public function show(int $id): ?array
+    public function show(int $id): array
     {
-
         $this->checkIsExist($id);
-
-        return $this->countyRepository->show($id);
+        return $this->countryRepository->show($id);
     }
-    public function create(array $data): array
+    public function create(string $name): array
     {
-        return $this->countyRepository->create($data);
+        return $this->countryRepository->checkIsExistByName($name)
+            ? throw new ConflictException("Country already exist")
+            : $this->countryRepository->create($this->formatNameForDB($name));
     }
     public function delete(int $id): bool
     {
-        return $this->countyRepository->delete($id);
+        return $this->countryRepository->delete($id);
     }
-    public function update(array $data, int $id): array
+    private function formatNameForDB(string $name): array
+    {
+        return [CountryDBConstants::NAME => $name];
+    }
+    public function update(string $name, int $id): array
     {
         $this->checkIsExist($id);
-
-        $this->countyRepository->update($data, $id);
-        return $this->countyRepository->show($id);
+        $this->countryRepository->checkIsExistByName($name)
+            ? throw new ConflictException("Country already exist")
+            : $this->countryRepository->update($this->formatNameForDB($name), $id);
+        return $this->countryRepository->show($id);
     }
     public function checkIsExist(string $id): void
     {
-        if ($this->countyRepository->checkIsExist($id) == false) {
+        if ($this->countryRepository->checkIsExist($id) == false) {
             throw new NotFoundException("Country is not found");
 
         }

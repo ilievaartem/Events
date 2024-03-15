@@ -89,11 +89,8 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
             ->when($filterEventDTO->getFinishTimeMax() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::FINISH_TIME, '<', $filterEventDTO->getFinishTimeMax());
             })
-            ->when($filterEventDTO->getAgeFrom() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where(EventDBConstants::AGE_FROM, '>=', $filterEventDTO->getAgeFrom());
-            })
-            ->when($filterEventDTO->getAgeTo() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where(EventDBConstants::AGE_TO, '<=', $filterEventDTO->getAgeTo());
+            ->when($filterEventDTO->getAge() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::AGE, $filterEventDTO->getAge());
             })
             ->when($filterEventDTO->getAuthorId() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::AUTHOR_ID, $filterEventDTO->getAuthorId());

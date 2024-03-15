@@ -14,9 +14,9 @@ class Country extends Model
     protected $fillable = [
         CountryDBConstants::NAME,
     ];
-    public function cities(): HasMany
+    public function regions(): HasMany
     {
-        return $this->hasMany(City::class);
+        return $this->hasMany(Region::class);
     }
     public function events(): BelongsToMany
     {

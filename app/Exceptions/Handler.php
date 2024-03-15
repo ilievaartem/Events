@@ -19,33 +19,23 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     */
-    // public function render($request, Exception $exception)
-    // {
-    //     return response()->json([
-    //         'type' => get_class($exception),
-    //         'message' => $exception->getMessage()
-    //     ]);
-    // }
 
     public function register(): void
     {
         $this->renderable(function (AuthException $e) {
-            return response()->json($e->getMessage(), 401);
+            return response()->json(['error' => $e->getMessage()], 401);
         });
         $this->renderable(function (NotFoundException $e) {
-            return response()->json($e->getMessage(), 404);
-        });
-        $this->renderable(function (AlreadyExistException $e) {
-            return response()->json($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 404);
         });
         $this->renderable(function (BadRequestException $e) {
-            return response()->json($e->getMessage(), 400);
+            return response()->json(['error' => $e->getMessage()], 400);
         });
         $this->renderable(function (ConflictException $e) {
-            return response()->json($e->getMessage(), 409);
+            return response()->json(['error' => $e->getMessage()], 409);
+        });
+        $this->renderable(function (ForbiddenException $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
         });
 
     }

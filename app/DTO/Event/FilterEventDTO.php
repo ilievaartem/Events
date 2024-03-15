@@ -20,8 +20,7 @@ class FilterEventDTO implements DTOContract
         private readonly ?string $startTimeMax,
         private readonly ?string $finishTimeMin,
         private readonly ?string $finishTimeMax,
-        private readonly ?int $ageFrom,
-        private readonly ?int $ageTo,
+        private readonly ?string $age,
         private readonly ?float $ratingMin,
         private readonly ?float $ratingMax,
         private readonly ?string $authorId,
@@ -116,13 +115,9 @@ class FilterEventDTO implements DTOContract
     {
         return strtotime($this->finishTimeMax);
     }
-    public function getAgeFrom(): ?int
+    public function getAge(): ?string
     {
-        return $this->ageFrom;
-    }
-    public function getAgeTo(): ?int
-    {
-        return $this->ageTo;
+        return $this->age;
     }
 
     public function getRatingMin(): ?float

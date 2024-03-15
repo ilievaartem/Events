@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             TagSeeder::class,
             CountrySeeder::class,
-            CitySeeder::class,
+            GeoSeeder::class,
             EventSeeder::class,
             CommentSeeder::class,
             MediaSeeder::class,

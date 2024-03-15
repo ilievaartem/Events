@@ -11,6 +11,11 @@ use App\Constants\DB\EventDBConstants;
 
 class CommentRepository extends BaseRepository implements CommentRepositoryInterface
 {
+    public function getEventComments(string $eventId): array
+    {
+        return Comment::query()->where(CommentDBConstants::EVENT_ID, $eventId)->cursorPaginate(self::PER_PAGE)->toArray();
+    }
+
     public function getEventId(string $id): string
     {
         return Comment::query()->where(CommentDBConstants::ID, $id)->value(CommentDBConstants::EVENT_ID);

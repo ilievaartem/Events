@@ -52,18 +52,7 @@ class UserController extends Controller
     {
         return response()->json($this->userService->show($id));
     }
-    public function userEvents(string $id): JsonResponse
-    {
-        return response()->json($this->userService->userEvents($id));
-    }
-    public function userQuestions(string $id): JsonResponse
-    {
-        return response()->json($this->userService->userQuestions($id));
-    }
-    public function userComments(string $id): JsonResponse
-    {
-        return response()->json($this->userService->userComments($id));
-    }
+
     public function addPhoto(
         UserUploadAvatarRequest $request,
         UploadUserAvatarDTOFactory $uploadUserAvatarDTOFactory,

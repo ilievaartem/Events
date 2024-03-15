@@ -15,6 +15,29 @@ components:
       bearerFormat: JWT
 
 paths:
+  /events/{id}/appliers/count:
+    get:
+      tags:
+        - Applier count
+      summary: Applier count
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      responses:
+        '404':
+          $ref: 'exceptions.yaml#/components/responses/eventIsNotFound'
+        '200':
+          description: Successful created/updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                      Appliers:
+                        type: integer
   /events/{id}/appliers:
     put:
       tags:
@@ -29,10 +52,15 @@ paths:
       security:
         - BearerToken: [ ]
       responses:
+        '403':
+          description: Applier is event author
+          content:
+              application/json:
+                schema:
+                  example: Applier is event author
         '401':
           $ref: 'exceptions.yaml#/components/responses/userIsNotAuthorize'
-        '409':
-          $ref: 'exceptions.yaml#/components/responses/tokenTimeRunOut'
+
         '404':
           $ref: 'exceptions.yaml#/components/responses/appliers/UserAndEventNotExist'
         '400':
@@ -58,7 +86,12 @@ paths:
           schema:
             type: string
           required: true
+      security:
+        - BearerToken: [ ]
       responses:
+
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '404':
           $ref: 'exceptions.yaml#/components/responses/appliers/ApplierIsNotExist'
         '200':
@@ -90,7 +123,12 @@ paths:
       tags:
         - Appliers
       summary: Get all appliers
+      security:
+        - BearerToken: [ ]
       responses:
+
+        '401':
+          $ref: 'exceptions.yaml#/components/responses/adminIsNotAuthorize'
         '200':
           description: Successful displayed all appliers
           content:

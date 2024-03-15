@@ -2,12 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Constants\DB\CategoryDBConstants;
 use App\Models\Event;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Constants\DB\EventDBConstants;
 use App\Constants\DB\CommentDBConstants;
 use App\Constants\DB\ColorDBConstants;
 use App\Constants\DB\ManufacturerDBConstants;
+use App\Constants\DB\TagDBConstants;
 use App\DTO\Contracts\DTOContract;
 use App\DTO\Event\CreateEventDTO;
 use App\DTO\Event\FilterEventDTO;
@@ -15,6 +17,33 @@ use Illuminate\Database\Eloquent\Builder;
 
 class EventRepository extends BaseRepository implements EventRepositoryInterface
 {
+    public function getEventsWithRelations(): array
+    {
+        return $this->model->query()
+            ->with([
+                TagDBConstants::TABLE => function ($query) {
+                    $query->select(TagDBConstants::TABLE . '.' . TagDBConstants::ID, TagDBConstants::NAME);
+                },
+                CategoryDBConstants::TABLE => function ($query) {
+                    $query->select(CategoryDBConstants::TABLE . '.' . CategoryDBConstants::ID, CategoryDBConstants::NAME);
+                },
+            ])
+            ->paginate(self::PER_PAGE)->toArray();
+    }
+    public function getEventWithRelations(string $id): array
+    {
+        return $this->model->query()
+            ->with([
+                TagDBConstants::TABLE => function ($query) {
+                    $query->select(TagDBConstants::TABLE . '.' . TagDBConstants::ID, TagDBConstants::NAME);
+                },
+                CategoryDBConstants::TABLE => function ($query) {
+                    $query->select(CategoryDBConstants::TABLE . '.' . CategoryDBConstants::ID, CategoryDBConstants::NAME);
+                },
+            ])
+            ->find($id)->toArray();
+    }
+
     public function addTagsIds(string $id, array $tagsIds): void
     {
         Event::find($id)->tags()->sync($tagsIds);
@@ -25,34 +54,31 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
     }
     public function getInfoForSimilar(string $id): array
     {
-        return Event::query()
-            ->select([EventDBConstants::TAGS_IDS, EventDBConstants::CATEGORIES_IDS, EventDBConstants::CITY_ID])
-            ->find($id)
-            ->toArray();
+        return $this->model->query()->with(
+            [
+                TagDBConstants::TABLE => function ($query) {
+                    $query->select(TagDBConstants::TABLE . '.' . TagDBConstants::ID);
+                },
+                CategoryDBConstants::TABLE => function ($query) {
+                    $query->select(CategoryDBConstants::TABLE . '.' . CategoryDBConstants::ID);
+                },
+            ]
+        )
+
+            ->select([EventDBConstants::ID, EventDBConstants::CITY_ID])
+            ->find($id)->toArray();
     }
-    public function getSimilarEvents(array $event): array
+    public function getSimilarEvents(array $events): array
     {
         return Event::query()
             ->when(
-                $event[EventDBConstants::CATEGORIES_IDS] != null && $event[EventDBConstants::TAGS_IDS] != null,
-                function (Builder $query) use ($event) {
-                    return $query->where(function (Builder $query) use ($event) {
-                        $query
-                            ->when($event[EventDBConstants::CATEGORIES_IDS] != null, function (Builder $query) use ($event) {
-                                foreach ($event[EventDBConstants::CATEGORIES_IDS] as $category) {
-                                    $query->orWhereJsonContains(EventDBConstants::CATEGORIES_IDS, $category);
-                                }
-                            })
-                            ->when($event[EventDBConstants::CATEGORIES_IDS] != null, function (Builder $query) use ($event) {
-                                foreach ($event[EventDBConstants::TAGS_IDS] as $tag) {
-                                    $query->orWhereJsonContains(EventDBConstants::TAGS_IDS, $tag);
-                                }
-                            });
-                    });
+                $events['events_ids'] != null,
+                function (Builder $query) use ($events) {
+                    return $query->whereIn(EventDBConstants::ID, $events['events_ids']);
                 }
             )
-            ->when($event[EventDBConstants::CITY_ID] != null, function (Builder $query) use ($event) {
-                return $query->where(EventDBConstants::CITY_ID, $event[EventDBConstants::CITY_ID]);
+            ->when($events[EventDBConstants::CITY_ID] != null, function (Builder $query) use ($events) {
+                return $query->where(EventDBConstants::CITY_ID, $events[EventDBConstants::CITY_ID]);
             })
             ->paginate(self::PER_PAGE)
             ->toArray();

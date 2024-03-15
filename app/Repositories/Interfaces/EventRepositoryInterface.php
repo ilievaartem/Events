@@ -9,11 +9,13 @@ interface EventRepositoryInterface extends BaseRepositoryInterface
 
     public function checkIsEventHasCurrentAuthorId(string $eventId, string $authorId): bool;
     public function getAuthorIdByEventId(string $eventId): ?string;
-    public function getSimilarEvents(array $event): array;
+    public function getSimilarEvents(array $events): array;
     public function getInfoForSimilar(string $id): array;
     public function addTagsIds(string $id, array $tagsIds): void;
     public function getTopicById(string $id): ?string;
     public function getEventsByAuthorID(string $userId): array;
+    public function getEventWithRelations(string $eventId): array;
+    public function getEventsWithRelations(): array;
     public function addCategoriesIds(string $id, array $categoriesIds): void;
 
     public function updatePhotos(string $id, array $photosPaths): bool;

@@ -25,6 +25,10 @@ class EventArchiveController extends Controller
     {
         return response()->json($this->eventArchiveService->archive($eventId));
     }
+    public function showUserEventArchives(string $userId): JsonResponse
+    {
+        return response()->json($this->eventArchiveService->showUserEventArchives($userId));
+    }
     public function unarchive(EventCreateRequest $request, string $id): JsonResponse
     {
         $createEventDTO = new CreateEventDTO(
@@ -35,8 +39,6 @@ class EventArchiveController extends Controller
             additionalAuthors: $request->input(EventRequestConstants::ADDITIONAL_AUTHOR),
             description: $request->input(EventRequestConstants::DESCRIPTION),
             shortDescription: $request->input(EventRequestConstants::SHORT_DESCRIPTION),
-            mainPhoto: $request->input(EventRequestConstants::MAIN_PHOTO),
-            photos: $request->input(EventRequestConstants::PHOTOS),
             streetName: $request->input(EventRequestConstants::STREET_NAME),
             building: $request->input(EventRequestConstants::STREET_NAME),
             placeName: $request->input(EventRequestConstants::PLACE_NAME),
@@ -47,8 +49,7 @@ class EventArchiveController extends Controller
             startTime: $request->input(EventRequestConstants::START_TIME),
             finishDate: $request->input(EventRequestConstants::FINISH_DATE),
             finishTime: $request->input(EventRequestConstants::FINISH_TIME),
-            ageFrom: $request->input(EventRequestConstants::AGE_FROM),
-            ageTo: $request->input(EventRequestConstants::AGE_TO),
+            age: $request->input(EventRequestConstants::AGE),
             categoriesIds: $request->input(EventRequestConstants::CATEGORIES_IDS),
             tagsIds: $request->input(EventRequestConstants::TAGS_IDS),
             appliers: $request->input(EventRequestConstants::APPLIERS),

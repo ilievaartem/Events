@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Exceptions\AuthException;
 use App\Constants\Request\UserRequestConstants;
 use App\Constants\Role\UserRoleConstants;
-
-
+use App\Exceptions\ForbiddenException;
 
 class AuthService
 {
@@ -45,7 +44,7 @@ class AuthService
             return $this->respondWithToken($this->authWrapperService->makeAttempt($email, $password));
 
         }
-        throw new AuthException("User is already registered ");
+        throw new ForbiddenException("User is already registered ");
 
     }
 

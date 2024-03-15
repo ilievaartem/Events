@@ -42,8 +42,7 @@ class Event extends Model
         EventDBConstants::START_TIME,
         EventDBConstants::FINISH_DATE,
         EventDBConstants::FINISH_TIME,
-        EventDBConstants::AGE_FROM,
-        EventDBConstants::AGE_TO,
+        EventDBConstants::AGE,
         EventDBConstants::CATEGORIES_IDS,
         EventDBConstants::TAGS_IDS,
         EventDBConstants::APPLIERS,
@@ -58,7 +57,7 @@ class Event extends Model
     ];
     public $incrementing = false;
     protected $keyType = 'string';
-
+    protected $hidden = ['pivot'];
     protected $casts = [
         EventDBConstants::ID => 'string',
         EventDBConstants::PHOTOS => 'array',
@@ -81,8 +80,7 @@ class Event extends Model
             EventSearchConstants::START_TIME => strtotime($this->start_time),
             EventSearchConstants::FINISH_DATE => strtotime($this->finish_date),
             EventSearchConstants::FINISH_TIME => strtotime($this->finish_time),
-            EventSearchConstants::AGE_FROM => $this->age_from,
-            EventSearchConstants::AGE_TO => $this->age_to,
+            EventSearchConstants::AGE => $this->age,
             EventSearchConstants::CATEGORIES_IDS => $this->categories_ids,
             EventSearchConstants::TAGS_IDS => $this->tags_ids,
             EventSearchConstants::RATING => $this->rating,
@@ -156,10 +154,6 @@ class Event extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
-    }
-    public function cities(): BelongsToMany
-    {
-        return $this->belongsToMany(City::class);
     }
     public function countries(): BelongsToMany
     {
