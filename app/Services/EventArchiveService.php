@@ -11,14 +11,15 @@ use App\Repositories\Interfaces\EventArchiveRepositoryInterface;
 class EventArchiveService
 {
     public function __construct(
-        private EventArchiveRepositoryInterface $eventArchiveRepositoryInterface,
+        private EventArchiveRepositoryInterface $eventArchiveRepository,
         private EventService $eventService,
+        private UserService $userService,
     ) {
     }
 
     public function index(): array
     {
-        $index = $this->eventArchiveRepositoryInterface->index();
+        $index = $this->eventArchiveRepository->index();
         if ($index != null) {
             return $index;
         }
@@ -27,34 +28,41 @@ class EventArchiveService
     public function show(string $id): ?array
     {
         $this->checkIsExist($id);
-        return $this->eventArchiveRepositoryInterface->show($id);
+        return $this->eventArchiveRepository->show($id);
+    }
+    public function showUserEventArchives($userId): array
+    {
+        $this->userService->checkIsExist($userId);
+        return $this->eventArchiveRepository->showUserEventArchives($userId);
     }
     public function archive(string $eventId): array
     {
+        $this->eventService->checkIsExist($eventId);
         $this->checkIsNotExist($eventId);
-        $this->eventArchiveRepositoryInterface->create($this->eventService->show($eventId));
+        $this->eventArchiveRepository->create($this->eventService->show($eventId));
         $this->eventService->delete($eventId);
         return $this->show($eventId);
     }
-    public function unarchive(string $id, CreateEventDTO $createEventDTO): array
+    public function unarchive(string $id, ): array
     {
         $this->checkIsExist($id);
+        $event = $this->show($id);
         $this->delete($id);
-        return $this->eventService->create($createEventDTO);
+        return $event;
     }
     public function delete(string $id): bool
     {
-        return $this->eventArchiveRepositoryInterface->delete($id);
+        return $this->eventArchiveRepository->delete($id);
     }
     public function checkIsExist(string $id): void
     {
-        if ($this->eventArchiveRepositoryInterface->checkIsExist($id) == false) {
+        if ($this->eventArchiveRepository->checkIsExist($id) == false) {
             throw new NotFoundException("EventArchive is not found");
         }
     }
     public function checkIsNotExist(string $id): void
     {
-        if ($this->eventArchiveRepositoryInterface->checkIsExist($id) == true) {
+        if ($this->eventArchiveRepository->checkIsExist($id) == true) {
             throw new ConflictException("EventArchive is already exist");
         }
     }

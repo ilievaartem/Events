@@ -34,17 +34,16 @@ class EventArchive extends Model
         EventArchiveDBConstants::FINISH_TIME,
         EventArchiveDBConstants::AGE_FROM,
         EventArchiveDBConstants::AGE_TO,
-        EventArchiveDBConstants::CATEGORIES_IDS,
-        EventArchiveDBConstants::TAGS_IDS,
-        EventArchiveDBConstants::APPLIERS,
-        EventArchiveDBConstants::INTERESTARS,
         EventArchiveDBConstants::RATING,
         EventArchiveDBConstants::IS_ONLINE,
         EventArchiveDBConstants::IS_OFFLINE,
         EventArchiveDBConstants::AUTHOR_ID,
         EventArchiveDBConstants::PARENT_ID,
-        EventArchiveDBConstants::CITY_ID,
         EventArchiveDBConstants::COUNTRY_ID,
+        EventArchiveDBConstants::REGION_ID,
+        EventArchiveDBConstants::COMMUNITY_ID,
+        EventArchiveDBConstants::PLACE_ID,
+
     ];
     public $incrementing = false;
     protected $keyType = 'string';

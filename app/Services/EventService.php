@@ -28,6 +28,7 @@ class EventService
         private EventRepositoryInterface $eventRepository,
         private PhotoService $photoService,
         private UserService $userService,
+        private PlaceService $placeService,
         private EventTagService $eventTagService,
         private CategoryEventService $categoryEventService,
         private EventFilterRepositoryInterface $eventFilterRepository
@@ -53,19 +54,27 @@ class EventService
             EventDBConstants::FINISH_DATE => $createEventDTO->getFinishDate(),
             EventDBConstants::FINISH_TIME => $createEventDTO->getFinishTime(),
             EventDBConstants::AGE => $createEventDTO->getAge(),
-            EventDBConstants::APPLIERS => $createEventDTO->getAppliers(),
-            EventDBConstants::INTERESTARS => $createEventDTO->getInterestars(),
             EventDBConstants::RATING => $createEventDTO->getRating(),
             EventDBConstants::AUTHOR_ID => $createEventDTO->getAuthorId(),
             EventDBConstants::PARENT_ID => $createEventDTO->getParentId(),
-            EventDBConstants::CITY_ID => $createEventDTO->getCityId(),
             EventDBConstants::COUNTRY_ID => $createEventDTO->getCountryId(),
+            EventDBConstants::REGION_ID => $createEventDTO->getRegionId(),
+            EventDBConstants::COMMUNITY_ID => $createEventDTO->getCommunityId(),
+            EventDBConstants::PLACE_ID => $createEventDTO->getPlaceId(),
         ]);
         $eventId = $event[EventDBConstants::ID];
         $this->eventRepository->addTagsIds($eventId, $createEventDTO->getTagsIds());
         $this->eventRepository->addCategoriesIds($eventId, $createEventDTO->getCategoriesIds());
         return $event;
 
+    }
+    public function addTagsIds(string $eventId, array $tagsIds): void
+    {
+        $this->eventRepository->addTagsIds($eventId, $tagsIds);
+    }
+    public function addCategoriesIds(string $eventId, array $categoriesIds): void
+    {
+        $this->eventRepository->addCategoriesIds($eventId, $categoriesIds);
     }
     public function index(): array
     {
@@ -85,7 +94,7 @@ class EventService
         return $this->eventRepository->delete($id);
     }
 
-    private function formatEventForSimilar(string $id, ?string $city): array
+    private function formatEventForSimilar(string $id, ?string $place): array
     {
         $event = $this->eventRepository->getInfoForSimilar($id);
         $tagsIds = [];
@@ -106,20 +115,20 @@ class EventService
         foreach ($eventsIdByCategories as $category) {
             $eventsByCategoriesFormatted[] = $category['event_id'];
         }
+        if ($place == null) {
+            $this->placeService->checkIsExistByName($place);
 
-        if ($city != null) {
-            // $city = $this->cityService->getIdByName($city);
         }
         return [
-            EventDBConstants::CITY_ID => $city,
+            EventDBConstants::PLACE_ID => $place,
             self::EVENTS_IDS => array_unique(array_merge($eventsByTagsFormatted, $eventsByCategoriesFormatted)),
         ];
 
     }
-    public function similar(string $id, ?string $city): array
+    public function similar(string $id, ?string $place): array
     {
         $this->checkIsExist($id);
-        return $this->eventRepository->getSimilarEvents($this->formatEventForSimilar($id, $city));
+        return $this->eventRepository->getSimilarEvents($this->formatEventForSimilar($id, $place));
     }
     public function getEventsByAuthorId(string $id): array
     {

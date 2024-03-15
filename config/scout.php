@@ -153,9 +153,10 @@ return [
                     EventSearchConstants::RATING,
                     EventSearchConstants::AUTHOR_ID,
                     EventSearchConstants::PARENT_ID,
-                    EventSearchConstants::CITY_ID,
                     EventSearchConstants::COUNTRY_ID,
-
+                    EventSearchConstants::REGION_ID,
+                    EventSearchConstants::COMMUNITY_ID,
+                    EventSearchConstants::PLACE_ID,
                 ],
 
                 'searchableAttributes' => [

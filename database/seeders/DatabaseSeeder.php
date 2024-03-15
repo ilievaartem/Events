@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             GeoSeeder::class,
             EventSeeder::class,
+            EventRelationsSeeder::class,
             CommentSeeder::class,
             MediaSeeder::class,
             InteresterSeeder::class,

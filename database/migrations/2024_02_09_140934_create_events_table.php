@@ -1,8 +1,11 @@
 <?php
 
 use App\Constants\DB\CityDBConstants;
+use App\Constants\DB\CommunityDBConstants;
 use App\Constants\DB\CountryDBConstants;
 use App\Constants\DB\EventDBConstants;
+use App\Constants\DB\PlaceDBConstants;
+use App\Constants\DB\RegionDBConstants;
 use App\Constants\DB\UserDBConstants;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -36,14 +39,15 @@ return new class extends Migration {
             $table->date(EventDBConstants::FINISH_DATE);
             $table->time(EventDBConstants::FINISH_TIME);
             $table->string(EventDBConstants::AGE);
-            $table->jsonb(EventDBConstants::APPLIERS)->nullable();
-            $table->jsonb(EventDBConstants::INTERESTARS)->nullable();
             $table->float(EventDBConstants::RATING)->nullable();
             $table->boolean(EventDBConstants::IS_ONLINE)->nullable();
             $table->boolean(EventDBConstants::IS_OFFLINE)->nullable();
             $table->foreignUuid(EventDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(EventDBConstants::PARENT_ID)->nullable()->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignId(EventDBConstants::COUNTRY_ID)->references(CountryDBConstants::ID)->on(CountryDBConstants::TABLE)->onDelete('cascade');
+            $table->foreignId(EventDBConstants::REGION_ID)->references(RegionDBConstants::ID)->on(RegionDBConstants::TABLE)->onDelete('cascade');
+            $table->foreignId(EventDBConstants::COMMUNITY_ID)->references(CommunityDBConstants::ID)->on(CommunityDBConstants::TABLE)->onDelete('cascade');
+            $table->foreignId(EventDBConstants::PLACE_ID)->references(PlaceDBConstants::ID)->on(PlaceDBConstants::TABLE)->onDelete('cascade');
             $table->timestamps();
         });
     }

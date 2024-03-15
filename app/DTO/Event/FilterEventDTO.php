@@ -25,8 +25,10 @@ class FilterEventDTO implements DTOContract
         private readonly ?float $ratingMax,
         private readonly ?string $authorId,
         private readonly ?string $parentId,
-        private readonly ?int $cityId,
         private readonly ?int $countryId,
+        private readonly ?int $regionId,
+        private readonly ?int $communityId,
+        private readonly ?int $placeId,
     ) {
 
     }
@@ -136,9 +138,17 @@ class FilterEventDTO implements DTOContract
     {
         return $this->parentId;
     }
-    public function getCityId(): ?int
+    public function getRegionId(): ?int
     {
-        return $this->cityId;
+        return $this->regionId;
+    }
+    public function getCommunityId(): ?int
+    {
+        return $this->communityId;
+    }
+    public function getPlaceId(): ?int
+    {
+        return $this->placeId;
     }
 
     public function getCountryId(): ?int

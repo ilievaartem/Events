@@ -28,18 +28,16 @@ class CreateEventDTO implements DTOContract
         private readonly string $finishTime,
         private readonly string $age,
         private readonly array $categoriesIds,
-        private readonly ?array $tagsIds,
-        private readonly ?array $appliers,
-        private readonly ?array $interestars,
+        private readonly array $tagsIds,
         private readonly ?float $rating,
         private readonly string $authorId,
         private readonly ?string $parentId,
-        private readonly int $cityId,
         private readonly int $countryId,
+        private readonly int $regionId,
+        private readonly int $communityId,
+        private readonly int $placeId,
     ) {
         $this->additionalAuthorsStr = json_encode($additionalAuthors);
-        $this->appliersStr = json_encode($appliers);
-        $this->interestarsStr = json_encode($interestars);
     }
 
     public function getTitle(): string
@@ -76,13 +74,22 @@ class CreateEventDTO implements DTOContract
     {
         return $this->building;
     }
-    public function getCityId(): int
-    {
-        return $this->cityId;
-    }
+
     public function getCountryId(): int
     {
         return $this->countryId;
+    }
+    public function getRegionId(): int
+    {
+        return $this->regionId;
+    }
+    public function getCommunityId(): int
+    {
+        return $this->communityId;
+    }
+    public function getPlaceId(): int
+    {
+        return $this->placeId;
     }
     public function getPlaceName(): ?string
     {
@@ -122,21 +129,11 @@ class CreateEventDTO implements DTOContract
     {
         return $this->age;
     }
-
-
-    public function getTagsIds(): ?array
+    public function getTagsIds(): array
     {
         return $this->tagsIds;
     }
-    public function getAppliers(): ?string
-    {
-        return $this->appliersStr;
-    }
-    public function getInterestars(): ?string
-    {
-        return $this->interestarsStr;
-    }
-    public function getCategoriesIds(): ?array
+    public function getCategoriesIds(): array
     {
         return $this->categoriesIds;
     }

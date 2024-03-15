@@ -31,8 +31,10 @@ class FilterEventDTOFactory
             ratingMax: $request->input(EventRequestConstants::RATING_MAX),
             authorId: $request->input(EventRequestConstants::AUTHOR_ID),
             parentId: $request->input(EventRequestConstants::PARENT_ID),
-            cityId: $request->input(EventRequestConstants::CITY_ID),
             countryId: $request->input(EventRequestConstants::COUNTRY_ID),
+            regionId: $request->input(EventRequestConstants::REGION_ID),
+            communityId: $request->input(EventRequestConstants::COMMUNITY_ID),
+            placeId: $request->input(EventRequestConstants::PLACE_ID),
 
         );
     }

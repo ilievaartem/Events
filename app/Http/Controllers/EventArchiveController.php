@@ -31,36 +31,7 @@ class EventArchiveController extends Controller
     }
     public function unarchive(EventCreateRequest $request, string $id): JsonResponse
     {
-        $createEventDTO = new CreateEventDTO(
-
-            title: $request->input(EventRequestConstants::TITLE),
-            longitude: $request->input(EventRequestConstants::LONGITUDE),
-            latitude: $request->input(EventRequestConstants::LATITUDE),
-            additionalAuthors: $request->input(EventRequestConstants::ADDITIONAL_AUTHOR),
-            description: $request->input(EventRequestConstants::DESCRIPTION),
-            shortDescription: $request->input(EventRequestConstants::SHORT_DESCRIPTION),
-            streetName: $request->input(EventRequestConstants::STREET_NAME),
-            building: $request->input(EventRequestConstants::STREET_NAME),
-            placeName: $request->input(EventRequestConstants::PLACE_NAME),
-            corpus: $request->input(EventRequestConstants::CORPUS),
-            apartment: $request->input(EventRequestConstants::APARTMENT),
-            placeDescription: $request->input(EventRequestConstants::PLACE_DESCRIPTION),
-            startDate: $request->input(EventRequestConstants::START_DATE),
-            startTime: $request->input(EventRequestConstants::START_TIME),
-            finishDate: $request->input(EventRequestConstants::FINISH_DATE),
-            finishTime: $request->input(EventRequestConstants::FINISH_TIME),
-            age: $request->input(EventRequestConstants::AGE),
-            categoriesIds: $request->input(EventRequestConstants::CATEGORIES_IDS),
-            tagsIds: $request->input(EventRequestConstants::TAGS_IDS),
-            appliers: $request->input(EventRequestConstants::APPLIERS),
-            interestars: $request->input(EventRequestConstants::INTERESTARS),
-            rating: $request->input(EventRequestConstants::RATING),
-            authorId: $this->authWrapperService->getAuthIdentifier(),
-            parentId: $request->input(EventRequestConstants::PARENT_ID),
-            cityId: $request->input(EventRequestConstants::CITY_ID),
-            countryId: $request->input(EventRequestConstants::COUNTRY_ID),
-        );
-        return response()->json($this->eventArchiveService->unarchive($id, $createEventDTO));
+        return response()->json($this->eventArchiveService->unarchive($id));
     }
 
     public function delete(string $id): JsonResponse

@@ -31,13 +31,15 @@ class EventFilterRequest extends FormRequest
             EventRequestConstants::START_TIME_MAX => 'date_format:H:i:s',
             EventRequestConstants::FINISH_TIME_MIN => 'date_format:H:i:s',
             EventRequestConstants::FINISH_TIME_MAX => 'date_format:H:i:s',
-            EventRequestConstants::AGE => 'required|string|min:1|max:20',
+            EventRequestConstants::AGE => 'string|min:1|max:20',
             EventRequestConstants::RATING_MIN => 'numeric|min:1|max:5',
             EventRequestConstants::RATING_MAX => 'numeric|min:1|max:5',
             EventRequestConstants::AUTHOR_ID => 'string|uuid',
             EventRequestConstants::PARENT_ID => 'string|uuid',
-            EventRequestConstants::CITY_ID => 'integer|min:0',
             EventRequestConstants::COUNTRY_ID => 'integer|min:0',
+            EventRequestConstants::REGION_ID => 'integer|min:0',
+            EventRequestConstants::COMMUNITY_ID => 'integer|min:0',
+            EventRequestConstants::PLACE_ID => 'integer|min:0',
         ];
     }
 }

@@ -34,8 +34,10 @@ class EventRequestConstants
     public const APPLIERS = "appliers";
     public const INTERESTARS = "interestars";
     public const PARENT_ID = "parent_id";
-    public const CITY_ID = "city_id";
     public const COUNTRY_ID = "country_id";
+    public const PLACE_ID = "place_id";
+    public const COMMUNITY_ID = "community_id";
+    public const REGION_ID = "region_id";
     public const ADDITIONAL_AUTHOR = "additional_author";
     public const PHOTOS = "photos";
     public const MAIN_PHOTO = "main_photo";

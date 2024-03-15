@@ -20,8 +20,8 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
 
     public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
-
         return Event::query()
+
             ->when($filterEventDTO->getPhrase() != null && $filterEventDTO->getSearchBy() == null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(function (Builder $query) use ($filterEventDTO) {
                     $query
@@ -98,13 +98,18 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
             ->when($filterEventDTO->getParentId() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::PARENT_ID, $filterEventDTO->getParentId());
             })
-            ->when($filterEventDTO->getCityId() != null, function (Builder $query) use ($filterEventDTO) {
-                return $query->where(EventDBConstants::CITY_ID, $filterEventDTO->getCityId());
-            })
             ->when($filterEventDTO->getCountryId() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::COUNTRY_ID, $filterEventDTO->getCountryId());
             })
-
+            ->when($filterEventDTO->getRegionId() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::REGION_ID, $filterEventDTO->getRegionId());
+            })
+            ->when($filterEventDTO->getCommunityId() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::COMMUNITY_ID, $filterEventDTO->getCommunityId());
+            })
+            ->when($filterEventDTO->getPlaceId() != null, function (Builder $query) use ($filterEventDTO) {
+                return $query->where(EventDBConstants::PLACE_ID, $filterEventDTO->getPlaceId());
+            })
             ->paginate(self::PER_PAGE)
             ->toArray();
     }

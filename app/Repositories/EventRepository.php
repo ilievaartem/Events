@@ -65,7 +65,7 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
             ]
         )
 
-            ->select([EventDBConstants::ID, EventDBConstants::CITY_ID])
+            ->select([EventDBConstants::ID, EventDBConstants::PLACE_ID])
             ->find($id)->toArray();
     }
     public function getSimilarEvents(array $events): array
@@ -77,8 +77,8 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
                     return $query->whereIn(EventDBConstants::ID, $events['events_ids']);
                 }
             )
-            ->when($events[EventDBConstants::CITY_ID] != null, function (Builder $query) use ($events) {
-                return $query->where(EventDBConstants::CITY_ID, $events[EventDBConstants::CITY_ID]);
+            ->when($events[EventDBConstants::PLACE_ID] != null, function (Builder $query) use ($events) {
+                return $query->where(EventDBConstants::PLACE_ID, $events[EventDBConstants::PLACE_ID]);
             })
             ->paginate(self::PER_PAGE)
             ->toArray();

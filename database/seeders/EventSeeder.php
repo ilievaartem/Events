@@ -4,8 +4,11 @@ namespace Database\Seeders;
 
 use App\Constants\DB\CategoryDBConstants;
 use App\Constants\DB\CityDBConstants;
+use App\Constants\DB\CommunityDBConstants;
 use App\Constants\DB\CountryDBConstants;
 use App\Constants\DB\EventDBConstants;
+use App\Constants\DB\PlaceDBConstants;
+use App\Constants\DB\RegionDBConstants;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -32,13 +35,39 @@ class EventSeeder extends Seeder
     public function run(): void
     {
         $allAuthors = User::query()->select(UserDBConstants::ID)->get()->pluck(UserDBConstants::ID)->toArray();
-        $allCountries = Country::query()->select(CountryDBConstants::ID)->get()->pluck(CountryDBConstants::ID)->toArray();
-        $ageTypes = ['kids', 'teens', 'any ages', 'adult'];
+
+        $ageTypes = [EventDBConstants::AGE_KIDS, EventDBConstants::AGE_TEENS, EventDBConstants::AGE_ANY, EventDBConstants::AGE_ADULT];
+        $geo = Country::query()
+            ->join(
+                RegionDBConstants::TABLE,
+                CountryDBConstants::TABLE . '.' . CountryDBConstants::ID,
+                '=',
+                RegionDBConstants::TABLE . '.' . RegionDBConstants::COUNTRY_ID
+            )
+            ->join(
+                CommunityDBConstants::TABLE,
+                RegionDBConstants::TABLE . '.' . RegionDBConstants::ID,
+                '=',
+                CommunityDBConstants::TABLE . '.' . CommunityDBConstants::REGION_ID
+            )
+            ->join(
+                PlaceDBConstants::TABLE,
+                CommunityDBConstants::TABLE . '.' . CommunityDBConstants::ID,
+                '=',
+                PlaceDBConstants::TABLE . '.' . PlaceDBConstants::COMMUNITY_ID
+            )
+            ->select(
+                CountryDBConstants::TABLE . '.' . CountryDBConstants::ID . ' as ' . RegionDBConstants::COUNTRY_ID,
+                RegionDBConstants::TABLE . '.' . RegionDBConstants::ID . ' as ' . CommunityDBConstants::REGION_ID,
+                CommunityDBConstants::TABLE . '.' . CommunityDBConstants::ID . ' as ' . PlaceDBConstants::COMMUNITY_ID,
+                PlaceDBConstants::TABLE . '.' . PlaceDBConstants::ID . ' as place_id'
+            )
+            ->get()->toArray();
         $events = [];
         for ($i = 0; $i < 10000; $i++) {
             $authors = Arr::random($allAuthors);
-            $countries = Arr::random($allCountries);
             $ageType = Arr::random($ageTypes);
+            $currentGeo = Arr::random($geo);
             $events[] = [
                 EventDBConstants::ID => Uuid::uuid7()->toString(),
                 EventDBConstants::TITLE => fake()->title(),
@@ -61,14 +90,15 @@ class EventSeeder extends Seeder
                 EventDBConstants::FINISH_DATE => fake()->date(),
                 EventDBConstants::FINISH_TIME => fake()->time(),
                 EventDBConstants::AGE => $ageType,
-                EventDBConstants::APPLIERS => null,
-                EventDBConstants::INTERESTARS => null,
                 EventDBConstants::RATING => null,
                 EventDBConstants::IS_ONLINE => null,
                 EventDBConstants::IS_OFFLINE => null,
                 EventDBConstants::AUTHOR_ID => $authors,
                 EventDBConstants::PARENT_ID => null,
-                EventDBConstants::COUNTRY_ID => $countries,
+                EventDBConstants::COUNTRY_ID => $currentGeo[RegionDBConstants::COUNTRY_ID],
+                EventDBConstants::REGION_ID => $currentGeo[CommunityDBConstants::REGION_ID],
+                EventDBConstants::COMMUNITY_ID => $currentGeo[PlaceDBConstants::COMMUNITY_ID],
+                EventDBConstants::PLACE_ID => $currentGeo['place_id'],
 
             ];
         }
@@ -76,6 +106,7 @@ class EventSeeder extends Seeder
         foreach ($res as $event) {
             Event::insert($event);
         }
+
 
     }
 }

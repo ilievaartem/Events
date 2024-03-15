@@ -34,17 +34,15 @@ return new class extends Migration {
             $table->time(EventArchiveDBConstants::FINISH_TIME);
             $table->unsignedTinyInteger(EventArchiveDBConstants::AGE_FROM);
             $table->unsignedTinyInteger(EventArchiveDBConstants::AGE_TO);
-            $table->jsonb(EventArchiveDBConstants::CATEGORIES_IDS)->nullable();
-            $table->jsonb(EventArchiveDBConstants::TAGS_IDS)->nullable();
-            $table->jsonb(EventArchiveDBConstants::APPLIERS)->nullable();
-            $table->jsonb(EventArchiveDBConstants::INTERESTARS)->nullable();
             $table->float(EventArchiveDBConstants::RATING)->nullable();
             $table->boolean(EventArchiveDBConstants::IS_ONLINE)->nullable();
             $table->boolean(EventArchiveDBConstants::IS_OFFLINE)->nullable();
             $table->string(EventArchiveDBConstants::AUTHOR_ID)->nullable();
             $table->string(EventArchiveDBConstants::PARENT_ID)->nullable();
-            $table->integer(EventArchiveDBConstants::CITY_ID);
             $table->integer(EventArchiveDBConstants::COUNTRY_ID);
+            $table->integer(EventArchiveDBConstants::REGION_ID);
+            $table->integer(EventArchiveDBConstants::COMMUNITY_ID);
+            $table->integer(EventArchiveDBConstants::PLACE_ID);
 
             $table->timestamps();
         });

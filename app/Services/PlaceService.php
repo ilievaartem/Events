@@ -60,6 +60,12 @@ class PlaceService
         return PlaceDBConstants::TYPE_VILLAGE . ',' . PlaceDBConstants::TYPE_CITY . ','
             . PlaceDBConstants::TYPE_URBAN_VILLAGE . ',' . PlaceDBConstants::TYPE_SMALL_VILLAGE;
     }
+    public function checkIsExistByName(string $name): void
+    {
+        if ($this->placeRepository->checkIsExistByName($name) == false) {
+            throw new NotFoundException("Place is not found");
+        }
+    }
     public function delete(int $id): bool
     {
         return $this->placeRepository->delete($id);

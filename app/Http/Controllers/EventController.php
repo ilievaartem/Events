@@ -75,13 +75,13 @@ class EventController extends Controller
             age: $request->input(EventRequestConstants::AGE),
             categoriesIds: $request->input(EventRequestConstants::CATEGORIES_IDS),
             tagsIds: $request->input(EventRequestConstants::TAGS_IDS),
-            appliers: $request->input(EventRequestConstants::APPLIERS),
-            interestars: $request->input(EventRequestConstants::INTERESTARS),
             rating: $request->input(EventRequestConstants::RATING),
             authorId: $this->authWrapperService->getAuthIdentifier(),
             parentId: $request->input(EventRequestConstants::PARENT_ID),
-            cityId: $request->input(EventRequestConstants::CITY_ID),
             countryId: $request->input(EventRequestConstants::COUNTRY_ID),
+            regionId: $request->input(EventRequestConstants::REGION_ID),
+            communityId: $request->input(EventRequestConstants::COMMUNITY_ID),
+            placeId: $request->input(EventRequestConstants::PLACE_ID),
         );
         return response()->json($this->eventService->create($createEventDTO));
     }
@@ -106,8 +106,10 @@ class EventController extends Controller
         $categories_ids = $request->input(EventRequestConstants::CATEGORIES_IDS);
         $tags_ids = $request->input(EventRequestConstants::TAGS_IDS);
         $parent_id = $request->input(EventRequestConstants::PARENT_ID);
-        $city_id = $request->input(EventRequestConstants::CITY_ID);
         $country_id = $request->input(EventRequestConstants::COUNTRY_ID);
+        $region_id = $request->input(EventRequestConstants::REGION_ID);
+        $community_id = $request->input(EventRequestConstants::COMMUNITY_ID);
+        $place_id = $request->input(EventRequestConstants::PLACE_ID);
         $event = [
             EventRequestConstants::TITLE => $title,
             EventRequestConstants::LONGITUDE => $longitude,
@@ -128,8 +130,10 @@ class EventController extends Controller
             EventRequestConstants::CATEGORIES_IDS => json_encode($categories_ids),
             EventRequestConstants::TAGS_IDS => json_encode($tags_ids),
             EventRequestConstants::PARENT_ID => $parent_id,
-            EventRequestConstants::CITY_ID => $city_id,
             EventRequestConstants::COUNTRY_ID => $country_id,
+            EventRequestConstants::REGION_ID => $region_id,
+            EventRequestConstants::COMMUNITY_ID => $community_id,
+            EventRequestConstants::PLACE_ID => $place_id,
         ];
         return response()->json($this->eventService->update($event, $id));
     }

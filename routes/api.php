@@ -65,7 +65,7 @@ Route::get('events/{id}', [EventController::class, 'show']);
 Route::get('eventArchives', [EventArchiveController::class, 'index']);
 Route::get('users/{id}/eventArchives', [EventArchiveController::class, 'showUserEventArchives']);
 Route::post('events/{id}/eventArchives', [EventArchiveController::class, 'archive'])->middleware([UserIsAuthorized::class, CheckEventAuthor::class]);
-Route::post('eventArchives/{id}/unarchive', [EventArchiveController::class, 'unarchive'])->middleware([UserIsAuthorized::class, CheckEventAuthor::class]);
+Route::delete('eventArchives/{id}/unarchive', [EventArchiveController::class, 'unarchive'])->middleware([UserIsAuthorized::class, CheckEventAuthor::class]);
 Route::delete('eventArchives/{id}', [EventArchiveController::class, 'delete'])->middleware([UserIsAuthorized::class]);
 Route::get('eventArchives/{id}', [EventArchiveController::class, 'show']);
 

@@ -46,8 +46,10 @@ class EventCreateRequest extends FormRequest
             EventRequestConstants::IS_ONLINE => 'boolean',
             EventRequestConstants::IS_OFFLINE => 'boolean',
             EventRequestConstants::PARENT_ID => 'string|uuid',
-            EventRequestConstants::CITY_ID => 'required|integer|min:0',
             EventRequestConstants::COUNTRY_ID => 'required|integer|min:0',
+            EventRequestConstants::REGION_ID => 'required|integer|min:0',
+            EventRequestConstants::COMMUNITY_ID => 'required|integer|min:0',
+            EventRequestConstants::PLACE_ID => 'required|integer|min:0',
 
         ];
     }

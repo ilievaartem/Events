@@ -43,17 +43,15 @@ class Event extends Model
         EventDBConstants::FINISH_DATE,
         EventDBConstants::FINISH_TIME,
         EventDBConstants::AGE,
-        EventDBConstants::CATEGORIES_IDS,
-        EventDBConstants::TAGS_IDS,
-        EventDBConstants::APPLIERS,
-        EventDBConstants::INTERESTARS,
         EventDBConstants::RATING,
         EventDBConstants::IS_ONLINE,
         EventDBConstants::IS_OFFLINE,
         EventDBConstants::AUTHOR_ID,
         EventDBConstants::PARENT_ID,
-        EventDBConstants::CITY_ID,
         EventDBConstants::COUNTRY_ID,
+        EventDBConstants::REGION_ID,
+        EventDBConstants::COMMUNITY_ID,
+        EventDBConstants::PLACE_ID,
     ];
     public $incrementing = false;
     protected $keyType = 'string';
@@ -61,8 +59,6 @@ class Event extends Model
     protected $casts = [
         EventDBConstants::ID => 'string',
         EventDBConstants::PHOTOS => 'array',
-        EventDBConstants::CATEGORIES_IDS => 'array',
-        EventDBConstants::TAGS_IDS => 'array',
 
     ];
     public function toSearchableArray()
@@ -81,13 +77,19 @@ class Event extends Model
             EventSearchConstants::FINISH_DATE => strtotime($this->finish_date),
             EventSearchConstants::FINISH_TIME => strtotime($this->finish_time),
             EventSearchConstants::AGE => $this->age,
-            EventSearchConstants::CATEGORIES_IDS => $this->categories_ids,
-            EventSearchConstants::TAGS_IDS => $this->tags_ids,
+            EventSearchConstants::CATEGORIES_IDS => empty($this->categories->pluck('id')->toArray())
+                ? null
+                : $this->categories->pluck('id')->toArray(),
+            EventSearchConstants::TAGS_IDS => empty($this->tags->pluck('id')->toArray())
+                ? null
+                : $this->tags->pluck('id')->toArray(),
             EventSearchConstants::RATING => $this->rating,
             EventSearchConstants::AUTHOR_ID => $this->author_id,
             EventSearchConstants::PARENT_ID => $this->parent_id,
-            EventSearchConstants::CITY_ID => $this->city_id,
             EventSearchConstants::COUNTRY_ID => $this->country_id,
+            EventSearchConstants::REGION_ID => $this->region_id,
+            EventSearchConstants::COMMUNITY_ID => $this->community_id,
+            EventSearchConstants::PLACE_ID => $this->place_id,
         ];
     }
 
