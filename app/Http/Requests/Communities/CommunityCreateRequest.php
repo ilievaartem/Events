@@ -11,7 +11,7 @@ class CommunityCreateRequest extends FormRequest
     {
         return [
             CommunityRequestConstants::NAME => 'required|min:1|max:100|string',
-            CommunityRequestConstants::REGION_ID => 'required|integer'
+            CommunityRequestConstants::REGION_ID => 'required|integer|min:0'
         ];
     }
 }

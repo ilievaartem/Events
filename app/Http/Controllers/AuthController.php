@@ -9,74 +9,46 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use App\Constants\Request\UserRequestConstants;
+use App\Factory\Auth\AuthRegisterDTOFactory;
+use App\Http\Requests\Auth\AuthRegisterRequest;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
+
     public function __construct(
         private readonly AuthService $authService
     ) {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'logout']]);
     }
-    public function register(Request $request)
+    public function register(AuthRegisterRequest $request, AuthRegisterDTOFactory $authRegisterDTOFactory)
     {
-
-        $name = $request->input(UserRequestConstants::NAME);
-        $email = $request->input(UserRequestConstants::EMAIL);
-        $password = $request->input(UserRequestConstants::PASSWORD);
-        $telephone = $request->input(UserRequestConstants::TELEPHONE);
-        return response()->json($this->authService->register($name, $email, $telephone, $password));
-
-
+        return response()->json($this->authService->register($authRegisterDTOFactory->make($request)));
     }
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function login(Request $request)
     {
-        $email = $request->input(UserRequestConstants::EMAIL);
-        $password = $request->input(UserRequestConstants::PASSWORD);
-        return response()->json($this->authService->login($email, $password));
-
+        return response()->json(
+            $this->authService->login(
+                $request->input(UserRequestConstants::EMAIL),
+                $request->input(UserRequestConstants::PASSWORD)
+            )
+        );
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function me()
-    {
-        return response()->json(auth()->user());
-    }
 
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout()
-    {
-        auth()->logout();
-
-        return response()->json(['message' => 'Successfully logged out']);
-    }
-
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    // public function refresh()
+    // public function me()
     // {
-    //     return $this->respondWithToken(auth()->refresh());
+    //     return response()->json(auth()->user());
     // }
+
+
+
+    public function logout(): JsonResponse
+    {
+        return response()->json(['success' => $this->authService->logout()]);
+    }
+
+
 
 
 

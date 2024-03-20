@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
+    public function checkUserExistByEmail(string $email): bool
+    {
+        return User::query()->where(UserDBConstants::EMAIL, $email)->exists();
+    }
+
     public function getUserBannedStatus(string $id): ?string
     {
         return User::query()->select([UserDBConstants::BANNED_AT])->find($id);

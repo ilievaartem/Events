@@ -28,9 +28,13 @@ class InteresterController extends Controller
     {
         return response()->json(['Interesters' => $this->interesterService->interesterCount($eventId)]);
     }
-    public function changeInteresterStatus(Request $request, string $id): JsonResponse
+    public function changeInteresterStatus(Request $request, string $eventId): JsonResponse
     {
-        $authorId = $this->authWrapperService->getAuthIdentifier();
-        return response()->json($this->interesterService->changeInteresterStatus($id, $authorId));
+        return response()->json(
+            $this->interesterService->changeInteresterStatus(
+                $eventId,
+                $this->authWrapperService->getAuthIdentifier()
+            )
+        );
     }
 }

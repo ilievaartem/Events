@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Constants\DB\CityDBConstants;
+use App\Constants\DB\CommunityDBConstants;
+use App\Constants\DB\PlaceDBConstants;
+use App\Constants\DB\RegionDBConstants;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Constants\DB\EventConstants;
@@ -10,6 +13,7 @@ use App\Constants\DB\EventDBConstants;
 use App\Constants\File\PathsConstants;
 use App\DTO\Event\CreateEventDTO;
 use App\DTO\Event\FilterEventDTO;
+use App\DTO\Event\UpdateEventDTO;
 use App\DTO\Photos\CreatePhotoDTO;
 use App\DTO\Photos\CreatePhotosDTO;
 use App\DTO\Photos\DeletePhotoDTO;
@@ -34,9 +38,36 @@ class EventService
         private EventFilterRepositoryInterface $eventFilterRepository
     ) {
     }
-    public function create(CreateEventDTO $createEventDTO): array
+    private function formatUpdateEventDTOToRecord(UpdateEventDTO $updateEventDTO, array $geo): array
     {
-        $event = $this->eventRepository->create([
+        return [
+            EventDBConstants::TITLE => $updateEventDTO->getTitle(),
+            EventDBConstants::LONGITUDE => $updateEventDTO->getLongitude(),
+            EventDBConstants::LATITUDE => $updateEventDTO->getLatitude(),
+            EventDBConstants::ADDITIONAL_AUTHOR => $updateEventDTO->getAdditionalAuthors(),
+            EventDBConstants::DESCRIPTION => $updateEventDTO->getDescription(),
+            EventDBConstants::SHORT_DESCRIPTION => $updateEventDTO->getShortDescription(),
+            EventDBConstants::STREET_NAME => $updateEventDTO->getStreetName(),
+            EventDBConstants::BUILDING => $updateEventDTO->getBuilding(),
+            EventDBConstants::PLACE_NAME => $updateEventDTO->getPlaceName(),
+            EventDBConstants::CORPUS => $updateEventDTO->getCorpus(),
+            EventDBConstants::APARTMENT => $updateEventDTO->getApartment(),
+            EventDBConstants::PLACE_DESCRIPTION => $updateEventDTO->getPlaceDescription(),
+            EventDBConstants::START_DATE => $updateEventDTO->getStartDate(),
+            EventDBConstants::START_TIME => $updateEventDTO->getStartTime(),
+            EventDBConstants::FINISH_DATE => $updateEventDTO->getFinishDate(),
+            EventDBConstants::FINISH_TIME => $updateEventDTO->getFinishTime(),
+            EventDBConstants::AGE => $updateEventDTO->getAge(),
+            EventDBConstants::PARENT_ID => $updateEventDTO->getParentId(),
+            EventDBConstants::COUNTRY_ID => $geo[RegionDBConstants::COUNTRY_ID],
+            EventDBConstants::REGION_ID => $geo[CommunityDBConstants::REGION_ID],
+            EventDBConstants::COMMUNITY_ID => $geo[PlaceDBConstants::COMMUNITY_ID],
+            EventDBConstants::PLACE_ID => $updateEventDTO->getPlaceId(),
+        ];
+    }
+    private function formatCreateEventDTOToRecord(CreateEventDTO $createEventDTO, array $geo): array
+    {
+        return [
             EventDBConstants::TITLE => $createEventDTO->getTitle(),
             EventDBConstants::LONGITUDE => $createEventDTO->getLongitude(),
             EventDBConstants::LATITUDE => $createEventDTO->getLatitude(),
@@ -54,28 +85,26 @@ class EventService
             EventDBConstants::FINISH_DATE => $createEventDTO->getFinishDate(),
             EventDBConstants::FINISH_TIME => $createEventDTO->getFinishTime(),
             EventDBConstants::AGE => $createEventDTO->getAge(),
-            EventDBConstants::RATING => $createEventDTO->getRating(),
             EventDBConstants::AUTHOR_ID => $createEventDTO->getAuthorId(),
             EventDBConstants::PARENT_ID => $createEventDTO->getParentId(),
-            EventDBConstants::COUNTRY_ID => $createEventDTO->getCountryId(),
-            EventDBConstants::REGION_ID => $createEventDTO->getRegionId(),
-            EventDBConstants::COMMUNITY_ID => $createEventDTO->getCommunityId(),
+            EventDBConstants::COUNTRY_ID => $geo[RegionDBConstants::COUNTRY_ID],
+            EventDBConstants::REGION_ID => $geo[CommunityDBConstants::REGION_ID],
+            EventDBConstants::COMMUNITY_ID => $geo[PlaceDBConstants::COMMUNITY_ID],
             EventDBConstants::PLACE_ID => $createEventDTO->getPlaceId(),
-        ]);
+        ];
+    }
+    public function create(CreateEventDTO $createEventDTO): array
+    {
+        $this->placeService->checkIsExist($createEventDTO->getPlaceId());
+        $geo = $this->placeService->getGeoByPlace($createEventDTO->getPlaceId());
+        $event = $this->eventRepository->create($this->formatCreateEventDTOToRecord($createEventDTO, $geo));
         $eventId = $event[EventDBConstants::ID];
         $this->eventRepository->addTagsIds($eventId, $createEventDTO->getTagsIds());
         $this->eventRepository->addCategoriesIds($eventId, $createEventDTO->getCategoriesIds());
         return $event;
 
     }
-    public function addTagsIds(string $eventId, array $tagsIds): void
-    {
-        $this->eventRepository->addTagsIds($eventId, $tagsIds);
-    }
-    public function addCategoriesIds(string $eventId, array $categoriesIds): void
-    {
-        $this->eventRepository->addCategoriesIds($eventId, $categoriesIds);
-    }
+
     public function index(): array
     {
         $index = $this->eventRepository->getEventsWithRelations();
@@ -115,7 +144,7 @@ class EventService
         foreach ($eventsIdByCategories as $category) {
             $eventsByCategoriesFormatted[] = $category['event_id'];
         }
-        if ($place == null) {
+        if ($place != null) {
             $this->placeService->checkIsExistByName($place);
 
         }
@@ -134,11 +163,14 @@ class EventService
     {
         return $this->eventRepository->getEventsByAuthorID($id);
     }
-    public function update(array $data, string $id): array
+    public function update(UpdateEventDTO $updateEventDTO, string $id): array
     {
         $this->checkIsExist($id);
-
-        $this->eventRepository->update($data, $id);
+        $this->placeService->checkIsExist($updateEventDTO->getPlaceId());
+        $geo = $this->placeService->getGeoByPlace($updateEventDTO->getPlaceId());
+        $this->eventRepository->update($this->formatUpdateEventDTOToRecord($updateEventDTO, $geo), $id);
+        $this->eventRepository->addTagsIds($id, $updateEventDTO->getTagsIds());
+        $this->eventRepository->addCategoriesIds($id, $updateEventDTO->getCategoriesIds());
         return $this->eventRepository->show($id);
     }
     public function searchEvent(?string $title, ?string $description): ?array
@@ -199,9 +231,10 @@ class EventService
         if ($photo == null) {
             return;
         }
+
         $mainPhotoPath = $photo->getPathForDB();
         $this->eventRepository->updateMainPhoto($id, $mainPhotoPath);
-        $photoContent = $this->photoService->getPhotoContentForEvent($photo);
+        $photoContent = $this->photoService->getPhotoContent($photo->getCurrentPath());
         $this->photoService->storagePhoto($mainPhotoPath, $photoContent);
 
     }

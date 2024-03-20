@@ -13,6 +13,11 @@ class AuthWrapperService implements AuthWrapperServiceInterface
     {
         return auth()->factory()->getTTL() * 60;
     }
+    public function logout(): bool
+    {
+        auth()->logout();
+        return true;
+    }
     public function getAuthIdentifier(): mixed
     {
         if (auth()->user() === null) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\Request\MediaRequestConstants;
 use App\Factory\Media\UploadCommentMediaDTOFactory;
 use App\Http\Requests\Media\MediaCreateRequest;
+use App\Http\Requests\Media\MediaDeleteRequest;
 use App\Services\AuthWrapperService;
 use App\Services\MediaService;
 use Illuminate\Http\JsonResponse;
@@ -46,7 +47,7 @@ class MediaController extends Controller
             $this->mediaService->uploadPhotos(
                 $id,
                 $this->authWrapperService->getAuthIdentifier(),
-                $createDTOPhotos
+                $uploadCommentMediaDTOFactory->make($request, $id)
             )
         );
     }

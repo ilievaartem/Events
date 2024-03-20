@@ -70,6 +70,10 @@ class PlaceService
     {
         return $this->placeRepository->delete($id);
     }
+    public function getGeoByPlace(int $placeId): array
+    {
+        return $this->placeRepository->getGeoByPlace($placeId);
+    }
     public function checkIsExist(string $id): void
     {
         if ($this->placeRepository->checkIsExist($id) == false) {

@@ -11,10 +11,7 @@ class FilterComplaintDTO implements DTOContract
         private readonly ?string $authorId,
         private readonly ?string $eventId,
         private readonly ?string $assignee,
-        private readonly ?string $causeMessage,
-        private readonly ?string $searchByCauseDescription,
-        private readonly ?string $resolveMessage,
-        private readonly ?string $searchByResolveDescription,
+        private readonly ?array $searchBy,
         private readonly ?string $resolverId,
         private readonly ?string $resolvedFrom,
         private readonly ?string $resolvedTo,
@@ -41,21 +38,10 @@ class FilterComplaintDTO implements DTOContract
     {
         return $this->assignee;
     }
-    public function getCauseMessage(): ?string
+
+    public function getSearchBy(): ?array
     {
-        return $this->causeMessage;
-    }
-    public function getSearchByCauseDescription(): ?string
-    {
-        return $this->searchByCauseDescription;
-    }
-    public function getResolveMessage(): ?string
-    {
-        return $this->resolveMessage;
-    }
-    public function getSearchByResolveDescription(): ?string
-    {
-        return $this->searchByResolveDescription;
+        return $this->searchBy;
     }
     public function getResolverId(): ?string
     {

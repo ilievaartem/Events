@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Hash;
 use App\Exceptions\AuthException;
 use App\Constants\Request\UserRequestConstants;
 use App\Constants\Role\UserRoleConstants;
+use App\DTO\Auth\AuthRegisterDTO;
+use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
+use App\Exceptions\NotFoundException;
 
 class AuthService
 {
@@ -19,35 +22,43 @@ class AuthService
     }
     public function login(string $email, string $password): array
     {
-        if ($token = $this->authWrapperService->makeAttempt($email, $password)) {
-            return $this->respondWithToken($token);
+        $token = $this->authWrapperService->makeAttempt($email, $password);
+        if (!$token) {
+            throw new NotFoundException("User is not exist");
         }
-        throw new AuthException("User is not authorize");
+        return $this->respondWithToken($token);
+
 
     }
-    public function loginNewUser($token)
+    public function loginNewUser(mixed $token): array
     {
         return $this->respondWithToken($token);
     }
-    public function register(string $username, string $email, string $telephone, string $password)
+    public function logout(): bool
     {
-
-        if (!$this->authRepository->isUserExist($email)) {
-            $user = [
-                UserDBConstants::NAME => $username,
-                UserDBConstants::EMAIL => $email,
-                UserDBConstants::TELEPHONE => $telephone,
-                UserDBConstants::ROLE => UserRoleConstants::ROLE_USER,
-                UserDBConstants::PASSWORD => $password,
-            ];
-            $this->authRepository->register($user);
-            return $this->respondWithToken($this->authWrapperService->makeAttempt($email, $password));
-
-        }
-        throw new ForbiddenException("User is already registered ");
-
+        return $this->authWrapperService->logout();
     }
-
+    private function formatUserForRegister(AuthRegisterDTO $user): array
+    {
+        return [
+            UserDBConstants::NAME => $user->getName(),
+            UserDBConstants::EMAIL => $user->getEmail(),
+            UserDBConstants::TELEPHONE => $user->getTelephone(),
+            UserDBConstants::ROLE => UserRoleConstants::ROLE_USER,
+            UserDBConstants::PASSWORD => $user->getPassword(),
+        ];
+    }
+    public function register(AuthRegisterDTO $user)
+    {
+        $this->authRepository->register($this->formatUserForRegister($user));
+        return $this->respondWithToken($this->authWrapperService->makeAttempt($user->getEmail(), $user->getPassword()));
+    }
+    public function isUserExist(string $email): void
+    {
+        if ($this->authRepository->isUserExist($email) == false) {
+            throw new ConflictException("User is already exist");
+        }
+    }
 
     /**
      * @param string $token
@@ -59,7 +70,7 @@ class AuthService
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => $this->authWrapperService->getTTl()
         ];
     }
 }

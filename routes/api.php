@@ -59,10 +59,8 @@ Route::get('events/{id}/similar', [EventController::class, 'similar']);
 Route::delete('events/{id}', [EventController::class, 'delete'])->middleware([UserIsAuthorized::class, CheckEventAuthor::class]);
 Route::get('events/maili/search', [EventController::class, 'mailisearch']);
 Route::get('users/{id}/events', [EventController::class, 'getEventsByAuthorId']);
-
 Route::get('events/{id}', [EventController::class, 'show']);
 //eventArchives
-Route::get('eventArchives', [EventArchiveController::class, 'index']);
 Route::get('users/{id}/eventArchives', [EventArchiveController::class, 'showUserEventArchives']);
 Route::post('events/{id}/eventArchives', [EventArchiveController::class, 'archive'])->middleware([UserIsAuthorized::class, CheckEventAuthor::class]);
 Route::delete('eventArchives/{id}/unarchive', [EventArchiveController::class, 'unarchive'])->middleware([UserIsAuthorized::class, CheckEventAuthor::class]);
@@ -89,13 +87,13 @@ Route::post('countries/{countryId}/regions', [RegionController::class, 'create']
 Route::put('countries/{countryId}/regions/{id}', [RegionController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 //countries
 Route::get('countries', [CountryController::class, 'index']);
+// ->middleware([AdminIsAuthorized::class]);
 Route::get('countries/{id}', [CountryController::class, 'show']);
 Route::post('countries', [CountryController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::put('countries/{id}', [CountryController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 Route::delete('countries/{id}', [CountryController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
 
 //comments
-Route::get('comments', [CommentController::class, 'index']);
 Route::get('users/{id}/comments', [CommentController::class, 'getCommentsByAuthorId']);
 Route::get('comments/{id}', [CommentController::class, 'show']);
 Route::post('events/{id}/comments', [CommentController::class, 'create'])->middleware([UserIsAuthorized::class]);
@@ -106,12 +104,13 @@ Route::delete('comments/{id}', [CommentController::class, 'delete'])->middleware
 //category
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
+Route::get('categories/{id}/parent', [CategoryController::class, 'getCategoryChild']);
 Route::post('categories', [CategoryController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::put('categories/{id}', [CategoryController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 Route::delete('categories/{id}', [CategoryController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
 //tag
 Route::get('tags', [TagController::class, 'index']);
-Route::get('tags/{id}', [TagController::class, 'show']);
+// Route::get('tags/{id}', [TagController::class, 'show']);
 Route::post('tags', [TagController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::put('tags/{id}', [TagController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 Route::delete('tags/{id}', [TagController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
@@ -128,6 +127,7 @@ Route::get('chats/member', [ChatController::class, 'getAllMemberChat'])->middlew
 Route::get('chats/{id}', [ChatController::class, 'show'])->middleware([UserIsAuthorized::class], [CheckChatMember::class]);
 Route::get('chats/{id}/messages', [ChatController::class, 'getChatWithAllMessages'])->middleware([UserIsAuthorized::class, CheckChatMember::class]);
 //auth
+Route::delete('logout', [AuthController::class, 'logout'])->middleware([UserIsAuthorized::class]);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
@@ -149,16 +149,13 @@ Route::get('events/{id}/questions', [QuestionController::class, 'getEventQuestio
 Route::get('questions/{id}', [QuestionController::class, 'show']);
 Route::post('events/{id}/questions/ask', [QuestionController::class, 'createQuestion'])
     ->middleware([UserIsAuthorized::class, CheckEventDoNotAuthor::class]);
-Route::post('events/{id}/questions/response', [QuestionController::class, 'responseToQuestion'])
+Route::post('events/{id}/questions/answer', [QuestionController::class, 'answerToQuestion'])
     ->middleware([UserIsAuthorized::class, CheckEventAuthor::class]);
 Route::put('questions/{id}', [QuestionController::class, 'update'])->middleware([
     UserIsAuthorized::class
     // , CheckQuestionAuthor::class
 ]);
-Route::delete('questions/{id}', [QuestionController::class, 'delete'])->middleware([
-    UserIsAuthorized::class
-    // , CheckQuestionAuthor::class
-]);
+
 //appliers
 Route::get('events/{id}/appliers', [ApplierController::class, 'EventAppliers']);
 // ->middleware([AdminIsAuthorized::class]);
@@ -170,15 +167,19 @@ Route::get('events/{id}/interesters', [InteresterController::class, 'EventIntere
 // ->middleware([AdminIsAuthorized::class]);
 Route::get('events/{id}/interesters/count', [InteresterController::class, 'InteresterCount']);
 Route::get('interesters/{id}', [InteresterController::class, 'show'])->middleware([AdminIsAuthorized::class]);
-Route::put('events/{id}/interesters', [InteresterController::class, 'changeInteresterStatus'])->middleware([UserIsAuthorized::class]);
-//complaints complaints/018dc206-75b3-7162-8a0e-1bb416cda147/unassign
-Route::get('complaints', [ComplaintController::class, 'index']);
+Route::put('events/{id}/interesters', [InteresterController::class, 'changeInteresterStatus'])
+    ->middleware([UserIsAuthorized::class]);
+//complaints
+Route::get('complaints/unsolved', [ComplaintController::class, 'unsolved']);
+// ->middleware([AdminIsAuthorized::class]);
 Route::get('events/{id}/authorComplaints', [ComplaintController::class, 'getAuthorComplaints']);
+// ->middleware([AdminIsAuthorized::class]);
 Route::get('events/{id}/receiverComplaints', [ComplaintController::class, 'getReceiverComplaints']);
+// ->middleware([UserIsAuthorized::class]);
 Route::get('complaints/filter', [ComplaintController::class, 'filter']);
 Route::get('complaints/{id}', [ComplaintController::class, 'show']);
 Route::post('events/{id}/complaints', [ComplaintController::class, 'create'])->middleware([AdminIsAuthorized::class]);
-Route::put('complaints/{id}', [ComplaintController::class, 'update'])->middleware([AdminIsAuthorized::class]);
+Route::put('complaints/{id}', [ComplaintController::class, 'answer'])->middleware([AdminIsAuthorized::class]);
 Route::patch('complaints/{id}/read', [ComplaintController::class, 'read'])->middleware([AdminIsAuthorized::class]);
 Route::patch('complaints/{id}/toAssign', [ComplaintController::class, 'toAssign'])->middleware([AdminIsAuthorized::class]);
 Route::patch('complaints/{id}/unassign', [ComplaintController::class, 'unassign'])->middleware([AdminIsAuthorized::class]);
@@ -189,8 +190,8 @@ Route::get('users', [UserController::class, 'index']);
 // ->middleware([AdminIsAuthorized::class]);
 Route::get('users/{id}', [UserController::class, 'show']);
 // ->middleware([AdminIsAuthorized::class]);
-Route::post('users/{id}/avatars', [UserController::class, 'addPhoto'])->middleware([AdminIsAuthorized::class]);
-Route::delete('users/{id}/avatars', [UserController::class, 'deletePhoto'])->middleware([AdminIsAuthorized::class]);
+Route::post('users/{id}/avatars', [UserController::class, 'addPhoto'])->middleware([UserIsAuthorized::class]);
+Route::delete('users/{id}/avatars', [UserController::class, 'deletePhoto'])->middleware([UserIsAuthorized::class]);
 Route::post('users', [UserController::class, 'create'])->middleware([AdminIsAuthorized::class]);
 Route::patch('users/{id}/banned', [UserController::class, 'banned'])->middleware([AdminIsAuthorized::class]);
 Route::put('users/{id}', [UserController::class, 'update'])->middleware([AdminIsAuthorized::class]);

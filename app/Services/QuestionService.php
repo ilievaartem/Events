@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Constants\DB\QuestionDBConstants;
+use App\DTO\Question\AnswerQuestionDTO;
 use App\DTO\Question\CreateQuestionDTO;
 use App\DTO\Question\ResponseToQuestionDTO;
 use App\DTO\Question\UpdateQuestionDTO;
@@ -20,25 +21,18 @@ class QuestionService
         private UserService $userService,
     ) {
     }
-    public function index(): array
-    {
-        $index = $this->questionRepository->index();
-        if ($index != null) {
-            return $index;
-        }
-        throw new NotFoundException("Questions are not found");
-    }
+
     public function show(string $id): ?array
     {
         $this->checkIsExist($id);
         return $this->questionRepository->show($id);
     }
-    private function formatResponseToQuestion(ResponseToQuestionDTO $question): array
+    private function formatResponseToQuestion(AnswerQuestionDTO $question): array
     {
         return [
             QuestionDBConstants::EVENT_ID => $question->getEventId(),
             QuestionDBConstants::AUTHOR_ID => $question->getAuthorId(),
-            QuestionDBConstants::PARENT_ID => $question->getContent(),
+            QuestionDBConstants::PARENT_ID => $question->getParentId(),
             QuestionDBConstants::CONTENT => $question->getContent()
         ];
     }
@@ -61,31 +55,13 @@ class QuestionService
         $this->eventService->checkIsExist($question->getEventId());
         return $this->questionRepository->create($this->formatCreateQuestion($question));
     }
-    public function responseToQuestion(ResponseToQuestionDTO $question): array
+    public function answerToQuestion(AnswerQuestionDTO $question): array
     {
         $this->eventService->checkIsExist($question->getEventId());
+        $this->checkIsExist($question->getParentId());
         return $this->questionRepository->create($this->formatResponseToQuestion($question));
     }
-    private function checkIsParentExist(?string $parentId): void
-    {
-        if ($parentId == null) {
-            return;
-        }
-        $this->checkIsExist($parentId);
-    }
-    public function create(string $eventId, string $authorId, ?string $parentId, string $content): array
-    {
-        $this->eventService->checkIsExist($eventId);
-        $this->userService->checkIsExist($authorId);
-        $this->checkIsParentExist($parentId);
-        $question = [
-            QuestionDBConstants::EVENT_ID => $eventId,
-            QuestionDBConstants::AUTHOR_ID => $authorId,
-            QuestionDBConstants::PARENT_ID => $parentId,
-            QuestionDBConstants::CONTENT => $content
-        ];
-        return $this->questionRepository->create($question);
-    }
+
     public function delete(string $id): bool
     {
         return $this->questionRepository->delete($id);

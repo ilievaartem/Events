@@ -46,7 +46,24 @@ class ChatService
         string $lastMessageText,
         string $lastMessageAuthorId
     ): array {
-        $chat = [
+        return $this->chatRepository->create($this->formatForCreate(
+            $authorId,
+            $eventId,
+            $memberId,
+            $lastMessageText,
+            $lastMessageAuthorId
+        )
+        );
+
+    }
+    private function formatForCreate(
+        string $authorId,
+        string $eventId,
+        string $memberId,
+        string $lastMessageText,
+        string $lastMessageAuthorId
+    ): array {
+        return [
             ChatDBConstants::TOPIC => $this->eventService->getTopicById($eventId),
             ChatDBConstants::AUTHOR_ID => $authorId,
             ChatDBConstants::EVENT_ID => $eventId,
@@ -54,21 +71,21 @@ class ChatService
             ChatDBConstants::LAST_MESSAGE_TEXT => $lastMessageText,
             ChatDBConstants::LAST_MESSAGE_AUTHOR_ID => $lastMessageAuthorId,
         ];
-        return $this->chatRepository->create($chat);
-
     }
-
     public function updateLastMessageTextAndAuthor(
         string $lastMessageText,
         string $lastMessageAuthorId,
         string $chatId
     ): bool {
         $this->checkIsExist($chatId);
-        $dataForUpdate = [
+        return $this->chatRepository->update($this->formatDataForUpdate($lastMessageText, $lastMessageAuthorId), $chatId);
+    }
+    private function formatDataForUpdate(string $lastMessageText, string $lastMessageAuthorId): array
+    {
+        return [
             ChatDBConstants::LAST_MESSAGE_TEXT => $lastMessageText,
             ChatDBConstants::LAST_MESSAGE_AUTHOR_ID => $lastMessageAuthorId,
         ];
-        return $this->chatRepository->update($dataForUpdate, $chatId);
     }
     public function delete(string $id): bool
     {

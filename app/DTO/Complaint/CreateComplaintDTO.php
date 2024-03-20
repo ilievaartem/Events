@@ -1,16 +1,16 @@
 <?php
 
-namespace App\DTO\Question;
+namespace App\DTO\Complaint;
 
 use App\DTO\Contracts\DTOContract;
 
-class ResponseToQuestionDTO implements DTOContract
+class CreateComplaintDTO implements DTOContract
 {
     public function __construct(
         private readonly string $eventId,
         private readonly string $authorId,
-        private readonly string $parentId,
-        private readonly string $content
+        private readonly string $causeMessage,
+        private readonly string $causeDescription,
     ) {
     }
     public function getEventId(): string
@@ -21,12 +21,12 @@ class ResponseToQuestionDTO implements DTOContract
     {
         return $this->authorId;
     }
-    public function getContent(): string
+    public function getCauseMessage(): string
     {
-        return $this->content;
+        return $this->causeMessage;
     }
-    public function getParentId(): string
+    public function getCauseDescription(): string
     {
-        return $this->parentId;
+        return $this->causeDescription;
     }
 }

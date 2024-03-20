@@ -6,10 +6,10 @@ class EventDBConstants
 {
 
     public const ID = "id";
-    public const AGE_KIDS = "kids";
-    public const AGE_TEENS = "teens";
-    public const AGE_ANY = "any ages";
-    public const AGE_ADULT = "adult";
+    public const AGE_KIDS = "діти";
+    public const AGE_TEENS = "підлітки";
+    public const AGE_ANY = "будь-якого віку";
+    public const AGE_ADULT = "дорослий";
     public const TABLE = "events";
     public const TITLE = "title";
     public const SLUG = "slug";

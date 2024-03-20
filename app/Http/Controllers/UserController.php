@@ -8,6 +8,8 @@ use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Constants\Request\UserRequestConstants;
+use App\Factory\User\CreateUserDTOFactory;
+use App\Factory\User\UpdateUserDTOFactory;
 use App\Factory\User\UploadUserAvatarDTOFactory;
 use App\Http\Requests\Users\UserUploadAvatarRequest;
 use Ramsey\Uuid\Uuid;
@@ -17,28 +19,19 @@ class UserController extends Controller
 
     public function __construct(private UserService $userService)
     {
-        $this->userService = $userService;
     }
     public function index(): JsonResponse
     {
         return response()->json($this->userService->index());
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(UsersCreateRequest $request, CreateUserDTOFactory $createUserDTOFactory): JsonResponse
     {
-        $name = $request->input(UserRequestConstants::NAME);
-        $email = $request->input(UserRequestConstants::EMAIL);
-        $role = $request->input(UserRequestConstants::ROLE);
-        $telephone = $request->input(UserRequestConstants::ROLE);
-        $password = $request->input(UserRequestConstants::PASSWORD);
-        return response()->json($this->userService->create($name, $email, $role, $telephone, $password));
+        return response()->json($this->userService->create($createUserDTOFactory->make($request)));
     }
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, string $id, UpdateUserDTOFactory $updateUserDTOFactory): JsonResponse
     {
-        $name = $request->input(UserRequestConstants::NAME);
-        $email = $request->input(UserRequestConstants::EMAIL);
-        $password = $request->input(UserRequestConstants::PASSWORD);
-        return response()->json($this->userService->update($name, $email, $password, $id));
+        return response()->json($this->userService->update($updateUserDTOFactory->make($request, $id)));
     }
     public function delete(string $id): JsonResponse
     {

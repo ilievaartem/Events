@@ -29,10 +29,14 @@ class ApplierController extends Controller
     {
         return response()->json($this->applierService->show($id));
     }
-    public function changeApplierStatus(Request $request, string $id): JsonResponse
+    public function changeApplierStatus(string $eventId): JsonResponse
     {
-        $authorId = $this->authWrapperService->getAuthIdentifier();
-        return response()->json(['success' => $this->applierService->changeApplierStatus($id, $authorId)]);
+        return response()->json([
+            'success' => $this->applierService->changeApplierStatus(
+                $eventId,
+                $this->authWrapperService->getAuthIdentifier()
+            )
+        ]);
     }
 
 }

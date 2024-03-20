@@ -67,21 +67,26 @@ class MessageService
             throw new NotFoundException("Event has not current authors");
         }
     }
+    private function getChatMemberId(CreateMessageDTO $message, string $chatAuthorId): string
+    {
+        return $chatAuthorId == $message->getReceiverId()
+            ? $chatMemberId = $message->getResponderId()
+            : $chatMemberId = $message->getReceiverId();
+    }
+    private function createMessageAndChatIfNotExist(CreateMessageDTO $message, string $chatMemberId, string $chatAuthorId): array
+    {
+        return $this->chatService->isChatExistForMembers($message->getEventId(), $chatAuthorId, $chatMemberId)
+            ? $this->createNewMessage($chatMemberId, $chatAuthorId, $message->getText(), $message->getEventId(), $message->getResponderId())
+            : $this->createNewChatAndMessage($chatMemberId, $chatAuthorId, $message->getText(), $message->getEventId(), $message->getResponderId());
+
+    }
+
     public function create(CreateMessageDTO $message): array
     {
         $this->validateDataForCreate($message->getEventId(), $message->getReceiverId(), $message->getResponderId());
         $chatAuthorId = $this->eventService->getAuthorIdByEventId($message->getEventId());
-        $chatAuthorId == $message->getReceiverId()
-            ? $chatMemberId = $message->getResponderId()
-            : $chatMemberId = $message->getReceiverId();
-        $this->chatService->isChatExistForMembers($message->getEventId(), $chatAuthorId, $chatMemberId)
-            ? $this->createNewMessage($chatMemberId, $chatAuthorId, $message->getText(), $message->getEventId(), $message->getResponderId())
-            : $this->createNewChatAndMessage($chatMemberId, $chatAuthorId, $message->getText(), $message->getEventId(), $message->getResponderId());
-        return [
-            MessageDBConstants::CHAT_ID => $this->chatService->getChatId($message->getEventId(), $chatAuthorId, $chatMemberId),
-            MessageDBConstants::TEXT => $message->getText(),
-        ];
-        ;
+        $chatMemberId = $this->getChatMemberId($message, $chatAuthorId);
+        return $this->createMessageAndChatIfNotExist($message, $chatMemberId, $chatAuthorId);
     }
     public function makeNewMessage(string $memberId, string $authorId, string $text, string $eventId, string $responderId): array
     {
@@ -91,14 +96,15 @@ class MessageService
             MessageDBConstants::TEXT => $text,
         ];
     }
-    public function createNewMessage(string $memberId, string $authorId, string $text, string $eventId, string $responderId): void
+    public function createNewMessage(string $memberId, string $authorId, string $text, string $eventId, string $responderId): array
     {
-        $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId, $responderId));
         $this->chatService->updateLastMessageTextAndAuthor(
             $text,
             $authorId,
             $this->chatService->getChatId($eventId, $authorId, $memberId)
         );
+        return $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId, $responderId));
+
     }
     public function createNewChatAndMessage(
         string $memberId,
@@ -106,9 +112,9 @@ class MessageService
         string $text,
         string $eventId,
         string $lastMessageAuthorId
-    ): void {
+    ): array {
         $this->chatService->makeNewChat($authorId, $eventId, $memberId, $text, $lastMessageAuthorId);
-        $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId, $lastMessageAuthorId));
+        return $this->messageRepository->create($this->makeNewMessage($memberId, $authorId, $text, $eventId, $lastMessageAuthorId));
 
     }
     public function delete(string $id): bool

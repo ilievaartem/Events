@@ -12,4 +12,6 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
     public function getUserBannedStatus(string $id): ?string;
     public function updateBannedAt(string $id, array $bannedAt): bool;
     public function searchByName(string $name): ?int;
+    public function checkUserExistByEmail(string $email): bool;
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Categories;
 
+use App\Constants\DB\CategoryDBConstants;
 use App\Constants\Request\CategoryRequestConstants;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,8 +24,8 @@ class CategoryCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            CategoryRequestConstants::NAME => 'required|unique:categories|max:35',
-            CategoryRequestConstants::PARENT_ID => '|numeric',
+            CategoryRequestConstants::NAME => 'required|string|max:35',
+            CategoryRequestConstants::PARENT_ID => 'min:0|numeric',
         ];
     }
 }

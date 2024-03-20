@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Categories;
 
+use App\Constants\DB\CategoryDBConstants;
 use App\Constants\Request\CategoryRequestConstants;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +24,7 @@ class CategoryUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            CategoryRequestConstants::NAME => 'required|max:35',
+            CategoryRequestConstants::NAME => 'required|string|max:35',
         ];
     }
 }

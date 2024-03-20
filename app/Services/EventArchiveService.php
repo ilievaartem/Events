@@ -17,14 +17,7 @@ class EventArchiveService
     ) {
     }
 
-    public function index(): array
-    {
-        $index = $this->eventArchiveRepository->index();
-        if ($index != null) {
-            return $index;
-        }
-        throw new NotFoundException("EventArchives are not found");
-    }
+
     public function show(string $id): ?array
     {
         $this->checkIsExist($id);
@@ -43,7 +36,7 @@ class EventArchiveService
         $this->eventService->delete($eventId);
         return $this->show($eventId);
     }
-    public function unarchive(string $id, ): array
+    public function unarchive(string $id): array
     {
         $this->checkIsExist($id);
         $event = $this->show($id);

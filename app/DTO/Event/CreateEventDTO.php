@@ -29,12 +29,9 @@ class CreateEventDTO implements DTOContract
         private readonly string $age,
         private readonly array $categoriesIds,
         private readonly array $tagsIds,
-        private readonly ?float $rating,
         private readonly string $authorId,
         private readonly ?string $parentId,
-        private readonly int $countryId,
-        private readonly int $regionId,
-        private readonly int $communityId,
+
         private readonly int $placeId,
     ) {
         $this->additionalAuthorsStr = json_encode($additionalAuthors);
@@ -75,18 +72,6 @@ class CreateEventDTO implements DTOContract
         return $this->building;
     }
 
-    public function getCountryId(): int
-    {
-        return $this->countryId;
-    }
-    public function getRegionId(): int
-    {
-        return $this->regionId;
-    }
-    public function getCommunityId(): int
-    {
-        return $this->communityId;
-    }
     public function getPlaceId(): int
     {
         return $this->placeId;
@@ -137,10 +122,7 @@ class CreateEventDTO implements DTOContract
     {
         return $this->categoriesIds;
     }
-    public function getRating(): ?float
-    {
-        return $this->rating;
-    }
+
     public function getAuthorId(): string
     {
         return $this->authorId;

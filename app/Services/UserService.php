@@ -8,7 +8,11 @@ use Illuminate\Support\Facades\Hash;
 use App\Constants\DB\UserDBConstants;
 use App\DTO\Photos\CreatePhotoDTO;
 use App\DTO\Photos\CreatePhotosDTO;
+use App\DTO\User\CreateUserDTO;
+use App\DTO\User\UpdateUserDTO;
+use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
+use App\Jobs\LoadUserAvatarJob;
 
 class UserService
 {
@@ -17,17 +21,25 @@ class UserService
         private PhotoService $photoService,
     ) {
     }
-    public function create(string $name, string $email, string $role, string $telephone, string $password): array
+
+    private function passwordHash(string $password): string
     {
-        $password = Hash::make($password);
-        $user = [
-            UserDBConstants::NAME => $name,
-            UserDBConstants::EMAIL => $email,
-            UserDBConstants::ROLE => $role,
-            UserDBConstants::TELEPHONE => $telephone,
-            UserDBConstants::PASSWORD => $password
+        return Hash::make($password);
+    }
+    private function formatToCreate(CreateUserDTO $createUserDTO): array
+    {
+        return [
+            UserDBConstants::NAME => $createUserDTO->getName(),
+            UserDBConstants::EMAIL => $createUserDTO->getEmail(),
+            UserDBConstants::ROLE => $createUserDTO->getRole(),
+            UserDBConstants::TELEPHONE => $createUserDTO->getTelephone(),
+            UserDBConstants::PASSWORD => $this->passwordHash($createUserDTO->getPassword())
         ];
-        return $this->userRepository->create($user);
+    }
+    public function create(CreateUserDTO $createUserDTO): array
+    {
+        $this->checkUserNotExistByEmail($createUserDTO->getEmail());
+        return $this->userRepository->create($this->formatToCreate($createUserDTO));
     }
     public function index(): array
     {
@@ -37,7 +49,7 @@ class UserService
         }
         throw new NotFoundException("Users are not found");
     }
-    public function show(string $id): ?array
+    public function show(string $id): array
     {
         $this->checkIsExist($id);
         return $this->userRepository->show($id);
@@ -65,17 +77,20 @@ class UserService
             : $this->userRepository->updateBannedAt($id, $this->formatBannedAt(now()));
         return $this->show($id);
     }
-    public function update(?string $name, ?string $email, ?string $password, string $id): array
+    private function formatToUpdate(UpdateUserDTO $updateUserDTO): array
     {
-        $this->checkIsExist($id);
-        $password = Hash::make($password);
-        $user = [
-            UserDBConstants::NAME => $name,
-            UserDBConstants::EMAIL => $email,
-            UserDBConstants::PASSWORD => $password
+        return [
+            UserDBConstants::NAME => $updateUserDTO->getName(),
+            UserDBConstants::EMAIL => $updateUserDTO->getEmail(),
+            UserDBConstants::PASSWORD => $this->passwordHash($updateUserDTO->getPassword())
         ];
-        $this->userRepository->update($user, $id);
-        return $this->userRepository->show($id);
+    }
+    public function update(UpdateUserDTO $updateUserDTO): array
+    {
+        $this->checkIsExist($updateUserDTO->getUserId());
+        $this->checkUserNotExistByEmail($updateUserDTO->getEmail());
+        $this->userRepository->update($this->formatToUpdate($updateUserDTO), $updateUserDTO->getUserId());
+        return $this->userRepository->show($updateUserDTO->getUserId());
     }
     public function checkIsUserExistByUserId(string $userId): bool
     {
@@ -88,19 +103,21 @@ class UserService
     public function uploadPhotos(string $id, CreatePhotoDTO $photo): array
     {
         $this->checkIsExist($id);
+
         $this->userRepository->update($this->formatForUploadAvatar($photo), $id);
-        $this->photoService->storagePhoto($photo->getPathForDB(), $this->photoService->getPhotoContentForEvent($photo));
+        $this->photoService->storagePhoto($photo->getPathForDB(), $this->photoService->getPhotoContent($photo->getCurrentPath()));
         return $this->show($id);
     }
+
     public function deletePhoto(string $id): bool
     {
         $this->checkIsExist($id);
         $oldPath = $this->userRepository->getPhotoPathById($id);
-        if ($oldPath != null) {
-            $this->userRepository->update($this->formatForDeleteAvatar(), $id);
-            return $this->photoService->deleteOldPhoto($oldPath);
+        if ($oldPath == null) {
+            return true;
         }
-        return true;
+        $this->userRepository->update($this->formatForDeleteAvatar(), $id);
+        return $this->photoService->deleteOldPhoto($oldPath);
     }
     private function formatForUploadAvatar(CreatePhotoDTO $photo): array
     {
@@ -113,6 +130,18 @@ class UserService
         return [
             UserDBConstants::AVATAR => null
         ];
+    }
+    public function checkUserExistByEmail(string $email): void
+    {
+        if ($this->userRepository->checkUserExistByEmail($email) == false) {
+            throw new NotFoundException("User is not found");
+        }
+    }
+    public function checkUserNotExistByEmail(string $email): void
+    {
+        if ($this->userRepository->checkUserExistByEmail($email) == true) {
+            throw new ConflictException("User is already exist");
+        }
     }
     public function checkIsExist(string $id): void
     {

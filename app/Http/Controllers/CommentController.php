@@ -19,10 +19,7 @@ class CommentController extends Controller
         private readonly AuthWrapperService $authWrapperService
     ) {
     }
-    public function index(Request $request): JsonResponse
-    {
-        return response()->json($this->commentService->index());
-    }
+
     public function getCommentsByAuthorId(string $authorId): JsonResponse
     {
         return response()->json($this->commentService->getCommentsByAuthorId($authorId));
@@ -31,15 +28,15 @@ class CommentController extends Controller
     {
         return response()->json($this->commentService->getEventComments($eventId));
     }
-    public function create(Request $request, string $eventId): JsonResponse
+    public function create(CommentsCreateRequest $request, string $eventId): JsonResponse
     {
         $authorId = $this->authWrapperService->getAuthIdentifier();
         $content = $request->input(CommentRequestConstants::CONTENT);
         return response()->json($this->commentService->create($eventId, $authorId, $content));
     }
-    public function update(Request $request, string $id): JsonResponse
+    public function update(CommentsUpdateRequest $request, string $id): JsonResponse
     {
-        return response()->json($this->commentService->update($request->all(), $id));
+        return response()->json($this->commentService->update($request->input(CommentRequestConstants::CONTENT), $id));
     }
     public function delete(string $id): JsonResponse
     {

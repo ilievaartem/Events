@@ -13,6 +13,7 @@ class UsersCreateRequest extends FormRequest
             UserRequestConstants::NAME => 'required|max:25',
             UserRequestConstants::EMAIL => 'required|unique:users|email:rfc|max:60',
             UserRequestConstants::ROLE => 'required|string|max:30',
+            UserRequestConstants::TELEPHONE => 'required|string|min:7|max:30',
             UserRequestConstants::PASSWORD => 'required|min:3|max:30'
         ];
     }

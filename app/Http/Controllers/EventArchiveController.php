@@ -17,10 +17,7 @@ class EventArchiveController extends Controller
         private readonly AuthWrapperService $authWrapperService
     ) {
     }
-    public function index(): JsonResponse
-    {
-        return response()->json($this->eventArchiveService->index());
-    }
+
     public function archive(string $eventId): JsonResponse
     {
         return response()->json($this->eventArchiveService->archive($eventId));
@@ -29,7 +26,7 @@ class EventArchiveController extends Controller
     {
         return response()->json($this->eventArchiveService->showUserEventArchives($userId));
     }
-    public function unarchive(EventCreateRequest $request, string $id): JsonResponse
+    public function unarchive(string $id): JsonResponse
     {
         return response()->json($this->eventArchiveService->unarchive($id));
     }

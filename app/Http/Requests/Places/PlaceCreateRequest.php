@@ -17,7 +17,7 @@ class PlaceCreateRequest extends FormRequest
         return [
             PlaceRequestConstants::NAME => 'required|min:1|max:100|string',
             PlaceRequestConstants::TYPE => 'required|string|in:' . $this->placeService->getPlaceTypeList(),
-            PlaceRequestConstants::COMMUNITY_ID => 'required|integer'
+            PlaceRequestConstants::COMMUNITY_ID => 'required|integer|min:0'
         ];
     }
 }

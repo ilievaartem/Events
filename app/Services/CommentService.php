@@ -16,14 +16,19 @@ class CommentService
         private EventService $eventService,
     ) {
     }
-    public function create(string $event_id, string $author_id, string $content): array
+    public function formatCommentForRecord(string $eventId, string $authorId, string $content): array
     {
-        $comment = [
-            CommentDBConstants::EVENT_ID => $event_id,
-            CommentDBConstants::AUTHOR_ID => $author_id,
+        return [
+            CommentDBConstants::EVENT_ID => $eventId,
+            CommentDBConstants::AUTHOR_ID => $authorId,
             CommentDBConstants::CONTENT => $content
         ];
-        return $this->commentRepository->create($comment);
+    }
+    public function create(string $eventId, string $authorId, string $content): array
+    {
+        $this->eventService->checkIsExist($eventId);
+        $this->userService->checkIsExist($authorId);
+        return $this->commentRepository->create($this->formatCommentForRecord($eventId, $authorId, $content));
     }
     public function checkIsAuthor(string $id, string $userId): void
     {
@@ -42,30 +47,25 @@ class CommentService
         $this->checkIsExist($commentId);
         return $this->commentRepository->getAuthorId($commentId);
     }
-    public function index(): array
-    {
-        $index = $this->commentRepository->index();
-        if ($index != null) {
-            return $index;
-        }
-        throw new NotFoundException("Comments is not found");
-    }
     public function show(string $id): ?array
     {
-
         $this->checkIsExist($id);
-
         return $this->commentRepository->show($id);
     }
     public function delete(string $id): bool
     {
         return $this->commentRepository->delete($id);
     }
-    public function update(array $data, string $id): array
+    private function formatContentForRecord(string $content): array
+    {
+        return [
+            CommentDBConstants::CONTENT => $content
+        ];
+    }
+    public function update(string $content, string $id): array
     {
         $this->checkIsExist($id);
-
-        $this->commentRepository->update($data, $id);
+        $this->commentRepository->update($this->formatContentForRecord($content), $id);
         return $this->commentRepository->show($id);
     }
     public function getCommentsByAuthorId(string $authorId): array

@@ -10,7 +10,6 @@ class CommentsCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            CommentRequestConstants::EVENT_ID => 'required|numeric',
             CommentRequestConstants::CONTENT => 'required|string|max:255'
         ];
     }

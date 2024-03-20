@@ -28,8 +28,11 @@ class MessageController extends Controller
         CreateMessageDTOFactory $createMessageDTOFactory,
         string $eventId
     ): JsonResponse {
-        $createMessageDTO = $createMessageDTOFactory->make($request, $eventId, $$this->authWrapperService->getAuthIdentifier());
-        return response()->json($this->messageService->create($createMessageDTO));
+        return response()->json(
+            $this->messageService->create(
+                $createMessageDTOFactory->make($request, $eventId, $this->authWrapperService->getAuthIdentifier())
+            )
+        );
     }
     public function update(MessageUpdateRequest $request, string $id): JsonResponse
     {

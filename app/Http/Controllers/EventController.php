@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\DTO\Event\CreateEventDTO;
 use App\Http\Requests\Events\EventFilterRequest;
 use App\Constants\Request\EventRequestConstants;
-
+use App\Factory\Event\CreateEventDTOFactory;
 use App\Factory\Event\DeletePhotosEventDTOFactory;
 use App\Factory\Event\UploadPhotosEventDTOFactory;
 use App\Factory\Event\UploadPhotoEventDTOFactory;
 use App\Factory\Event\FilterEventDTOFactory;
+use App\Factory\Event\UpdateEventDTOFactory;
 use App\Http\Requests\Events\EventCreateRequest;
 use App\Http\Requests\Events\EventDeletePhotosRequest;
 use App\Http\Requests\Events\EventUploadPhotosRequest;
@@ -52,90 +53,14 @@ class EventController extends Controller
      *
      * @return JsonResponse
      */
-    public function create(EventCreateRequest $request): JsonResponse
+    public function create(EventCreateRequest $request, CreateEventDTOFactory $createEventDTOFactory): JsonResponse
     {
-        $createEventDTO = new CreateEventDTO(
-
-            title: $request->input(EventRequestConstants::TITLE),
-            longitude: $request->input(EventRequestConstants::LONGITUDE),
-            latitude: $request->input(EventRequestConstants::LATITUDE),
-            additionalAuthors: $request->input(EventRequestConstants::ADDITIONAL_AUTHOR),
-            description: $request->input(EventRequestConstants::DESCRIPTION),
-            shortDescription: $request->input(EventRequestConstants::SHORT_DESCRIPTION),
-            streetName: $request->input(EventRequestConstants::STREET_NAME),
-            building: $request->input(EventRequestConstants::STREET_NAME),
-            placeName: $request->input(EventRequestConstants::PLACE_NAME),
-            corpus: $request->input(EventRequestConstants::CORPUS),
-            apartment: $request->input(EventRequestConstants::APARTMENT),
-            placeDescription: $request->input(EventRequestConstants::PLACE_DESCRIPTION),
-            startDate: $request->input(EventRequestConstants::START_DATE),
-            startTime: $request->input(EventRequestConstants::START_TIME),
-            finishDate: $request->input(EventRequestConstants::FINISH_DATE),
-            finishTime: $request->input(EventRequestConstants::FINISH_TIME),
-            age: $request->input(EventRequestConstants::AGE),
-            categoriesIds: $request->input(EventRequestConstants::CATEGORIES_IDS),
-            tagsIds: $request->input(EventRequestConstants::TAGS_IDS),
-            rating: $request->input(EventRequestConstants::RATING),
-            authorId: $this->authWrapperService->getAuthIdentifier(),
-            parentId: $request->input(EventRequestConstants::PARENT_ID),
-            countryId: $request->input(EventRequestConstants::COUNTRY_ID),
-            regionId: $request->input(EventRequestConstants::REGION_ID),
-            communityId: $request->input(EventRequestConstants::COMMUNITY_ID),
-            placeId: $request->input(EventRequestConstants::PLACE_ID),
-        );
-        return response()->json($this->eventService->create($createEventDTO));
+        return response()->json($this->eventService->create($createEventDTOFactory->make($request)));
     }
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, UpdateEventDTOFactory $updateEventDTOFactory, string $id): JsonResponse
     {
-        $title = $request->input(EventRequestConstants::TITLE);
-        $longitude = $request->input(EventRequestConstants::LONGITUDE);
-        $latitude = $request->input(EventRequestConstants::LATITUDE);
-        $additional_author = $request->input(EventRequestConstants::ADDITIONAL_AUTHOR);
-        $description = $request->input(EventRequestConstants::DESCRIPTION);
-        $street_name = $request->input(EventRequestConstants::STREET_NAME);
-        $building = $request->input(EventRequestConstants::BUILDING);
-        $place_name = $request->input(EventRequestConstants::PLACE_NAME);
-        $corpus = $request->input(EventRequestConstants::CORPUS);
-        $apartment = $request->input(EventRequestConstants::APARTMENT);
-        $place_description = $request->input(EventRequestConstants::PLACE_DESCRIPTION);
-        $start_date = $request->input(EventRequestConstants::START_DATE);
-        $start_time = $request->input(EventRequestConstants::START_TIME);
-        $finish_date = $request->input(EventRequestConstants::FINISH_DATE);
-        $finish_time = $request->input(EventRequestConstants::FINISH_TIME);
-        $age = $request->input(EventRequestConstants::AGE);
-        $categories_ids = $request->input(EventRequestConstants::CATEGORIES_IDS);
-        $tags_ids = $request->input(EventRequestConstants::TAGS_IDS);
-        $parent_id = $request->input(EventRequestConstants::PARENT_ID);
-        $country_id = $request->input(EventRequestConstants::COUNTRY_ID);
-        $region_id = $request->input(EventRequestConstants::REGION_ID);
-        $community_id = $request->input(EventRequestConstants::COMMUNITY_ID);
-        $place_id = $request->input(EventRequestConstants::PLACE_ID);
-        $event = [
-            EventRequestConstants::TITLE => $title,
-            EventRequestConstants::LONGITUDE => $longitude,
-            EventRequestConstants::LATITUDE => $latitude,
-            EventRequestConstants::ADDITIONAL_AUTHOR => $additional_author,
-            EventRequestConstants::DESCRIPTION => $description,
-            EventRequestConstants::STREET_NAME => $street_name,
-            EventRequestConstants::BUILDING => $building,
-            EventRequestConstants::PLACE_NAME => $place_name,
-            EventRequestConstants::CORPUS => $corpus,
-            EventRequestConstants::APARTMENT => $apartment,
-            EventRequestConstants::PLACE_DESCRIPTION => $place_description,
-            EventRequestConstants::START_DATE => $start_date,
-            EventRequestConstants::START_TIME => $start_time,
-            EventRequestConstants::FINISH_DATE => $finish_date,
-            EventRequestConstants::FINISH_TIME => $finish_time,
-            EventRequestConstants::AGE => $age,
-            EventRequestConstants::CATEGORIES_IDS => json_encode($categories_ids),
-            EventRequestConstants::TAGS_IDS => json_encode($tags_ids),
-            EventRequestConstants::PARENT_ID => $parent_id,
-            EventRequestConstants::COUNTRY_ID => $country_id,
-            EventRequestConstants::REGION_ID => $region_id,
-            EventRequestConstants::COMMUNITY_ID => $community_id,
-            EventRequestConstants::PLACE_ID => $place_id,
-        ];
-        return response()->json($this->eventService->update($event, $id));
+
+        return response()->json($this->eventService->update($updateEventDTOFactory->make($request), $id));
     }
 
     public function delete(string $id): JsonResponse
@@ -157,15 +82,11 @@ class EventController extends Controller
         UploadPhotosEventDTOFactory $uploadPhotosEventDTOFactory,
         string $id
     ) {
-        $createDTOPhoto = $uploadPhotoEventDTOFactory->make($request, $id);
-        $createDTOPhotos = $uploadPhotosEventDTOFactory->make($request, $id);
-
-
         return response()->json(
             $this->eventService->updatePhotos(
                 $id,
-                $createDTOPhoto,
-                $createDTOPhotos,
+                $uploadPhotoEventDTOFactory->make($request, $id),
+                $uploadPhotosEventDTOFactory->make($request, $id),
             )
         );
     }

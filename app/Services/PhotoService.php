@@ -27,9 +27,9 @@ class PhotoService
     {
         return '/media/comments/' . $id . '/photo/' . Str::random(8) . '.' . $photoExtension;
     }
-    public function getPhotoContentForEvent(?CreatePhotoDTO $photoPath): string
+    public function getPhotoContent(string $photoPath): string
     {
-        return file_get_contents($photoPath->getCurrentPath());
+        return file_get_contents($photoPath);
     }
 
     public function makePhotosDTO(?array $files, string $id, string $entityName): ?array
@@ -55,7 +55,7 @@ class PhotoService
     public function unionPhotos(?array $photos): ?array
     {
 
-        if (!empty($photos['main_photo']) && !empty($photos['photos'])) {
+        if (!empty ($photos['main_photo']) && !empty ($photos['photos'])) {
             return [
 
                 ...$photos['photos'],
@@ -63,12 +63,12 @@ class PhotoService
 
             ];
         }
-        if (!empty($photos['main_photo'])) {
+        if (!empty ($photos['main_photo'])) {
             return [
                 $photos['main_photo']
             ];
         }
-        if (!empty($photos['photos'])) {
+        if (!empty ($photos['photos'])) {
             return $photos['photos'];
         }
         return [];
@@ -81,13 +81,19 @@ class PhotoService
         foreach ($photos->getPhotos() as $photo) {
 
             $photosForStorage[] = [
-                'photo' => $this->getPhotoContentForEvent($photo),
+                'photo' => $this->getPhotoContent($photo->getCurrentPath()),
                 'path' => $photo->getPathForDB(),
             ];
         }
         return $photosForStorage;
     }
-
+    public function deleteOldPhotoByPath(?string $oldPhotoPath): void
+    {
+        if ($oldPhotoPath == null) {
+            return;
+        }
+        $this->deleteOldPhoto($oldPhotoPath);
+    }
     public function storagePhoto(string $directory, string $photo): void
     {
         $this->photoRepository->savePhoto($directory, $photo);

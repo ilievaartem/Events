@@ -39,16 +39,9 @@ class EventCreateRequest extends FormRequest
             EventRequestConstants::CATEGORIES_IDS . '.*' => 'integer|min:0',
             EventRequestConstants::TAGS_IDS => 'array',
             EventRequestConstants::TAGS_IDS . '.*' => 'integer|min:0',
-            EventRequestConstants::APPLIERS => 'array',
-            EventRequestConstants::APPLIERS . '.*' => 'integer|min:0',
-            EventRequestConstants::INTERESTARS => 'array',
-            EventRequestConstants::INTERESTARS . '.*' => 'integer|min:1',
             EventRequestConstants::IS_ONLINE => 'boolean',
             EventRequestConstants::IS_OFFLINE => 'boolean',
             EventRequestConstants::PARENT_ID => 'string|uuid',
-            EventRequestConstants::COUNTRY_ID => 'required|integer|min:0',
-            EventRequestConstants::REGION_ID => 'required|integer|min:0',
-            EventRequestConstants::COMMUNITY_ID => 'required|integer|min:0',
             EventRequestConstants::PLACE_ID => 'required|integer|min:0',
 
         ];

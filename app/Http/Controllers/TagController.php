@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Request\TagRequestConstants;
+use App\Http\Requests\Tags\TagsCreateRequest;
+use App\Http\Requests\Tags\TagsUpdateRequest;
 use App\Services\TagService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,14 +19,13 @@ class TagController extends Controller
         return response()->json($this->tagService->index());
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(TagsCreateRequest $request): JsonResponse
     {
-
-        return response()->json($this->tagService->create($request->all()));
+        return response()->json($this->tagService->create($request->input(TagRequestConstants::NAME)));
     }
-    public function update(Request $request, int $id): JsonResponse
+    public function update(TagsUpdateRequest $request, int $id): JsonResponse
     {
-        return response()->json($this->tagService->update($request->all(), $id));
+        return response()->json($this->tagService->update($request->input(TagRequestConstants::NAME), $id));
     }
     public function delete(int $id): JsonResponse
     {
@@ -31,8 +33,8 @@ class TagController extends Controller
 
 
     }
-    public function show(int $id): JsonResponse
-    {
-        return response()->json($this->tagService->show($id));
-    }
+    // public function show(int $id): JsonResponse
+    // {
+    //     return response()->json($this->tagService->show($id));
+    // }
 }
