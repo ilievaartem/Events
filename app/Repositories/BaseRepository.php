@@ -41,7 +41,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
     public function checkIsExist(int|string $id): bool
     {
-        return $this->model->where('id', $id)->exists();
+        return $this->model->query()->find($id)->exists();
     }
 
 }
