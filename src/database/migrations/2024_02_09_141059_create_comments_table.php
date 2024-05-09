@@ -14,14 +14,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create(CommentDBConstants::TABLE, function (Blueprint $table) {
-            $table->uuid(CommentDBConstants::ID)->primary();
+            $table->uuid(CommentDBConstants::ID);
+            $table->primary(CommentDBConstants::ID);
 
             $table->text(CommentDBConstants::CONTENT);
             $table->unsignedTinyInteger(CommentDBConstants::RATING)->nullable();
             $table->foreignUuid(CommentDBConstants::EVENT_ID)->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(CommentDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
-//            $table->foreignUuid(CommentDBConstants::PARENT_ID)->nullable()->references(CommentDBConstants::ID)
-//                ->on(CommentDBConstants::TABLE)->onDelete('cascade');
+            $table->foreignUuid(CommentDBConstants::PARENT_ID)->nullable()->references(CommentDBConstants::ID)
+                ->on(CommentDBConstants::TABLE)->onDelete('set null');
             $table->timestamps();
 
         });
