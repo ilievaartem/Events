@@ -19,8 +19,8 @@ return new class extends Migration {
             $table->text(QuestionDBConstants::CONTENT);
             $table->foreignUuid(QuestionDBConstants::EVENT_ID)->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
             $table->foreignUuid(QuestionDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
-            $table->foreignUuid(QuestionDBConstants::PARENT_ID)->nullable()->references(QuestionDBConstants::ID)
-                ->on(QuestionDBConstants::TABLE)->onDelete('cascade');
+//            $table->foreignUuid(QuestionDBConstants::PARENT_ID)->nullable()->references(QuestionDBConstants::ID)
+//                ->on(QuestionDBConstants::TABLE)->onDelete('cascade');
             $table->timestamps();
 
         });

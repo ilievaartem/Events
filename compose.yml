@@ -1,0 +1,92 @@
+volumes:
+  db-store:
+  psysh-store:
+
+configs:
+  db-config:
+    file: ./infra/docker/mysql/my.cnf
+
+networks:
+  laravel:
+    driver: bridge
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./infra/docker/php/Dockerfile
+      target: ${APP_BUILD_TARGET:-development}
+    volumes:
+      - type: bind
+        source: ./src
+        target: /workspace
+    environment:
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - APP_ENV=${APP_ENV:-local}
+      - APP_URL=${APP_URL:-http://localhost}
+      - LOG_CHANNEL=${LOG_CHANNEL:-stderr}
+      - LOG_STDERR_FORMATTER=${LOG_STDERR_FORMATTER:-Monolog\Formatter\JsonFormatter}
+      - DB_CONNECTION=${DB_CONNECTION:-pgsql}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=${DB_USERNAME:-phper}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+    networks:
+      - laravel
+  web:
+    build:
+      context: .
+      dockerfile: ./infra/docker/nginx/Dockerfile
+    ports:
+      - target: 80
+        published: ${WEB_PUBLISHED_PORT:-85}
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: ./src
+        target: /workspace
+    networks:
+      - laravel
+  redis:
+    image: "redis:alpine"
+    hostname: redis
+    ports:
+      - "6380:6379"
+    networks:
+      - laravel
+  postgres:
+    image: postgres:16-alpine
+    volumes:
+      - "./infra/postgres:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-phper}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+      - POSTGRES_DB=${DB_DATABASE:-laravel}
+    ports:
+      - "5432:5432"
+    networks:
+      - laravel
+#  typesense:
+#    image: typesense/typesense:0.25.2
+#    restart: on-failure
+#    ports:
+#      - "8108:8108"
+#    volumes:
+#      - ./typesense-data:/data
+#    command: '--data-dir /data --api-key=bluech --enable-cors'
+#    networks:
+#      - laravel
+#  mongodb:
+#    container_name: mongodb
+#    image: mongo:latest
+#    ports:
+#      - "27017:27017"
+#    healthcheck:
+#      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017 --quiet
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
+#    networks:
+#      - laravel

@@ -17,7 +17,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create(EventDBConstants::TABLE, function (Blueprint $table) {
+        Schema::create(EventDBConstants::TABLE, static function (Blueprint $table) {
             $table->uuid(EventDBConstants::ID)->primary();
             $table->string(EventDBConstants::TITLE);
             $table->string(EventDBConstants::SLUG)->unique();
@@ -43,12 +43,16 @@ return new class extends Migration {
             $table->boolean(EventDBConstants::IS_ONLINE)->nullable();
             $table->boolean(EventDBConstants::IS_OFFLINE)->nullable();
             $table->foreignUuid(EventDBConstants::AUTHOR_ID)->references(UserDBConstants::ID)->on(UserDBConstants::TABLE)->onDelete('cascade');
-            $table->foreignUuid(EventDBConstants::PARENT_ID)->nullable()->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('cascade');
+//            $table->foreignUuid(EventDBConstants::PARENT_ID)->nullable()->references(EventDBConstants::ID)->on(EventDBConstants::TABLE)->onDelete('set null');
             $table->foreignId(EventDBConstants::COUNTRY_ID)->references(CountryDBConstants::ID)->on(CountryDBConstants::TABLE)->onDelete('cascade');
             $table->foreignId(EventDBConstants::REGION_ID)->references(RegionDBConstants::ID)->on(RegionDBConstants::TABLE)->onDelete('cascade');
             $table->foreignId(EventDBConstants::COMMUNITY_ID)->references(CommunityDBConstants::ID)->on(CommunityDBConstants::TABLE)->onDelete('cascade');
             $table->foreignId(EventDBConstants::PLACE_ID)->references(PlaceDBConstants::ID)->on(PlaceDBConstants::TABLE)->onDelete('cascade');
             $table->timestamps();
+
+//            $table->string('parent_id')->nullable();
+//            $table->foreign('parent_id')->references('id')->on('events')->onDelete('cascade');
+
         });
     }
 
