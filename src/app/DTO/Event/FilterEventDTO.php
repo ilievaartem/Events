@@ -141,7 +141,7 @@ class FilterEventDTO implements DTOContract
     public function getRegionId(): ?int
     {
         return $this->regionId;
-    }paginate
+    }
     public function getCommunityId(): ?int
     {
         return $this->communityId;
