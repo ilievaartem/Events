@@ -1,5 +1,4 @@
 .idea
 .vscode
 src/.env
-/infra/
 /typesense-data/
