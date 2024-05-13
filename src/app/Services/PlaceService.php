@@ -3,80 +3,134 @@
 namespace App\Services;
 
 use App\Constants\DB\PlaceDBConstants;
+use App\DTO\Place\CreatePlaceDTO;
+use App\DTO\Place\UpdatePlaceDTO;
 use App\Exceptions\ConflictException;
 use App\Exceptions\NotFoundException;
+use App\Repositories\Interfaces\BaseRepositoryInterface;
 use App\Repositories\Interfaces\PlaceRepositoryInterface;
+use App\Services\System\CRUDService;
 
-class PlaceService
+class PlaceService extends CRUDService
 {
     public function __construct(
-        private PlaceRepositoryInterface $placeRepository,
-        private CommunityService $communityService,
-    ) {
+        PlaceRepositoryInterface $repository,
+        private readonly CommunityService         $communityService,
+    )
+    {
+        parent::__construct($repository);
     }
-    public function CommunityPlaces(int $communityId): array
+
+    /**
+     * @param int $communityId
+     * @return array
+     * @throws NotFoundException
+     */
+    public function communityPlaces(int $communityId): array
     {
         $this->communityService->checkIsExist($communityId);
-        return $this->placeRepository->CommunityPlaces($communityId);
+        return $this->repository->CommunityPlaces($communityId);
     }
-    public function show(int $id): array
+
+    /**
+     * @return array
+     */
+    public function showEventEdit(): array
     {
-        $this->checkIsExist($id);
-        return $this->placeRepository->show($id);
+        return $this->repository->getPlacesForEvents();
     }
-    public function create(string $name, string $type, int $communityId): array
+
+    /**
+     * @param CreatePlaceDTO $createPlaceDTO
+     * @return array
+     * @throws ConflictException
+     * @throws NotFoundException
+     */
+    public function create(CreatePlaceDTO $createPlaceDTO): array
     {
-        $this->communityService->checkIsExist($communityId);
-        return $this->placeRepository->checkIsExistByNameAndCommunity($name, $communityId)
-            ? throw new ConflictException("Place already exist")
-            : $this->placeRepository->create($this->formatForDBCreate($name, $type, $communityId));
+        $this->communityService->checkIsExist($createPlaceDTO->getCommunityId());
+        if ($this->repository->checkIsExistByNameAndCommunity($createPlaceDTO->getName(), $createPlaceDTO->getCommunityId())) {
+            throw new ConflictException("Place already exist");
+        }
+        return $this->repository->create($this->formatForDBCreate($createPlaceDTO));
     }
-    private function formatForDBCreate(string $name, string $type, int $communityId): array
+
+    /**
+     * @param CreatePlaceDTO $createPlaceDTO
+     * @return array
+     */
+    private function formatForDBCreate(CreatePlaceDTO $createPlaceDTO): array
     {
         return [
-            PlaceDBConstants::NAME => $name,
-            PlaceDBConstants::COMMUNITY_ID => $communityId,
-            PlaceDBConstants::TYPE => $type
+            PlaceDBConstants::NAME => $createPlaceDTO->getName(),
+            PlaceDBConstants::COMMUNITY_ID => $createPlaceDTO->getCommunityId(),
+            PlaceDBConstants::TYPE => $createPlaceDTO->getType()
         ];
     }
-    private function formatForDBUpdate(string $name, string $type): array
+
+    /**
+     * @param UpdatePlaceDTO $updatePlaceDTO
+     * @return array
+     */
+    private function formatForDBUpdate(UpdatePlaceDTO $updatePlaceDTO): array
     {
         return [
-            PlaceDBConstants::NAME => $name,
-            PlaceDBConstants::TYPE => $type
+            PlaceDBConstants::NAME => $updatePlaceDTO->getName(),
+            PlaceDBConstants::TYPE => $updatePlaceDTO->getType()
         ];
     }
-    public function update(int $placeId, string $name, string $type, int $communityId): array
+
+    /**
+     * @param UpdatePlaceDTO $updatePlaceDTO
+     * @return array
+     * @throws ConflictException
+     * @throws NotFoundException
+     */
+    public function update(UpdatePlaceDTO $updatePlaceDTO): array
     {
-        $this->communityService->checkIsExist($communityId);
-        $this->checkIsExist($placeId);
-        $this->placeRepository->checkIsExistByNameAndCommunity($name, $communityId)
-            ? throw new ConflictException("Place already exist")
-            : $this->placeRepository->update($this->formatForDBUpdate($name, $type), $placeId);
-        return $this->placeRepository->show($placeId);
+        $this->communityService->checkIsExist($updatePlaceDTO->getCommunityId());
+        $this->checkIsExist($updatePlaceDTO->getId());
+        if ($this->repository->checkIsExistByNameAndCommunity($updatePlaceDTO->getName(), $updatePlaceDTO->getCommunityId())) {
+            throw new ConflictException("Place already exist");
+        }
+        $this->repository->update($this->formatForDBUpdate($updatePlaceDTO), $updatePlaceDTO->getId());
+        return $this->repository->show($updatePlaceDTO->getId());
     }
+
+    /**
+     * @return string
+     */
     public function getPlaceTypeList(): string
     {
         return PlaceDBConstants::TYPE_VILLAGE . ',' . PlaceDBConstants::TYPE_CITY . ','
             . PlaceDBConstants::TYPE_URBAN_VILLAGE . ',' . PlaceDBConstants::TYPE_SMALL_VILLAGE;
     }
+
+    /**
+     * @throws NotFoundException
+     */
     public function checkIsExistByName(string $name): void
     {
-        if ($this->placeRepository->checkIsExistByName($name) == false) {
+        if (!$this->repository->checkIsExistByName($name)) {
             throw new NotFoundException("Place is not found");
         }
     }
-    public function delete(int $id): bool
-    {
-        return $this->placeRepository->delete($id);
-    }
+
+    /**
+     * @param int $placeId
+     * @return array
+     */
     public function getGeoByPlace(int $placeId): array
     {
-        return $this->placeRepository->getGeoByPlace($placeId);
+        return $this->repository->getGeoByPlace($placeId);
     }
+
+    /**
+     * @throws NotFoundException
+     */
     public function checkIsExist(string $id): void
     {
-        if ($this->placeRepository->checkIsExist($id) == false) {
+        if (!$this->repository->checkIsExist($id)) {
             throw new NotFoundException("Place is not found");
 
         }

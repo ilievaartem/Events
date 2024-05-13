@@ -5,31 +5,29 @@ namespace App\Services;
 use App\Constants\DB\CommunityDBConstants;
 use App\Exceptions\ConflictException;
 use App\Exceptions\NotFoundException;
+use App\Repositories\Interfaces\BaseRepositoryInterface;
 use App\Repositories\Interfaces\CommunityRepositoryInterface;
+use App\Services\System\CRUDService;
 
-class CommunityService
+class CommunityService extends CRUDService
 {
     public function __construct(
-        private CommunityRepositoryInterface $communityRepository,
-        private RegionService $regionService,
+        CommunityRepositoryInterface $repository,
+        private readonly RegionService $regionService,
     ) {
+        parent::__construct($repository);
     }
     public function RegionCommunities(int $regionId): array
     {
         $this->regionService->checkIsExist($regionId);
-        return $this->communityRepository->RegionCommunities($regionId);
-    }
-    public function show(int $id): array
-    {
-        $this->checkIsExist($id);
-        return $this->communityRepository->show($id);
+        return $this->repository->RegionCommunities($regionId);
     }
     public function create(string $name, int $regionId): array
     {
         $this->regionService->checkIsExist($regionId);
-        return $this->communityRepository->checkIsExistByNameAndRegion($name, $regionId)
+        return $this->repository->checkIsExistByNameAndRegion($name, $regionId)
             ? throw new ConflictException("Community already exist")
-            : $this->communityRepository->create($this->formatForDBCreate($name, $regionId));
+            : $this->repository->create($this->formatForDBCreate($name, $regionId));
     }
     private function formatForDBCreate(string $name, int $regionId): array
     {
@@ -46,18 +44,14 @@ class CommunityService
     {
         $this->regionService->checkIsExist($regionId);
         $this->checkIsExist($communityId);
-        $this->communityRepository->checkIsExistByNameAndRegion($name, $regionId)
+        $this->repository->checkIsExistByNameAndRegion($name, $regionId)
             ? throw new ConflictException("Community already exist")
-            : $this->communityRepository->update($this->formatForDBUpdate($name), $communityId);
-        return $this->communityRepository->show($communityId);
-    }
-    public function delete(int $id): bool
-    {
-        return $this->communityRepository->delete($id);
+            : $this->repository->update($this->formatForDBUpdate($name), $communityId);
+        return $this->repository->show($communityId);
     }
     public function checkIsExist(string $id): void
     {
-        if ($this->communityRepository->checkIsExist($id) == false) {
+        if ($this->repository->checkIsExist($id) == false) {
             throw new NotFoundException("Community is not found");
 
         }

@@ -6,6 +6,7 @@ use App\Constants\DB\PlaceDBConstants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Place extends Model
 {
@@ -18,5 +19,9 @@ class Place extends Model
     public function community(): BelongsTo
     {
         return $this->belongsTo(Community::class);
+    }
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
     }
 }

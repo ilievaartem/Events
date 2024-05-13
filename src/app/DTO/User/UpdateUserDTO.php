@@ -11,8 +11,8 @@ class UpdateUserDTO implements DTOContract
         private readonly string $name,
         private readonly string $userId,
         private readonly string $email,
+        private readonly string $role,
         private readonly string $telephone,
-        private readonly string $password,
     ) {
     }
     public function getName(): string
@@ -27,13 +27,12 @@ class UpdateUserDTO implements DTOContract
     {
         return $this->email;
     }
-
+    public function getRole(): string
+    {
+        return $this->role;
+    }
     public function getTelephone(): string
     {
         return $this->telephone;
-    }
-    public function getPassword(): string
-    {
-        return $this->password;
     }
 }

@@ -10,11 +10,18 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
 {
     public function getCategoryChild(int $parentId): array
     {
-        return Category::query()->where(CategoryDBConstants::PARENT_ID, $parentId)->cursorPaginate(self::PER_PAGE)->toArray();
+        return $this->model::query()->where(CategoryDBConstants::PARENT_ID, $parentId)->cursorPaginate(self::PER_PAGE)->toArray();
     }
     public function checkIsExistByName(string $name): bool
     {
-        return Category::query()->where(CategoryDBConstants::NAME, $name)->exists();
+        return $this->model::query()->where(CategoryDBConstants::NAME, $name)->exists();
+    }
+    public function index(?array $filter): array
+    {
+        return $this->model::query()->when(!empty($filter['name']), function ($q) use ($filter) {
+            return $q->where('name', $filter['name']);
+        })
+            ->paginate()->toArray();
     }
 }
 

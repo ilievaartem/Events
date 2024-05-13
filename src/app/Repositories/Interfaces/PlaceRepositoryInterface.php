@@ -9,4 +9,5 @@ interface PlaceRepositoryInterface extends BaseRepositoryInterface
     public function getGeoByPlace(int $placeId): array;
 
     public function checkIsExistByNameAndCommunity(string $name, int $communityId): bool;
+    public function getPlacesForEvents(): array;
 }

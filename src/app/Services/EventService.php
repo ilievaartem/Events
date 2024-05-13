@@ -2,42 +2,58 @@
 
 namespace App\Services;
 
+use App\Constants\DB\CategoryDBConstants;
 use App\Constants\DB\CityDBConstants;
+use App\Constants\DB\CommonDB\CommonDBConstants;
 use App\Constants\DB\CommunityDBConstants;
-use App\Constants\DB\PlaceDBConstants;
-use App\Constants\DB\RegionDBConstants;
-use App\Exceptions\NotFoundException;
-use App\Repositories\Interfaces\EventRepositoryInterface;
+use App\Constants\DB\CountryDBConstants;
 use App\Constants\DB\EventConstants;
 use App\Constants\DB\EventDBConstants;
+use App\Constants\DB\PlaceDBConstants;
+use App\Constants\DB\RegionDBConstants;
+use App\Constants\DB\TagDBConstants;
+use App\Constants\DB\UserDBConstants;
 use App\Constants\File\PathsConstants;
 use App\DTO\Event\CreateEventDTO;
 use App\DTO\Event\FilterEventDTO;
 use App\DTO\Event\UpdateEventDTO;
 use App\DTO\Photos\CreatePhotoDTO;
 use App\DTO\Photos\CreatePhotosDTO;
-use App\DTO\Photos\DeletePhotoDTO;
 use App\DTO\Photos\DeletePhotosDTO;
-use App\Exceptions\AuthException;
 use App\Exceptions\ForbiddenException;
-use App\Models\Event;
+use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
-use App\Services\System\DataFormattersService;
-use Illuminate\Support\Str;
+use App\Repositories\Interfaces\EventRepositoryInterface;
+use App\Services\System\CRUDService;
 
-class EventService
+
+class EventService extends CrudService
 {
     public const EVENTS_IDS = 'events_ids';
+
     public function __construct(
-        private EventRepositoryInterface $eventRepository,
-        private PhotoService $photoService,
-        private UserService $userService,
-        private PlaceService $placeService,
-        private EventTagService $eventTagService,
-        private CategoryEventService $categoryEventService,
-        private EventFilterRepositoryInterface $eventFilterRepository
-    ) {
+        EventRepositoryInterface                        $repository,
+        private readonly PhotoService                   $photoService,
+        private readonly UserService                    $userService,
+        private readonly EventTagService                $eventTagService,
+        private readonly CategoryEventService           $categoryEventService,
+        private readonly EventFilterRepositoryInterface $eventFilterRepository,
+        private readonly CountryService                 $countryService,
+        private readonly RegionService                  $regionService,
+        private readonly CommunityService               $communityService,
+        private readonly PlaceService                   $placeService,
+        private readonly TagService                     $tagService,
+        private readonly CategoryService                $categoryService,
+    )
+    {
+        parent::__construct($repository);
     }
+
+    /**
+     * @param UpdateEventDTO $updateEventDTO
+     * @param array $geo
+     * @return array
+     */
     private function formatUpdateEventDTOToRecord(UpdateEventDTO $updateEventDTO, array $geo): array
     {
         return [
@@ -65,6 +81,12 @@ class EventService
             EventDBConstants::PLACE_ID => $updateEventDTO->getPlaceId(),
         ];
     }
+
+    /**
+     * @param CreateEventDTO $createEventDTO
+     * @param array $geo
+     * @return array
+     */
     private function formatCreateEventDTOToRecord(CreateEventDTO $createEventDTO, array $geo): array
     {
         return [
@@ -93,39 +115,68 @@ class EventService
             EventDBConstants::PLACE_ID => $createEventDTO->getPlaceId(),
         ];
     }
+
+    /**
+     * @param CreateEventDTO $createEventDTO
+     * @return array
+     * @throws NotFoundException
+     */
     public function create(CreateEventDTO $createEventDTO): array
     {
         $this->placeService->checkIsExist($createEventDTO->getPlaceId());
         $geo = $this->placeService->getGeoByPlace($createEventDTO->getPlaceId());
-        $event = $this->eventRepository->create($this->formatCreateEventDTOToRecord($createEventDTO, $geo));
+        $event = $this->repository->create($this->formatCreateEventDTOToRecord($createEventDTO, $geo));
         $eventId = $event[EventDBConstants::ID];
-        $this->eventRepository->addTagsIds($eventId, $createEventDTO->getTagsIds());
-        $this->eventRepository->addCategoriesIds($eventId, $createEventDTO->getCategoriesIds());
+        $this->repository->addTagsIds($eventId, $createEventDTO->getTagsIds());
+        $this->repository->addCategoriesIds($eventId, $createEventDTO->getCategoriesIds());
         return $event;
 
     }
 
-    public function index(): array
-    {
-        $index = $this->eventRepository->getEventsWithRelations();
-        if ($index != null) {
-            return $index;
-        }
-        throw new NotFoundException("Events is not found");
-    }
-    public function show(string $id): array
+    /**
+     * @param int|string $id
+     * @return array
+     * @throws NotFoundException
+     */
+    public function show(int|string $id): array
     {
         $this->checkIsExist($id);
-        return $this->eventRepository->getEventWithRelations($id);
-    }
-    public function delete(string $id): bool
-    {
-        return $this->eventRepository->delete($id);
+        return $this->repository->getEventWithOtherData($id);
     }
 
+    /**
+     * @return array
+     */
+    public function getTables(): array
+    {
+        $users = $this->userService->getAll(UserDBConstants::NAME, CommonDBConstants::SORTING_DIRECTION_DEFAULT);
+        $countries = $this->countryService->getAll(CountryDBConstants::NAME, CommonDBConstants::SORTING_DIRECTION_DEFAULT);
+        $regions = $this->regionService->getAll(RegionDBConstants::NAME, CommonDBConstants::SORTING_DIRECTION_DEFAULT);
+        $communities = $this->communityService->getAll(CommunityDBConstants::NAME, CommonDBConstants::SORTING_DIRECTION_DEFAULT);
+        $places = $this->placeService->showEventEdit();
+        $tags = $this->tagService->getAll(TagDBConstants::NAME, CommonDBConstants::SORTING_DIRECTION_DEFAULT);
+        $categories = $this->categoryService->getAll(CategoryDBConstants::NAME, CommonDBConstants::SORTING_DIRECTION_DEFAULT);
+
+        return [
+            'users' => $users,
+            'countries' => $countries,
+            'regions' => $regions,
+            'communities' => $communities,
+            'places' => $places,
+            'tags' => $tags,
+            'categories' => $categories
+        ];
+    }
+
+    /**
+     * @param string $id
+     * @param string|null $place
+     * @return array
+     * @throws NotFoundException
+     */
     private function formatEventForSimilar(string $id, ?string $place): array
     {
-        $event = $this->eventRepository->getInfoForSimilar($id);
+        $event = $this->repository->getInfoForSimilar($id);
         $tagsIds = [];
         $categoriesIds = [];
         $eventsByCategoriesFormatted = [];
@@ -154,60 +205,104 @@ class EventService
         ];
 
     }
+
+    /**
+     * @param string $id
+     * @param string|null $place
+     * @return array
+     * @throws NotFoundException
+     */
     public function similar(string $id, ?string $place): array
     {
         $this->checkIsExist($id);
-        return $this->eventRepository->getSimilarEvents($this->formatEventForSimilar($id, $place));
+        return $this->repository->getSimilarEvents($this->formatEventForSimilar($id, $place));
     }
+
+    /**
+     * @param string $id
+     * @return array
+     */
     public function getEventsByAuthorId(string $id): array
     {
-        return $this->eventRepository->getEventsByAuthorID($id);
+        return $this->repository->getEventsByAuthorID($id);
     }
+
+    /**
+     * @param UpdateEventDTO $updateEventDTO
+     * @param string $id
+     * @return array
+     * @throws NotFoundException
+     */
     public function update(UpdateEventDTO $updateEventDTO, string $id): array
     {
         $this->checkIsExist($id);
         $this->placeService->checkIsExist($updateEventDTO->getPlaceId());
         $geo = $this->placeService->getGeoByPlace($updateEventDTO->getPlaceId());
-        $this->eventRepository->update($this->formatUpdateEventDTOToRecord($updateEventDTO, $geo), $id);
-        $this->eventRepository->addTagsIds($id, $updateEventDTO->getTagsIds());
-        $this->eventRepository->addCategoriesIds($id, $updateEventDTO->getCategoriesIds());
-        return $this->eventRepository->show($id);
+        $this->repository->update($this->formatUpdateEventDTOToRecord($updateEventDTO, $geo), $id);
+        $this->repository->addTagsIds($id, $updateEventDTO->getTagsIds());
+        $this->repository->addCategoriesIds($id, $updateEventDTO->getCategoriesIds());
+        return $this->repository->show($id);
     }
+
+    /**
+     * @param string|null $title
+     * @param string|null $description
+     * @return array|null
+     */
     public function searchEvent(?string $title, ?string $description): ?array
     {
-        return $this->eventRepository->searchEvent($title, $description);
+        return $this->repository->searchEvent($title, $description);
     }
+
+    /**
+     * @param FilterEventDTO $filterEventDTO
+     * @return array|null
+     */
     public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
         return $this->eventFilterRepository->filterEvents($filterEventDTO);
     }
+
+    /**
+     * @param string $id
+     * @param DeletePhotosDTO $photos
+     * @return bool
+     */
     public function deletePhotos(string $id, DeletePhotosDTO $photos): bool
     {
 
-        $oldPhotosPaths = $this->eventRepository->getEventPhotosById($id);
+        $oldPhotosPaths = $this->repository->getEventPhotosById($id);
         if ($oldPhotosPaths === null) {
             return true;
         }
-        $this->eventRepository->updatePhotos(
+        $this->repository->updatePhotos(
             $id,
             $this->getPhotosPathForUpdate($oldPhotosPaths, $photos->getPhotos()),
         );
         return $this->photoService->deleteOldPhotos($photos->getPhotos());
     }
+
+    /**
+     * @param string $id
+     * @return bool
+     */
     public function deleteMainPhoto(string $id): bool
     {
-        $oldMainPhotoPath = $this->eventRepository->getEventMainPhotoById($id);
+        $oldMainPhotoPath = $this->repository->getEventMainPhotoById($id);
         if ($oldMainPhotoPath === null) {
             return true;
         }
-        $this->eventRepository->updateMainPhoto($id, null);
+        $this->repository->updateMainPhoto($id, null);
         return $this->photoService->deleteOldPhoto($oldMainPhotoPath);
     }
 
+    /**
+     * @param array $photosFromDB
+     * @param array $photoToDelete
+     * @return array
+     */
     private function getPhotosPathForUpdate(array $photosFromDB, array $photoToDelete): array
     {
-
-
         $photosKeysToUpdate = array_diff_key(
             array_flip(array_values($photosFromDB[EventDBConstants::PHOTOS])),
             array_flip($photoToDelete),
@@ -215,15 +310,28 @@ class EventService
         return array_keys($photosKeysToUpdate);
     }
 
-
+    /**
+     * @param string $id
+     * @param CreatePhotoDTO|null $photo
+     * @param CreatePhotosDTO|null $photos
+     * @return array
+     * @throws NotFoundException
+     */
     public function updatePhotos(string $id, ?CreatePhotoDTO $photo, ?CreatePhotosDTO $photos)
     {
         $this->checkIsExist($id);
 
         $this->uploadMainPhoto($id, $photo);
         $this->uploadPhotos($id, $photos);
-        return $this->eventRepository->show($id);
+        return $this->repository->show($id);
     }
+
+    /**
+     * @param string $id
+     * @param CreatePhotoDTO|null $photo
+     * @return void
+     * @throws NotFoundException
+     */
     public function uploadMainPhoto(string $id, ?CreatePhotoDTO $photo): void
     {
         $this->checkIsExist($id);
@@ -233,11 +341,18 @@ class EventService
         }
 
         $mainPhotoPath = $photo->getPathForDB();
-        $this->eventRepository->updateMainPhoto($id, $mainPhotoPath);
+        $this->repository->updateMainPhoto($id, $mainPhotoPath);
         $photoContent = $this->photoService->getPhotoContent($photo->getCurrentPath());
         $this->photoService->storagePhoto($mainPhotoPath, $photoContent);
 
     }
+
+    /**
+     * @param string $id
+     * @param CreatePhotosDTO|null $photos
+     * @return void
+     * @throws NotFoundException
+     */
     public function uploadPhotos(string $id, ?CreatePhotosDTO $photos): void
     {
         $this->checkIsExist($id);
@@ -245,18 +360,26 @@ class EventService
         if ($photos == null) {
             return;
         }
-        $oldPhotosPaths = $this->eventRepository->getEventPhotosById($id);
+        $oldPhotosPaths = $this->repository->getEventPhotosById($id);
         $photosPaths = $this->photoService->getPhotosPaths($photos);
         $PhotosPathsForUpdate = $photosPaths;
 
         if ($oldPhotosPaths != null) {
             $PhotosPathsForUpdate = array_merge($oldPhotosPaths[EventDBConstants::PHOTOS], $photosPaths);
         }
-        $this->eventRepository->updatePhotos($id, $PhotosPathsForUpdate);
+        $this->repository->updatePhotos($id, $PhotosPathsForUpdate);
         $photoContentAndPath = $this->photoService->getPhotosContentAndPath($photos);
         $this->photoService->storagePhotos($photoContentAndPath);
 
     }
+
+    /**
+     * @param string $id
+     * @param string $userId
+     * @return void
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
     public function checkIsAuthor(string $id, string $userId): void
     {
         $this->checkIsExist($id);
@@ -264,6 +387,14 @@ class EventService
             throw new ForbiddenException("Current user do not create that event");
         }
     }
+
+    /**
+     * @param string $id
+     * @param string $userId
+     * @return void
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
     public function checkIsNotAuthor(string $id, string $userId): void
     {
         $this->checkIsExist($id);
@@ -271,34 +402,75 @@ class EventService
             throw new ForbiddenException("Current user create that event");
         }
     }
+
+    /**
+     * @param string $eventId
+     * @return bool
+     */
     public function checkIsEventExistByEventId(string $eventId): bool
     {
-        return $this->eventRepository->checkIsExist($eventId);
+        return $this->repository->checkIsExist($eventId);
     }
+
+    /**
+     * @param string $eventId
+     * @return bool
+     */
     public function checkIsEventDoesNotExistByEventId(string $eventId): bool
     {
-        return !$this->eventRepository->checkIsExist($eventId);
+        return !$this->repository->checkIsExist($eventId);
     }
+
+    /**
+     * @param string $eventId
+     * @param string $authorId
+     * @return bool
+     */
     public function checkIsEventHasCurrentAuthorId(string $eventId, string $authorId): bool
     {
-        return $this->eventRepository->checkIsEventHasCurrentAuthorId($eventId, $authorId);
+        return $this->repository->checkIsEventHasCurrentAuthorId($eventId, $authorId);
     }
+
+    /**
+     * @param string $eventId
+     * @param string $authorId
+     * @return bool
+     */
     public function checkIsEventHasNotCurrentAuthorId(string $eventId, string $authorId): bool
     {
-        return !$this->eventRepository->checkIsEventHasCurrentAuthorId($eventId, $authorId);
+        return !$this->repository->checkIsEventHasCurrentAuthorId($eventId, $authorId);
     }
+
+    /**
+     * @param string $id
+     * @return string|null
+     * @throws NotFoundException
+     */
     public function getTopicById(string $id): ?string
     {
         $this->checkIsExist($id);
 
-        return $this->eventRepository->getTopicById($id);
+        return $this->repository->getTopicById($id);
     }
+
+    /**
+     * @param string $eventId
+     * @return string|null
+     * @throws NotFoundException
+     */
     public function getAuthorIdByEventId(string $eventId): ?string
     {
         $this->checkIsExist($eventId);
 
-        return $this->eventRepository->getAuthorIdByEventId($eventId);
+        return $this->repository->getAuthorIdByEventId($eventId);
     }
+
+    /**
+     * @param string $id
+     * @param string $extension
+     * @return string|null
+     * @throws NotFoundException
+     */
     public function getMainPhotoPathForDB(string $id, string $extension): ?string
     {
         $this->checkIsExist($id);
@@ -306,20 +478,34 @@ class EventService
         return $this->photoService->makePhotoDirectoryNameForEvent($id, $extension, PathsConstants::ENTITY_EVENT);
     }
 
+    /**
+     * @param array|null $files
+     * @param string $id
+     * @return array
+     * @throws NotFoundException
+     */
     public function getPhotosDTO(?array $files, string $id): array
     {
         $this->checkIsExist($id);
         return $this->photoService->makePhotosDTO($files, $id, PathsConstants::ENTITY_EVENT);
     }
 
+    /**
+     * @return string
+     */
     public function getPhotoExtensionsForValidation(): string
     {
         return $this->photoService->makePhotoExtensionsForValidation();
     }
 
+    /**
+     * @param string $id
+     * @return void
+     * @throws NotFoundException
+     */
     public function checkIsExist(string $id): void
     {
-        if ($this->eventRepository->checkIsExist($id) == false) {
+        if (!$this->repository->checkIsExist($id)) {
             throw new NotFoundException("Event is not found");
 
         }

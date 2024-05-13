@@ -4,7 +4,7 @@ namespace App\DTO\User;
 
 use App\DTO\Contracts\DTOContract;
 
-class CreateUserDTO implements DTOContract
+class CreateUserDTO extends \App\DTO\User\UpdateUserDTO implements DTOContract
 {
 
     public function __construct(

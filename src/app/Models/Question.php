@@ -48,5 +48,9 @@ class Question extends Model
     {
         return $this->hasMany(Question::class, QuestionDBConstants::ID);
     }
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
 }

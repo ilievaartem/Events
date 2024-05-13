@@ -53,5 +53,7 @@ class EventRequestConstants
     public const START_TIME_MAX = "start_time_max";
     public const FINISH_TIME_MIN = "finish_time_min";
     public const FINISH_TIME_MAX = "finish_time_max";
-
+    public const FIELD = "field";
+    public const DIRECTION = "direction";
+    public const SEARCH = "search";
 }

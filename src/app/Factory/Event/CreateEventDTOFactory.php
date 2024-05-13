@@ -35,7 +35,9 @@ class CreateEventDTOFactory
             age: $request->input(EventRequestConstants::AGE),
             categoriesIds: $request->input(EventRequestConstants::CATEGORIES_IDS),
             tagsIds: $request->input(EventRequestConstants::TAGS_IDS),
-            authorId: $this->authWrapperService->getAuthIdentifier(),
+//            authorId: $this->authWrapperService->getAuthIdentifier(),
+            authorId: '9bd1eb36-1426-4350-aec4-1a8d66204a79',
+//            authorId: $request->input(EventRequestConstants::AUTHOR_ID),
             parentId: $request->input(EventRequestConstants::PARENT_ID),
             placeId: $request->input(EventRequestConstants::PLACE_ID),
         );

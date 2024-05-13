@@ -7,55 +7,67 @@ use App\DTO\Complaint\AnswerComplaintDTO;
 use App\DTO\Complaint\CreateComplaintDTO;
 use App\DTO\Complaint\FilterComplaintDTO;
 use App\Exceptions\NotFoundException;
+use App\Repositories\ComplaintRepository;
 use App\Repositories\Interfaces\ComplaintRepositoryInterface;
+use App\Services\System\CRUDService;
 
-class ComplaintService
+class ComplaintService extends CrudService
 {
     public function __construct(
-        private ComplaintRepositoryInterface $complaintRepository,
-        private UserService $userService,
-        private EventService $eventService,
-    ) {
+        ComplaintRepositoryInterface $repository,
+        private UserService          $userService,
+        private EventService         $eventService,
+    )
+    {
+        /** @var ComplaintRepository $repository */
+        $this->repository = $repository;
+        parent::__construct($repository);
+    }
+
+    public function showTableWith(): array
+    {
+        return $this->repository->getComplaintsWith();
     }
     public function unsolved(): array
     {
-        return $this->complaintRepository->unsolved();
+        return $this->repository->unsolved();
     }
-    public function show(string $id): array
-    {
-        $this->checkIsExist($id);
-        return $this->complaintRepository->show($id);
-    }
+
     public function getAssigneeComplaints(string $assigneeId): array
     {
         $this->userService->checkIsExist($assigneeId);
-        return $this->complaintRepository->getAssigneeComplaints($assigneeId);
+        return $this->repository->getAssigneeComplaints($assigneeId);
     }
+
     public function getAuthorComplaints(string $authorId): array
     {
         $this->userService->checkIsExist($authorId);
-        return $this->complaintRepository->getAuthorComplaints($authorId);
+        return $this->repository->getAuthorComplaints($authorId);
     }
+
     public function read(string $id): array
     {
         $this->checkIsExist($id);
-        $this->complaintRepository->update([ComplaintDBConstants::READ_AT => now()], $id);
-        return $this->complaintRepository->show($id);
+        $this->repository->update([ComplaintDBConstants::READ_AT => now()], $id);
+        return $this->repository->show($id);
     }
+
     public function toAssign(string $complaintId, string $assigneeId): array
     {
         $this->checkIsExist($complaintId);
         $this->userService->checkIsExist($assigneeId);
-        $this->complaintRepository->update([ComplaintDBConstants::ASSIGNEE => $assigneeId], $complaintId);
-        return $this->complaintRepository->show($complaintId);
+        $this->repository->update([ComplaintDBConstants::ASSIGNEE => $assigneeId], $complaintId);
+        return $this->repository->show($complaintId);
 
     }
+
     public function unassign(string $id): array
     {
         $this->checkIsExist($id);
-        $this->complaintRepository->update([ComplaintDBConstants::ASSIGNEE => null], $id);
-        return $this->complaintRepository->show($id);
+        $this->repository->update([ComplaintDBConstants::ASSIGNEE => null], $id);
+        return $this->repository->show($id);
     }
+
     private function formatToCreate(CreateComplaintDTO $createComplaintDTO): array
     {
         return [
@@ -65,16 +77,14 @@ class ComplaintService
             ComplaintDBConstants::CAUSE_DESCRIPTION => $createComplaintDTO->getCauseDescription(),
         ];
     }
+
     public function create(CreateComplaintDTO $createComplaintDTO): array
     {
         $this->userService->checkIsExist($createComplaintDTO->getAuthorId());
         $this->eventService->checkIsExist($createComplaintDTO->getEventId());
-        return $this->complaintRepository->create($this->formatToCreate($createComplaintDTO));
+        return $this->repository->create($this->formatToCreate($createComplaintDTO));
     }
-    public function delete(string $id): bool
-    {
-        return $this->complaintRepository->delete($id);
-    }
+
     private function formatAnswerToRecord(AnswerComplaintDTO $answerComplaintDTO): array
     {
         return [
@@ -84,20 +94,23 @@ class ComplaintService
             ComplaintDBConstants::RESOLVED_AT => now(),
         ];
     }
+
     public function update(AnswerComplaintDTO $answerComplaintDTO): array
     {
         $this->checkIsExist($answerComplaintDTO->getComplaintId());
-        $this->complaintRepository->update(
+        $this->repository->update(
             $this->formatAnswerToRecord($answerComplaintDTO),
             $answerComplaintDTO->getComplaintId()
         );
-        return $this->complaintRepository->show($answerComplaintDTO->getComplaintId());
+        return $this->repository->show($answerComplaintDTO->getComplaintId());
     }
+
     public function filter(FilterComplaintDTO $filterComplaintDTO): ?array
     {
-        return $this->complaintRepository->filter($filterComplaintDTO);
+        return $this->repository->filter($filterComplaintDTO);
 
     }
+
     public function isSearchByCauseDescription(?array $searchBy): ?string
     {
         if (!empty ($searchBy)) {
@@ -109,6 +122,7 @@ class ComplaintService
         }
         return null;
     }
+
     public function isSearchByResolveDescription(?array $searchBy): ?string
     {
         if (!empty ($searchBy)) {
@@ -121,9 +135,10 @@ class ComplaintService
         }
         return null;
     }
+
     public function checkIsExist(string $id): void
     {
-        if ($this->complaintRepository->checkIsExist($id) == false) {
+        if ($this->repository->checkIsExist($id) == false) {
             throw new NotFoundException("Complaint is not found");
 
         }

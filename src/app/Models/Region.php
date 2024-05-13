@@ -23,4 +23,8 @@ class Region extends Model
     {
         return $this->hasMany(Community::class);
     }
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
 }

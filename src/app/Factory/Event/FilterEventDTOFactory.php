@@ -11,6 +11,8 @@ class FilterEventDTOFactory
     public function make(Request $request): FilterEventDTO
     {
         return new FilterEventDTO(
+            field: $request->input(EventRequestConstants::FIELD),
+            direction: $request->input(EventRequestConstants::DIRECTION),
             phrase: $request->input(EventRequestConstants::PHRASE),
             longitude: $request->input(EventRequestConstants::LONGITUDE),
             latitude: $request->input(EventRequestConstants::LATITUDE),
@@ -20,6 +22,8 @@ class FilterEventDTOFactory
             : $request->input(EventRequestConstants::SEARCH_BY),
             startDateMin: $request->input(EventRequestConstants::START_DATE_MIN),
             startDateMax: $request->input(EventRequestConstants::START_DATE_MAX),
+            startDate: $request->input(EventRequestConstants::START_DATE),
+            finishDate: $request->input(EventRequestConstants::FINISH_DATE),
             finishDateMin: $request->input(EventRequestConstants::FINISH_DATE_MIN),
             finishDateMax: $request->input(EventRequestConstants::FINISH_DATE_MAX),
             startTimeMin: $request->input(EventRequestConstants::START_TIME_MIN),
@@ -35,7 +39,7 @@ class FilterEventDTOFactory
             regionId: $request->input(EventRequestConstants::REGION_ID),
             communityId: $request->input(EventRequestConstants::COMMUNITY_ID),
             placeId: $request->input(EventRequestConstants::PLACE_ID),
-
+            search: $request->input(EventRequestConstants::SEARCH),
         );
     }
 }

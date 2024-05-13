@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 
+/**
+ * @method static find(\Illuminate\Routing\Route|object|string|null $eventId)
+ */
 class Event extends Model
 {
     use HasFactory;
@@ -141,10 +144,10 @@ class Event extends Model
         return($event === null) ? null : $event->slug;
 
     }
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
+//    public function comments(): HasMany
+//    {
+//        return $this->hasMany(Comment::class);
+//    }
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -188,5 +191,37 @@ class Event extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class);
+    }
+    public function comment(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+    public function question(): HasMany
+    {
+        return $this->hasMany(Question::class);
+    }
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
+    }
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class);
+    }
+    public function community(): BelongsTo
+    {
+        return $this->belongsTo(Community::class);
+    }
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Place::class);
     }
 }

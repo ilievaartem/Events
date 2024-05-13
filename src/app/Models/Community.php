@@ -23,4 +23,8 @@ class Community extends Model
     {
         return $this->hasMany(Place::class);
     }
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
 }

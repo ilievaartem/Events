@@ -10,5 +10,6 @@ interface ComplaintRepositoryInterface extends BaseRepositoryInterface
     public function unsolved(): array;
     public function getAssigneeComplaints(string $assigneeId): array;
     public function getAuthorComplaints(string $authorId): array;
+    public function getComplaintsWith(): array;
 
 }

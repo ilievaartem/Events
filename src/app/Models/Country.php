@@ -18,8 +18,8 @@ class Country extends Model
     {
         return $this->hasMany(Region::class);
     }
-    public function events(): BelongsToMany
+    public function events(): HasMany
     {
-        return $this->belongsToMany(Event::class);
+        return $this->HasMany(Event::class);
     }
 }

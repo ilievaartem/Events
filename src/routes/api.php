@@ -1,27 +1,29 @@
 <?php
 
-use App\Http\Controllers\ApplierController;
-use App\Http\Controllers\ChatController;
+use App\Http\Controllers\Api\CalculationController;
+use App\Http\Middleware\CalculateOption;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\ApplierController;
+use App\Http\Controllers\Api\ChatController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CityController;
-use App\Http\Controllers\CommunityController;
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\CountryController;
-use App\Http\Controllers\EventArchiveController;
-use App\Http\Controllers\InteresterController;
-use App\Http\Controllers\MediaController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\PlaceController;
-use App\Http\Controllers\QuestionController;
-use App\Http\Controllers\RegionController;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\TestController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CityController;
+use App\Http\Controllers\Api\CommunityController;
+use App\Http\Controllers\Api\ComplaintController;
+use App\Http\Controllers\Api\CountryController;
+use App\Http\Controllers\Api\EventArchiveController;
+use App\Http\Controllers\Api\InteresterController;
+use App\Http\Controllers\Api\MediaController;
+use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\PlaceController;
+use App\Http\Controllers\Api\QuestionController;
+use App\Http\Controllers\Api\RegionController;
+use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\TestController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\AdminIsAuthorized;
 use App\Http\Middleware\CheckChatMember;
 use App\Http\Middleware\CheckCommentAuthor;
@@ -46,6 +48,7 @@ use Laravel\Scout\Scout;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::post('calculate/{operation}', [CalculationController::class, 'calculate'])->middleware([CalculateOption::class]);
 
 Route::get('events', [EventController::class, 'index']);
 Route::get('events/search', [EventController::class, 'searchEvent']);
@@ -196,5 +199,3 @@ Route::post('users', [UserController::class, 'create'])->middleware([AdminIsAuth
 Route::patch('users/{id}/banned', [UserController::class, 'banned'])->middleware([AdminIsAuthorized::class]);
 Route::put('users/{id}', [UserController::class, 'update'])->middleware([AdminIsAuthorized::class]);
 Route::delete('users/{id}', [UserController::class, 'delete'])->middleware([AdminIsAuthorized::class]);
-
-

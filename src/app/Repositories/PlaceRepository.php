@@ -55,4 +55,8 @@ class PlaceRepository extends BaseRepository implements PlaceRepositoryInterface
     {
         return Place::query()->where(PlaceDBConstants::NAME, $name)->exists();
     }
+    public function getPlacesForEvents(): array
+    {
+        return $this->model->query()->orderBy('name')->limit(10)->get()->toArray();
+    }
 }

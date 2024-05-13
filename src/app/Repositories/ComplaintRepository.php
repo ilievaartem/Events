@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ComplaintRepository extends BaseRepository implements ComplaintRepositoryInterface
 {
+    public function getComplaintsWith(): array
+    {
+        return $this->model->query()->with('author', 'event')->paginate()->toArray();
+    }
     public function unsolved(): array
     {
         return Complaint::query()->when(ComplaintDBConstants::RESOLVED_AT != null)->cursorPaginate(self::PER_PAGE)->toArray();

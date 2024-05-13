@@ -9,6 +9,7 @@ class UsersCreateRequest extends FormRequest
 {
     public function rules(): array
     {
+//        dd(231);
         return [
             UserRequestConstants::NAME => 'required|max:25',
             UserRequestConstants::EMAIL => 'required|unique:users|email:rfc|max:60',

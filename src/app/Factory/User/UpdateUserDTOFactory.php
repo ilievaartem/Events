@@ -15,7 +15,7 @@ class UpdateUserDTOFactory
             userId: $userId,
             telephone: $request->input(UserRequestConstants::TELEPHONE),
             email: $request->input(UserRequestConstants::EMAIL),
-            password: $request->input(UserRequestConstants::PASSWORD),
+            role: $request->input(UserRequestConstants::ROLE),
         );
     }
 }

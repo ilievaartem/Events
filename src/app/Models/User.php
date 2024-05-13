@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Constants\DB\ApplierDBConstants;
 use App\Constants\DB\ChatDBConstants;
+use App\Constants\DB\CommentDBConstants;
+use App\Constants\DB\ComplaintDBConstants;
 use App\Constants\DB\EventDBConstants;
 use App\Constants\DB\InteresterDBConstants;
 use App\Constants\DB\MediaDBConstants;
@@ -109,6 +111,16 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Message::class, MessageDBConstants::AUTHOR_ID);
     }
-
-
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class, ComplaintDBConstants::AUTHOR_ID);
+    }
+    public function comment(): HasMany
+    {
+        return $this->hasMany(Comment::class, CommentDBConstants::AUTHOR_ID);
+    }
+    public function question(): HasMany
+    {
+        return $this->hasMany(Question::class, QuestionDBConstants::AUTHOR_ID);
+    }
 }

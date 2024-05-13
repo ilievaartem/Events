@@ -3,7 +3,13 @@
 namespace App\Repositories;
 
 use App\Constants\DB\CategoryDBConstants;
+use App\Constants\DB\CommunityDBConstants;
+use App\Constants\DB\CountryDBConstants;
+use App\Constants\DB\PlaceDBConstants;
+use App\Constants\DB\RegionDBConstants;
+use App\Constants\DB\UserDBConstants;
 use App\Models\Event;
+use App\Repositories\Interfaces\BaseRepositoryInterface;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Constants\DB\EventDBConstants;
 use App\Constants\DB\CommentDBConstants;
@@ -27,23 +33,35 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
                 CategoryDBConstants::TABLE => function ($query) {
                     $query->select(CategoryDBConstants::TABLE . '.' . CategoryDBConstants::ID, CategoryDBConstants::NAME);
                 },
+//                'users'=> function ($query) {
+//                    $query->select('users'. '.' . UserDBConstants::ID, UserDBConstants::NAME);
+//                },
+//                CountryDBConstants::TABLE => function ($query) {
+//                    $query->select(CountryDBConstants::TABLE . '.' . CountryDBConstants::ID, CountryDBConstants::NAME);
+//                },
+//                RegionDBConstants::TABLE => function ($query) {
+//                    $query->select(RegionDBConstants::TABLE . '.' . RegionDBConstants::ID, RegionDBConstants::NAME);
+//                },
+//                CommunityDBConstants::TABLE => function ($query) {
+//                    $query->select(CommunityDBConstants::TABLE . '.' . CommunityDBConstants::ID, CommunityDBConstants::NAME);
+//                },
+//                PlaceDBConstants::TABLE => function ($query) {
+//                    $query->select(PlaceDBConstants::TABLE . '.' . PlaceDBConstants::ID, PlaceDBConstants::NAME);
+//                },
+//                "author_id" => "018ee631-3678-712d-a505-f3ddfc77bf58"
+//      "parent_id" => null
+//      "country_id" => 5
+//      "region_id" => 5
+//      "community_id" => 146
+//      "place_id" => 5955
             ])
             ->paginate(self::PER_PAGE)->toArray();
     }
-    public function getEventWithRelations(string $id): array
+    public function getEventWithOtherData(string $id): array
     {
         return $this->model->query()
-            ->with([
-                TagDBConstants::TABLE => function ($query) {
-                    $query->select(TagDBConstants::TABLE . '.' . TagDBConstants::ID, TagDBConstants::NAME);
-                },
-                CategoryDBConstants::TABLE => function ($query) {
-                    $query->select(CategoryDBConstants::TABLE . '.' . CategoryDBConstants::ID, CategoryDBConstants::NAME);
-                },
-            ])
-            ->find($id)->toArray();
+            ->with('author', 'country', 'region', 'community', 'place', 'tags', 'categories')->find($id)->toArray();
     }
-
     public function addTagsIds(string $id, array $tagsIds): void
     {
         Event::find($id)->tags()->sync($tagsIds);
@@ -144,6 +162,4 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
             return $query->where(EventDBConstants::DESCRIPTION, $description);
         })->get()->toArray();
     }
-
-
 }

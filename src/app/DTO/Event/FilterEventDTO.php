@@ -7,6 +7,8 @@ use App\DTO\Contracts\DTOContract;
 class FilterEventDTO implements DTOContract
 {
     public function __construct(
+        private ?string $field,
+        private ?string $direction,
         private readonly ?string $phrase,
         private readonly ?float $longitude,
         private readonly ?float $latitude,
@@ -14,6 +16,8 @@ class FilterEventDTO implements DTOContract
         private readonly ?array $searchBy,
         private readonly ?string $startDateMin,
         private readonly ?string $startDateMax,
+        private readonly ?string $startDate,
+        private readonly ?string $finishDate,
         private readonly ?string $finishDateMin,
         private readonly ?string $finishDateMax,
         private readonly ?string $startTimeMin,
@@ -29,8 +33,18 @@ class FilterEventDTO implements DTOContract
         private readonly ?int $regionId,
         private readonly ?int $communityId,
         private readonly ?int $placeId,
+        private readonly ?string $search,
     ) {
 
+    }
+    public function getField(): ?string
+    {
+        return $this->field;
+    }
+
+    public function getDirection(): ?string
+    {
+        return $this->direction;
     }
     public function getPhrase(): ?string
     {
@@ -52,6 +66,10 @@ class FilterEventDTO implements DTOContract
     {
         return $this->searchBy;
     }
+    public function getStartDate(): ?string
+    {
+        return $this->startDate;
+    }
     public function getStartDateMin(): ?string
     {
         return $this->startDateMin;
@@ -67,6 +85,10 @@ class FilterEventDTO implements DTOContract
     public function getStartDateMaxUnix(): ?int
     {
         return strtotime($this->startDateMax);
+    }
+    public function getFinishDate(): ?string
+    {
+        return $this->finishDate;
     }
     public function getFinishDateMin(): ?string
     {
@@ -156,4 +178,8 @@ class FilterEventDTO implements DTOContract
         return $this->countryId;
     }
 
+    public function getSearch(): ?string
+    {
+        return $this->search;
+    }
 }

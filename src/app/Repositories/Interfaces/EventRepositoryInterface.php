@@ -14,7 +14,7 @@ interface EventRepositoryInterface extends BaseRepositoryInterface
     public function addTagsIds(string $id, array $tagsIds): void;
     public function getTopicById(string $id): ?string;
     public function getEventsByAuthorID(string $userId): array;
-    public function getEventWithRelations(string $eventId): array;
+    public function getEventWithOtherData(string $id): array;
     public function getEventsWithRelations(): array;
     public function addCategoriesIds(string $id, array $categoriesIds): void;
 
@@ -24,6 +24,5 @@ interface EventRepositoryInterface extends BaseRepositoryInterface
     public function getEventMainPhotoById(string $id): ?string;
 
     public function searchEvent(?string $title, ?string $description): ?array;
-
 
 }

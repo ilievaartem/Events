@@ -5,18 +5,22 @@ namespace App\Services;
 use App\Constants\DB\TagDBConstants;
 use App\Exceptions\ConflictException;
 use App\Exceptions\NotFoundException;
+use App\Repositories\BaseRepository;
+use App\Repositories\Interfaces\BaseRepositoryInterface;
 use App\Repositories\Interfaces\TagRepositoryInterface;
+use App\Services\System\CRUDService;
 
-class TagService
+class TagService extends CRUDService
 {
-    public function __construct(private TagRepositoryInterface $tagRepository)
+    public function __construct( TagRepositoryInterface $repository)
     {
+        parent::__construct($repository);
     }
     public function create(string $name): array
     {
-        return $this->tagRepository->checkIsExistByName($name)
+        return $this->repository->checkIsExistByName($name)
             ? throw new ConflictException("Tag already exist")
-            : $this->tagRepository->create($this->formatNameForRecord($name));
+            : $this->repository->create($this->formatNameForRecord($name));
     }
     private function formatNameForRecord(string $name): array
     {
@@ -24,34 +28,25 @@ class TagService
             TagDBConstants::NAME => $name
         ];
     }
-    public function delete(int $id): bool
-    {
-        return $this->tagRepository->delete($id);
-    }
     public function update(string $name, int $id): array
     {
         $this->checkIsExist($id);
-        $this->tagRepository->checkIsExistByName($name)
+        $this->repository->checkIsExistByName($name)
             ? throw new ConflictException("Category already exist")
-            : $this->tagRepository->update($this->formatNameForRecord($name), $id);
-        return $this->tagRepository->show($id);
+            : $this->repository->update($this->formatNameForRecord($name), $id);
+        return $this->repository->show($id);
     }
-    public function index(): array
+    public function index(?array $filter): array
     {
-        $index = $this->tagRepository->index();
+        $index = $this->repository->index();
         if ($index != null) {
             return $index;
         }
         throw new NotFoundException("Tags is not found");
     }
-    public function show(int $id): ?array
-    {
-        $this->checkIsExist($id);
-        return $this->tagRepository->show($id);
-    }
     public function checkIsExist(string $id): void
     {
-        if ($this->tagRepository->checkIsExist($id) == false) {
+        if ($this->repository->checkIsExist($id) == false) {
             throw new NotFoundException("Tag is not found");
         }
     }

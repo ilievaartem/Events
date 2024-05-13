@@ -2,87 +2,159 @@
 
 namespace App\Services;
 
+use App\Constants\DB\CommentDBConstants;
+use App\DTO\Comment\CreateCommentDTO;
+use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Interfaces\CommentRepositoryInterface;
-use App\Constants\DB\CommentDBConstants;
-use App\Exceptions\AuthException;
-use App\Exceptions\ForbiddenException;
+use App\Services\System\CRUDService;
 
-class CommentService
+class CommentService extends CRUDService
 {
     public function __construct(
-        private CommentRepositoryInterface $commentRepository,
-        private UserService $userService,
-        private EventService $eventService,
-    ) {
+        CommentRepositoryInterface    $repository,
+        private readonly UserService  $userService,
+        private readonly EventService $eventService,
+    )
+    {
+        parent::__construct($repository);
     }
-    public function formatCommentForRecord(string $eventId, string $authorId, string $content): array
+
+    /**
+     * @return array
+     */
+    public function showComments(): array
+    {
+        return $this->repository->getComments();
+    }
+
+    /**
+     * @param CreateCommentDTO $createCommentDTO
+     * @return array
+     */
+    public function formatCommentForRecord(CreateCommentDTO $createCommentDTO): array
     {
         return [
-            CommentDBConstants::EVENT_ID => $eventId,
-            CommentDBConstants::AUTHOR_ID => $authorId,
-            CommentDBConstants::CONTENT => $content
+            CommentDBConstants::EVENT_ID => $createCommentDTO->getEventId(),
+            CommentDBConstants::AUTHOR_ID => $createCommentDTO->getAuthorId(),
+            CommentDBConstants::CONTENT => $createCommentDTO->getContent()
         ];
     }
-    public function create(string $eventId, string $authorId, string $content): array
+
+    /**
+     * @param CreateCommentDTO $createCommentDTO
+     * @return array
+     * @throws NotFoundException
+     */
+    public function create(CreateCommentDTO $createCommentDTO): array
     {
-        $this->eventService->checkIsExist($eventId);
-        $this->userService->checkIsExist($authorId);
-        return $this->commentRepository->create($this->formatCommentForRecord($eventId, $authorId, $content));
+        $this->eventService->checkIsExist($createCommentDTO->getEventId());
+        $this->userService->checkIsExist($createCommentDTO->getAuthorId());
+
+        return $this->repository->create($this->formatCommentForRecord($createCommentDTO));
     }
+
+    /**
+     * @param string $id
+     * @param string $userId
+     * @return void
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
     public function checkIsAuthor(string $id, string $userId): void
     {
         $this->checkIsExist($id);
-        if ($this->commentRepository->checkIsExistCommentByAuthor($id, $userId) == false) {
-            throw new ForbiddenException("Current user did not create that comment");
+        if (!$this->repository->checkIsExistCommentByAuthor($id, $userId)) {
+            throw new ForbiddenException("Current user did not create that comments");
         }
     }
+
+    /**
+     * @param string $commentId
+     * @return string
+     * @throws NotFoundException
+     */
     public function getEventId(string $commentId): string
     {
         $this->checkIsExist($commentId);
-        return $this->commentRepository->getEventId($commentId);
+        return $this->repository->getEventId($commentId);
     }
+
+    /**
+     * @param string $commentId
+     * @return string
+     * @throws NotFoundException
+     */
     public function getAuthorId(string $commentId): string
     {
         $this->checkIsExist($commentId);
-        return $this->commentRepository->getAuthorId($commentId);
+        return $this->repository->getAuthorId($commentId);
     }
-    public function show(string $id): ?array
+
+    /**
+     * @param string $id
+     * @return array
+     */
+    public function showCommentsOfEvent(string $id): array
     {
-        $this->checkIsExist($id);
-        return $this->commentRepository->show($id);
+        return $this->repository->getCommentsByEvent($id);
     }
-    public function delete(string $id): bool
-    {
-        return $this->commentRepository->delete($id);
-    }
+
+    /**
+     * @param string $content
+     * @return string[]
+     */
     private function formatContentForRecord(string $content): array
     {
         return [
             CommentDBConstants::CONTENT => $content
         ];
     }
+
+    /**
+     * @param string $content
+     * @param string $id
+     * @return array
+     * @throws NotFoundException
+     */
     public function update(string $content, string $id): array
     {
         $this->checkIsExist($id);
-        $this->commentRepository->update($this->formatContentForRecord($content), $id);
-        return $this->commentRepository->show($id);
+        $this->repository->update($this->formatContentForRecord($content), $id);
+        return $this->repository->show($id);
     }
+
+    /**
+     * @param string $authorId
+     * @return array
+     * @throws NotFoundException
+     */
     public function getCommentsByAuthorId(string $authorId): array
     {
         $this->userService->checkIsExist($authorId);
-        return $this->commentRepository->getCommentsByAuthorID($authorId);
+        return $this->repository->getCommentsByAuthorID($authorId);
     }
+
+    /**
+     * @param string $eventId
+     * @return array
+     * @throws NotFoundException
+     */
     public function getEventComments(string $eventId): array
     {
         $this->eventService->checkIsExist($eventId);
-        return $this->commentRepository->getEventComments($eventId);
+        return $this->repository->getEventComments($eventId);
     }
+
+    /**
+     * @param string $id
+     * @return void
+     * @throws NotFoundException
+     */
     public function checkIsExist(string $id): void
     {
-        if ($this->commentRepository->checkIsExist($id) == false) {
+        if (!$this->repository->checkIsExist($id)) {
             throw new NotFoundException("Comment is not found");
-
         }
     }
 }

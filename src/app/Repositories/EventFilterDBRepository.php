@@ -20,7 +20,7 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
 
     public function filterEvents(FilterEventDTO $filterEventDTO): ?array
     {
-        return Event::query()
+        return $this->model::query()
 
             ->when($filterEventDTO->getPhrase() != null && $filterEventDTO->getSearchBy() == null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(function (Builder $query) use ($filterEventDTO) {
@@ -59,6 +59,10 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
                             $filterEventDTO->getGeoRadius()
                         );
                 })
+            ->when($filterEventDTO->getStartDate() !== null && $filterEventDTO->getFinishDate() !== null, function (Builder $query) use ($filterEventDTO) {
+                return $query->whereBetween(EventDBConstants::START_DATE, [$filterEventDTO->getStartDate(), $filterEventDTO->getFinishDate()])
+                    ->orWhereBetween(EventDBConstants::FINISH_DATE, [$filterEventDTO->getStartDate(), $filterEventDTO->getFinishDate()]);
+            })
             ->when($filterEventDTO->getStartDateMin() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::START_DATE, '>', $filterEventDTO->getStartDateMin());
             })
@@ -109,6 +113,15 @@ class EventFilterDBRepository implements EventFilterRepositoryInterface
             })
             ->when($filterEventDTO->getPlaceId() != null, function (Builder $query) use ($filterEventDTO) {
                 return $query->where(EventDBConstants::PLACE_ID, $filterEventDTO->getPlaceId());
+            })
+            ->when(!empty($filterEventDTO->getField()) && !empty($filterEventDTO->getDirection()), function (Builder $query) use ($filterEventDTO) {
+                return $query->orderBy($filterEventDTO->getField(), $filterEventDTO->getDirection());
+            })
+            ->when(!empty($filterEventDTO->getSearch()), function (Builder $query) use ($filterEventDTO) {
+                return $query->where(function (Builder $query) use ($filterEventDTO) {
+                    $query->where(EventDBConstants::TITLE, 'like', '%' . trim($filterEventDTO->getSearch()) . '%')
+                        ->orWhere(EventDBConstants::DESCRIPTION, 'like', '%' . trim($filterEventDTO->getSearch()) . '%');
+                });
             })
             ->paginate(self::PER_PAGE)
             ->toArray();
