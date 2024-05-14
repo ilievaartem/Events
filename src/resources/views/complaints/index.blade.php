@@ -36,7 +36,7 @@
             <button type="submit" class="btn btn-primary" value="Filter">Filter</button>
         </form>
     </div>
-    <table class="table table-hover">
+    <table id="complaintsTable" class="table table-hover">
         <thead>
         <tr>
             <th scope="col">id</th>
@@ -109,6 +109,67 @@
         @endforeach
         </tbody>
     </table>
+<script>
+    let table = new DataTable('#complaintsTable', {
+        responsive: true,
+        scrollX: 1275
+    });
+    {{--$.ajaxSetup({--}}
+    {{--    headers: {--}}
+    {{--        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+    {{--    }--}}
+    {{--});--}}
+    {{--$(document).ready(function (){--}}
+    {{--    $('#complaintsTable').DataTable({--}}
+    {{--        responsive: true,--}}
+    {{--        scrollX: 1275,--}}
+    {{--        processing: true,--}}
+    {{--        serverSide: true,--}}
+    {{--        ajax: {--}}
+    {{--            url: "{{ route('complaints.index') }}",--}}
+    {{--            type: "GET",--}}
+    {{--            data: function (data) {--}}
+    {{--                data.search = $('#search').val();--}}
+    {{--                data.resolved_at = $('#resolved_at').val();--}}
+    {{--                data.field = $('#field').val();--}}
+    {{--                data.direction = $('#direction').val();--}}
+    {{--            }--}}
+    {{--        },--}}
+    {{--        order: ['0', 'ASC'],--}}
+    {{--        pageLength: 10,--}}
+    {{--        searching: true,--}}
+    {{--        columns: [--}}
+    {{--            { data: 'id' },--}}
+    {{--            { data: 'author_name' },--}}
+    {{--            { data: 'user_id' },--}}
+    {{--            { data: 'complained_to' },--}}
+    {{--            { data: 'resolver_id' },--}}
+    {{--            { data: 'assignee' },--}}
+    {{--            { data: 'other' },--}}
+    {{--            { data: 'cause_message' },--}}
+    {{--            { data: 'cause_description' },--}}
+    {{--            { data: 'resolve_message' },--}}
+    {{--            { data: 'resolve_description' },--}}
+    {{--            { data: 'read_at' },--}}
+    {{--            { data: 'resolved_at' },--}}
+    {{--            { data: 'deleted_at' },--}}
+    {{--            { data: 'created_at' },--}}
+    {{--            { data: 'updated_at' },--}}
+    {{--            {--}}
+    {{--                data: 'id',--}}
+    {{--                width: "20%",--}}
+    {{--                render: function(data, type, row) {--}}
+    {{--                    return '<a href="{{ route('complaints.resolve.edit', ':id') }}">Resolve</a>'--}}
+    {{--                        .replace(':id', data);--}}
+    {{--                }--}}
+    {{--            }--}}
+    {{--        ]--}}
+    {{--    });--}}
 
+    {{--    $('#search, #resolved_at, #field, #direction').on('change', function () {--}}
+    {{--        table.ajax.reload();--}}
+    {{--    });--}}
+    {{--});--}}
+</script>
     @include('pagination.complaints-pagination')
 @endsection

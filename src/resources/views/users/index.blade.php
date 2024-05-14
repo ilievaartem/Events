@@ -41,7 +41,7 @@
         <a href="{{ route('users.index') }}" class="btn btn-primary">Back</a>
         <button type="submit" class="btn btn-primary" value="Filter">Filter</button>
     </form>
-    <table class="table table-hover">
+    <table id="userTable" class="table table-hover">
         <thead>
         <tr>
             <th scope="col">id</th>
@@ -83,6 +83,10 @@
         @endforeach
         </tbody>
     </table>
-
+<script>
+    let table = new DataTable('#userTable', {
+        responsive: true,
+    });
+</script>
     @include('pagination.users-pagination')
 @endsection
