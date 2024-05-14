@@ -10,22 +10,21 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ComplaintRepository extends BaseRepository implements ComplaintRepositoryInterface
 {
-    public function getComplaintsWith(): array
-    {
-        return $this->model->query()->with('author', 'event')->paginate()->toArray();
-    }
     public function unsolved(): array
     {
-        return Complaint::query()->when(ComplaintDBConstants::RESOLVED_AT != null)->cursorPaginate(self::PER_PAGE)->toArray();
+        return $this->model->query()->when(ComplaintDBConstants::RESOLVED_AT != null)->cursorPaginate(self::PER_PAGE)->toArray();
     }
+
     public function getAssigneeComplaints(string $assigneeId): array
     {
-        return Complaint::query()->where(ComplaintDBConstants::ASSIGNEE, $assigneeId)->cursorPaginate(self::PER_PAGE)->toArray();
+        return $this->model->query()->where(ComplaintDBConstants::ASSIGNEE, $assigneeId)->cursorPaginate(self::PER_PAGE)->toArray();
     }
+
     public function getAuthorComplaints(string $authorId): array
     {
-        return Complaint::query()->where(ComplaintDBConstants::AUTHOR_ID, $authorId)->cursorPaginate(self::PER_PAGE)->toArray();
+        return $this->model->query()->where(ComplaintDBConstants::AUTHOR_ID, $authorId)->cursorPaginate(self::PER_PAGE)->toArray();
     }
+
     public function filter(FilterComplaintDTO $filterComplaintDTO): ?array
     {
         return $this->model::query()
@@ -95,7 +94,22 @@ class ComplaintRepository extends BaseRepository implements ComplaintRepositoryI
                     ]);
                 }
             )
-            ->paginate(self::PER_PAGE)->toArray();
+            ->when(!empty($filterComplaintDTO->getSearch()), function ($query) use ($filterComplaintDTO) {
+                return $query->where(function (Builder $query) use ($filterComplaintDTO) {
+                    $query->where(ComplaintDBConstants::CAUSE_MESSAGE, 'like', '%' . $filterComplaintDTO->getSearch() . '%')
+                        ->orWhere(ComplaintDBConstants::CAUSE_DESCRIPTION, 'like', '%' . $filterComplaintDTO->getSearch() . '%');
+                });
+            })
+            ->when(!empty($filterComplaintDTO->getField()) && !empty($filterComplaintDTO->getDirection()), function (Builder $query) use ($filterComplaintDTO) {
+                return $query->orderBy($filterComplaintDTO->getField(), $filterComplaintDTO->getDirection());
+            })
+            ->when((!empty($filterComplaintDTO->getResolvedAt()) && ($filterComplaintDTO->getResolvedAt() == 'resolved')), function ($query) use ($filterComplaintDTO) {
+                return $query->whereNotNull('resolved_at');
+            })
+            ->when((!empty($filterComplaintDTO->getResolvedAt()) && ($filterComplaintDTO->getResolvedAt() == 'not_resolved')), function ($query) use ($filterComplaintDTO) {
+                return $query->whereNull('resolved_at');
+            })
+            ->with('author', 'event')->paginate(self::PER_PAGE)->toArray();
 
     }
 }

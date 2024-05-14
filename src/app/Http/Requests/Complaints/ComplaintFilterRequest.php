@@ -24,6 +24,9 @@ class ComplaintFilterRequest extends FormRequest
             ComplaintRequestConstants::READ_TO => 'date_format:Y-m-d H:i:s',
             ComplaintRequestConstants::CREATED_FROM => 'date_format:Y-m-d H:i:s',
             ComplaintRequestConstants::CREATED_TO => 'date_format:Y-m-d H:i:s',
+            ComplaintRequestConstants::SEARCH . '.*' => 'string|in:' .
+                ComplaintRequestConstants::CAUSE_MESSAGE . ',' .
+                ComplaintRequestConstants::CAUSE_DESCRIPTION,
         ];
     }
 }

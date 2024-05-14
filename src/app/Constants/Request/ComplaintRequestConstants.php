@@ -25,4 +25,8 @@ class ComplaintRequestConstants
     public const READ_FROM = "read_from";
     public const READ_TO = "read_to";
     public const PHRASE = "phrase";
+    public const SEARCH = "search";
+    public const FIELD = "field";
+    public const DIRECTION = "direction";
+    public const RESOLVED_AT = "resolved_at";
 }

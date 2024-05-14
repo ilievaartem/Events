@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Constants\Request\CategoryRequestConstants;
+use App\Exceptions\ConflictException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Api\Controller;
 use App\Models\Category;
 use App\Services\CategoryService;
@@ -97,7 +99,8 @@ class CategoryViewController extends Controller
      * @param int $id
      * @param Request $request
      * @return RedirectResponse
-     * @throws \App\Exceptions\ConflictException
+     * @throws ConflictException
+     * @throws NotFoundException
      */
     public function update(int $id, Request $request): RedirectResponse
     {

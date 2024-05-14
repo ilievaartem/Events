@@ -25,6 +25,10 @@ class FilterComplaintDTOFactory
             readTo: $request->input(ComplaintRequestConstants::READ_TO),
             createdFrom: $request->input(ComplaintRequestConstants::CREATED_FROM),
             createdTo: $request->input(ComplaintRequestConstants::CREATED_TO),
+            search: $request->input(ComplaintRequestConstants::SEARCH),
+            field: $request->input(ComplaintRequestConstants::FIELD),
+            direction: $request->input(ComplaintRequestConstants::DIRECTION),
+            resolvedAt: $request->input(ComplaintRequestConstants::RESOLVED_AT),
         );
     }
 }

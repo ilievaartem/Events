@@ -8,7 +8,7 @@ class AnswerComplaintDTO implements DTOContract
 {
     public function __construct(
         private readonly string $complaintId,
-        private readonly string $resolverId,
+//        private readonly string $resolverId,
         private readonly string $resolveMessage,
         private readonly string $resolveDescription,
     ) {
@@ -17,10 +17,10 @@ class AnswerComplaintDTO implements DTOContract
     {
         return $this->complaintId;
     }
-    public function getResolverId(): string
-    {
-        return $this->resolverId;
-    }
+//    public function getResolverId(): string
+//    {
+//        return $this->resolverId;
+//    }
     public function getResolveMessage(): string
     {
         return $this->resolveMessage;

@@ -19,7 +19,10 @@ class FilterComplaintDTO implements DTOContract
         private readonly ?string $readTo,
         private readonly ?string $createdFrom,
         private readonly ?string $createdTo,
-
+        private readonly ?string $search,
+        private readonly ?string $field,
+        private readonly ?string $direction,
+        private readonly ?string $resolvedAt,
     ) {
     }
     public function getPhrase(): ?string
@@ -70,5 +73,21 @@ class FilterComplaintDTO implements DTOContract
     public function getCreatedTo(): ?string
     {
         return $this->createdTo;
+    }
+    public function getSearch(): ?string
+    {
+        return $this->search;
+    }
+    public function getField(): ?string
+    {
+        return $this->field;
+    }
+    public function getDirection(): ?string
+    {
+        return $this->direction;
+    }
+    public function getResolvedAt(): ?string
+    {
+        return $this->resolvedAt;
     }
 }

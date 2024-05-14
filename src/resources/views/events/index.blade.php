@@ -39,7 +39,7 @@
             <div>
                 <label for="direction" class="form-label">Direction</label>
                 <select class="form-control" aria-label="Default select example" id="direction" name="direction">
-                    <option @if($content == 'asc' || empty($filter['asc'])) selected @endif value="asc">
+                    <option @if($content == 'asc' || empty($content)) selected @endif value="asc">
                         Rising
                     </option>
                     <option @if($content == 'desc') selected @endif value="desc">Decreasing</option>

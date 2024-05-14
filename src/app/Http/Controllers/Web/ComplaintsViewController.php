@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Exceptions\NotFoundException;
 use App\Factory\Complaint\AnswerComplaintDTOFactory;
+use App\Factory\Complaint\FilterComplaintDTOFactory;
 use App\Http\Controllers\Controller;
-use App\Models\Complaint;
+use App\Http\Requests\Complaints\ComplaintFilterRequest;
 use App\Services\ComplaintService;
 use App\Services\System\DataFormattersService;
 use Illuminate\Http\RedirectResponse;
@@ -19,11 +21,13 @@ class ComplaintsViewController extends Controller
     }
 
     /**
+     * @param ComplaintFilterRequest $request
+     * @param FilterComplaintDTOFactory $complaintDTOFactory
      * @return View
      */
-    public function index(): View
+    public function index(ComplaintFilterRequest $request, FilterComplaintDTOFactory $complaintDTOFactory): View
     {
-        $content = $this->complaintService->showTableWith();
+        $content = $this->complaintService->filter($complaintDTOFactory->make($request));
 
         return view('complaints.index', $this->dataFormattersService->formatViewResponse($content));
     }
@@ -39,40 +43,29 @@ class ComplaintsViewController extends Controller
         return view('complaints.resolve', ['content' => $content]);
     }
 
-    public function resolve(Request $request, string $complaintId, AnswerComplaintDTOFactory $answerComplaintDTOFactory): RedirectResponse
+    /**
+     * @param string $id
+     * @return RedirectResponse
+     * @throws NotFoundException
+     */
+    public function read(string $id): RedirectResponse
     {
-        $this->complaintService->update($answerComplaintDTOFactory->make($request, $complaintId));
-//        $complaint = Complaint::query()->find($id);
-//
-//        if (!$complaint->read_at) {
-//            $complaint->read_at = now();
-//        }
-//        $complaint->resolve_message = request('resolve_message');
-//        $complaint->resolve_description = request('resolve_description');
-//        $complaint->resolved_at = now();
-//
-//        $complaint->save();
+        $this->complaintService->read($id);
 
         return redirect()->route('complaints.index');
     }
 
-//    /**
-//     * @param $id
-//     * @return RedirectResponse
-//     */
-//    public function resolve($id): RedirectResponse
-//    {
-//        $complaint = Complaint::query()->find($id);
-//
-//        if (!$complaint->read_at) {
-//            $complaint->read_at = now();
-//        }
-//        $complaint->resolve_message = request('resolve_message');
-//        $complaint->resolve_description = request('resolve_description');
-//        $complaint->resolved_at = now();
-//
-//        $complaint->save();
-//
-//        return redirect()->route('complaints.index');
-//    }
+    /**
+     * @param Request $request
+     * @param string $complaintId
+     * @param AnswerComplaintDTOFactory $answerComplaintDTOFactory
+     * @return RedirectResponse
+     * @throws NotFoundException
+     */
+    public function resolve(Request $request, string $complaintId, AnswerComplaintDTOFactory $answerComplaintDTOFactory): RedirectResponse
+    {
+        $this->complaintService->update($answerComplaintDTOFactory->make($request, $complaintId));
+
+        return redirect()->route('complaints.index');
+    }
 }

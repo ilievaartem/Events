@@ -68,6 +68,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('complaints', [ComplaintsViewController::class, 'index'])->name('complaints.index');
     Route::get('complaints/{id}', [ComplaintsViewController::class, 'resolveView'])->name('complaints.resolve.edit');
     Route::post('complaints/{id}', [ComplaintsViewController::class, 'resolve'])->name('complaints.resolve');
+    Route::put('complaints/{id}', [ComplaintsViewController::class, 'read'])->name('complaints.read');
     //comments
     Route::get('comments', [CommentsViewController::class, 'index'])->name('comments.index');
     //questions

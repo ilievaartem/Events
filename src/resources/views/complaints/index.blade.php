@@ -7,6 +7,35 @@
             </ol>
         </nav>
     </div>
+    <div>
+        <form action="{{ route('complaints.index') }}" method="get">
+            <div>
+                <label for="search" class="form-label"> Type cause message or cause description</label>
+                <input type="text" class="form-control" name="search" id="search">
+            </div>
+            <label for="resolved_at" class="form-label">Resolved complaints</label>
+            <select class="form-control" aria-label="Default select example" id="resolved_at" name="resolved_at">
+                <option @if($content == 'all' || empty($content)) selected @endif value="all">All
+                    complaints
+                </option>
+                <option @if($content == 'resolved') selected @endif value="resolved">Resolved</option>
+                <option @if($content == 'not_resolved') selected @endif value="not_resolved">Not resolved</option>
+            </select>
+            <label for="field" class="form-label">Sorted by</label>
+            <select class="form-control" aria-label="Default select example" id="field" name="field">
+                <option @if($content == 'id' || empty($content)) selected @endif value="id">Id complaints</option>
+                <option @if($content == 'author_id') selected @endif value="author_id">Name author</option>
+                <option @if($content == 'event_id') selected @endif value="event_id">Complained to</option>
+            </select>
+            <label for="direction" class="form-label">Direction</label>
+            <select class="form-control" aria-label="Default select example" id="direction" name="direction">
+                <option @if($content == 'asc' || empty($content)) selected @endif value="asc">Rising</option>
+                <option @if($content == 'desc') selected @endif value="desc">Decreasing</option>
+            </select>
+            <a href="{{ route('complaints.index') }}" class="btn btn-primary">Back</a>
+            <button type="submit" class="btn btn-primary" value="Filter">Filter</button>
+        </form>
+    </div>
     <table class="table table-hover">
         <thead>
         <tr>
@@ -70,6 +99,11 @@
                 <td>{{ $complaint['updated_at'] }}</td>
                 <td>
                     <a href="{{ route('complaints.resolve.edit', $complaint['id']) }}" class="btn btn-primary">Resolve</a>
+                    <form method="post" action="{{ route('complaints.read', $complaint['id']) }}">
+                        @csrf
+                        @method('PUT')
+                        <button class="btn btn-primary" type="submit">Read</button>
+                    </form>
                 </td>
             </tr>
         @endforeach
