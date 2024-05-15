@@ -86,7 +86,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * @param array $filter
+     * @param array|null $filter
      * @return array
      */
     public function index(?array $filter): array

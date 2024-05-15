@@ -23,14 +23,6 @@ class ComplaintService extends CrudService
         $this->repository = $repository;
         parent::__construct($repository);
     }
-//
-//    /**
-//     * @return array
-//     */
-//    public function showTableWith(): array
-//    {
-//        return $this->repository->getComplaintsWith();
-//    }
 
     /**
      * @return array
