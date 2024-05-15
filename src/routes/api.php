@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CalculationController;
+use App\Http\Controllers\Api\PhotoController;
 use App\Http\Middleware\CalculateOption;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\ApplierController;
@@ -49,6 +50,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::post('calculate/{operation}', [CalculationController::class, 'calculate'])->middleware([CalculateOption::class]);
+//Route::get('photos/{photoId}', 'PhotoController@show');
+Route::get('photos/{photoId}', [PhotoController::class, 'show']);
 
 Route::get('events', [EventController::class, 'index']);
 Route::get('events/search', [EventController::class, 'searchEvent']);
