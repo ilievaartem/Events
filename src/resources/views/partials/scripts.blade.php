@@ -1,5 +1,5 @@
 <script src="{{config('app.url').'/'}}js/app.js"></script>
-{{--<script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>--}}
+<script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.0.0/dist/js/coreui.bundle.min.js" ></script>
 {{--<script src="vendors/simplebar/js/simplebar.min.js"></script>--}}
 <script>
     const header = document.querySelector('header.header');

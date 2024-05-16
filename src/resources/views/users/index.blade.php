@@ -8,43 +8,55 @@
         </nav>
     </div>
     <style>
-        /* TODO стилі, щоб інпути були в рядок
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 1.2vh;
+            margin-top: 1.2vh;
+        }
+        .form-row-btn {
+            display: flex;
+            justify-content: right;
+        }
+        .flex-put{
+            margin-left: 1vw;
+        }
+        .create-btn{
+            margin: 4vw 0px 2vw;
+        }
     </style>
-    <a href="{{ route('users.show.create') }}" class="btn btn-primary">Create</a>
     <form id="filterForm" action="{{ route('users.index') }}" method="get">
-        <div>
-            <div>
+        <div class="form-row">
+            <div class="form-group">
                 <label for="search" class="form-label"> Type name or email</label>
-                <input type="text" class="form-control" name="search" id="search" style="width: 10vw;">
+                <input type="text" class="form-control" name="search" id="search" style="width: 11vw;">
             </div>
-            <div>
+            <div class="form-group">
                 <label for="role" class="form-label"> User role </label>
-                <input type="text" class="form-control" name="role" id="role" style="width: 10vw;">
+                <input type="text" class="form-control" name="role" id="role" style="width: 11vw;">
+            </div>
+            <div class="form-group">
+                <label for="is_banned" class="form-label">Banned users</label>
+                <select class="form-control" aria-label="Default select example" id="is_banned" name="is_banned"
+                        style="width: 11vw;">
+                    <option @if($filter['is_banned'] == 'all' || empty($filter['is_banned'])) selected
+                            @endif value="all">All users
+                    </option>
+                    <option @if($filter['is_banned'] == 'banned') selected @endif value="banned">Banned</option>
+                    <option @if($filter['is_banned'] == 'not_banned') selected @endif value="not_banned">Not banned
+                    </option>
+                </select>
             </div>
         </div>
-        <label for="is_banned" class="form-label">Banned users</label>
-        <select class="form-control" aria-label="Default select example" id="is_banned" name="is_banned" style="width: 10vw;">
-            <option @if($filter['is_banned'] == 'all' || empty($filter['is_banned'])) selected @endif value="all">All
-                users
-            </option>
-            <option @if($filter['is_banned'] == 'banned') selected @endif value="banned">Banned</option>
-            <option @if($filter['is_banned'] == 'not_banned') selected @endif value="not_banned">Not banned</option>
-        </select><br />
-
-{{--        <label for="field" class="form-label">Sorted by</label>--}}
-{{--        <select class="form-control" aria-label="Default select example" id="field" name="field">--}}
-{{--            <option @if($filter['field'] == 'id' || empty($filter['field'])) selected @endif value="id">Id users</option>--}}
-{{--            <option @if($filter['field'] == 'name') selected @endif value="name">Name</option>--}}
-{{--            <option @if($filter['field'] == 'email') selected @endif value="email">Email</option>--}}
-{{--        </select>--}}
-{{--        <label for="direction" class="form-label">Direction</label>--}}
-{{--        <select class="form-control" aria-label="Default select example" id="direction" name="direction">--}}
-{{--            <option @if($filter['direction'] == 'asc' || empty($filter['asc'])) selected @endif value="asc">Rising</option>--}}
-{{--            <option @if($filter['direction'] == 'desc') selected @endif value="desc">Decreasing</option>--}}
-{{--        </select>--}}
-        <a href="{{ route('users.index') }}" class="btn btn-primary">Back</a>
-        <button type="submit" class="btn btn-primary" value="Filter">Filter</button>
+        <div class="form-row-btn">
+            <a href="{{ route('users.index') }}" class="btn btn-secondary">Clear</a>
+            <button type="submit" class="btn btn-primary flex-put" value="Filter">Filter</button>
+        </div>
     </form>
+    <div class="create-btn">
+        <a href="{{ route('users.show.create') }}" class="btn btn-primary">Create</a>
+    </div>
     <table id="userTable" class="table table-hover">
         <thead>
         <tr>
@@ -75,12 +87,12 @@
                 <td>{{ $user['created_at'] }}</td>
                 <td>{{ $user['updated_at'] }}</td>
                 <td class="inline">
-                    <a href="{{ route('users.show.edit', $user['id']) }}" class="btn btn-primary">Edit</a>
-                    <a href="{{ route('users.show', $user['id']) }}" class="btn btn-primary">View</a>
+                    <a href="{{ route('users.show.edit', $user['id']) }}" class="btn btn-info">Edit</a>
+                    <a href="{{ route('users.show', $user['id']) }}" class="btn btn-success">View</a>
                     <form method="post" action="{{ route('users.delete', $user['id'])}}">
                         @csrf
                         @method('DELETE')
-                        <button class="btn btn-primary" type="submit">Delete</button>
+                        <button class="btn btn-danger" type="submit">Delete</button>
                     </form>
                 </td>
             </tr>
@@ -122,7 +134,8 @@
                         if (!dataTableInitialized) {
                             $('#userTable').DataTable({
                                 responsive: true,
-                                autoWidth: false
+                                autoWidth: false,
+                                scrollX: 1275
                             });
                             dataTableInitialized = true;
                         } else {
@@ -145,5 +158,5 @@
 
     </script>
 
-{{--    @include('pagination.users-pagination')--}}
+    {{--    @include('pagination.users-pagination')--}}
 @endsection
