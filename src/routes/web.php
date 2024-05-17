@@ -3,6 +3,7 @@
 use App\Http\Controllers\Web\CategoryViewController;
 use App\Http\Controllers\Web\CommentsViewController;
 use App\Http\Controllers\Web\ComplaintsViewController;
+use App\Http\Controllers\Web\DashboardViewController;
 use App\Http\Controllers\Web\MessagesViewContainer;
 use App\Http\Controllers\Web\QuestionsViewController;
 use App\Http\Controllers\Web\RegionsViewController;
@@ -27,6 +28,8 @@ Route::group(['middleware' => 'web'], function () {
         return view('welcome');
     })->name('home');
 
+    //dashboard
+    Route::get('dashboard', [DashboardViewController::class, 'index'])->name('dashboard.index');
     //events
     Route::get('events', [EventsViewController::class, 'filterEvents'])->name('events.index');
     Route::get('events/create', [EventsViewController::class, 'showCreate'])->name('events.show.create');

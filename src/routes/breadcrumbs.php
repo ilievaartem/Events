@@ -14,7 +14,7 @@ use App\Models\Region;
 
 // Home
 Breadcrumbs::for('home', function (BreadcrumbTrail $trail) {
-    $trail->push('Home', route('home'));
+    $trail->push('Home', route('dashboard.index'));
 });
 
 // Home > Events

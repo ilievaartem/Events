@@ -61,12 +61,12 @@
         <thead>
         <tr>
             <th scope="col">id</th>
+            <th scope="col">avatar</th>
             <th scope="col">name</th>
             <th scope="col">email</th>
             <th scope="col">role</th>
-            <th scope="col">banned_at</th>
             <th scope="col">telephone</th>
-            <th scope="col">avatar</th>
+            <th scope="col">banned_at</th>
             <th scope="col">email_verified_at</th>
             <th scope="col">created_at</th>
             <th scope="col">updated_at</th>
@@ -77,12 +77,12 @@
         @foreach($content as $user)
             <tr>
                 <th scope="row">{{ $user['id'] }}</th>
+                <td>{{ $user['avatar'] }}</td>
                 <td>{{ $user['name'] }}</td>
                 <td>{{ $user['email'] }}</td>
                 <td>{{ $user['role'] }}</td>
-                <td>{{ $user['banned_at'] }}</td>
                 <td>{{ $user['telephone'] }}</td>
-                <td>{{ $user['avatar'] }}</td>
+                <td>{{ $user['banned_at'] }}</td>
                 <td>{{ $user['email_verified_at'] }}</td>
                 <td>{{ $user['created_at'] }}</td>
                 <td>{{ $user['updated_at'] }}</td>
@@ -99,7 +99,7 @@
         @endforeach
         </tbody>
     </table>
-    <nav id="pagination" aria-label="Page navigation example">
+    <nav id="pagination" aria-label="Page navigation example" class="mb-4">
     </nav>
 
     <script>
@@ -157,6 +157,4 @@
         });
 
     </script>
-
-    {{--    @include('pagination.users-pagination')--}}
 @endsection

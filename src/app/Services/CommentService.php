@@ -6,6 +6,7 @@ use App\Constants\DB\CommentDBConstants;
 use App\DTO\Comment\CreateCommentDTO;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
+use App\Repositories\CommentRepository;
 use App\Repositories\Interfaces\CommentRepositoryInterface;
 use App\Services\System\CRUDService;
 
@@ -17,6 +18,8 @@ class CommentService extends CRUDService
         private readonly EventService $eventService,
     )
     {
+        /** @var CommentRepository $repository */
+        $this->repository = $repository;
         parent::__construct($repository);
     }
 

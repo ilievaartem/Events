@@ -33,3 +33,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css" />
 <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+
+<script src="https://kit.fontawesome.com/0daa13028d.js" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>

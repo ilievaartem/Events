@@ -8,7 +8,7 @@
     </button>
     <ul class="header-nav d-none d-lg-flex">
         <li class="nav-item"><a class="nav-link" href="{{ route('registration') }}">Registration</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.index') }}">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
     </ul>
     <ul class="header-nav ms-auto">
