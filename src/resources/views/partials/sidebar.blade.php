@@ -20,7 +20,7 @@
     <li class="nav-title">General</li>
     <li class="nav-item">
         <a class="nav-link" href="{{ route('users.index') }}">
-            <i class="fa-regular fa-user position-icon"></i>
+            <i class="fa-solid fa-user-group position-icon"></i>
             Users
         </a>
     </li>

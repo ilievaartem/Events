@@ -16,7 +16,11 @@ class DashboardViewController extends Controller
     public function index(): View
     {
         $content = $this->dashboardService->index();
-//dd($content);
-        return view('dashboard.index', ['content' => $content]);
+        $complaintsStatistics = $this->dashboardService->getComplaintsStatistics();
+
+        return view('dashboard.index', [
+            'content' => $content,
+            'complaintsStatistics' => $complaintsStatistics,
+        ]);
     }
 }
