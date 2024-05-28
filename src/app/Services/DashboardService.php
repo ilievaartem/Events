@@ -5,18 +5,25 @@ namespace App\Services;
 use App\Constants\Content\ComplaintsConstant;
 use App\Constants\DB\CommonDB\CommonDBConstants;
 use App\Constants\DB\UserDBConstants;
+use App\DTO\Complaint\FilterComplaintDTO;
+use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 
 class DashboardService
 {
     public function __construct(
-        private readonly CountryService $countryService,
-        private readonly RegionService $regionService,
-        private readonly EventService $eventService,
-        private readonly ComplaintService $complaintService,
+        private readonly CountryService               $countryService,
+        private readonly RegionService                $regionService,
+        private readonly EventService                 $eventService,
+        private readonly ComplaintService             $complaintService,
+        private readonly ComplaintRepositoryInterface $complaintRepository,
+
     )
     {
     }
 
+    /**
+     * @return array
+     */
     public function index(): array
     {
         $countries = $this->countryService->getAll(UserDBConstants::NAME, CommonDBConstants::SORTING_DIRECTION_DEFAULT);
@@ -36,7 +43,7 @@ class DashboardService
                 $regionEventCounts[$event['region_id']]++;
             }
 
-            if (isset($event['age'])){
+            if (isset($event['age'])) {
                 $ageGroup = $event['age'];
                 if (!isset($ageGroups[$ageGroup])) {
                     $ageGroups[$ageGroup] = 0;
@@ -78,6 +85,10 @@ class DashboardService
             ]
         ];
     }
+
+    /**
+     * @return array
+     */
     public function getComplaintsStatistics(): array
     {
         $complaints = $this->complaintService->getAll(null, null);
@@ -104,4 +115,12 @@ class DashboardService
         ];
     }
 
+    /**
+     * @param FilterComplaintDTO $filterComplaintDTO
+     * @return array|null
+     */
+    public function filter(FilterComplaintDTO $filterComplaintDTO): ?array
+    {
+        return $this->complaintRepository->filterForCharts($filterComplaintDTO);
+    }
 }

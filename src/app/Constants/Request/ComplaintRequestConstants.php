@@ -21,7 +21,7 @@ class ComplaintRequestConstants
     public const RESOLVED_FROM = "resolved_from";
     public const RESOLVED_TO = "resolved_to";
     public const CREATED_FROM = "created_from";
-    public const CREATED_TO = "created_from";
+    public const CREATED_TO = "created_to";
     public const READ_FROM = "read_from";
     public const READ_TO = "read_to";
     public const PHRASE = "phrase";

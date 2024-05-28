@@ -2,31 +2,35 @@
     <button class="header-toggler" type="button"
             onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"
             style="margin-inline-start: -14px;">
-        <svg class="icon icon-lg">
-            <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-menu"></use>
-        </svg>
+        <i class="fa-solid fa-bars"></i>
     </button>
     <ul class="header-nav d-none d-lg-flex">
         <li class="nav-item"><a class="nav-link" href="{{ route('registration') }}">Registration</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.index') }}">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.index') }}">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
     </ul>
     <ul class="header-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="#">
+        <li class="nav-item">
+            <a class="nav-link" href="#">
                 <svg class="icon icon-lg">
                     <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-bell"></use>
                 </svg>
-            </a></li>
-        <li class="nav-item"><a class="nav-link" href="#">
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">
                 <svg class="icon icon-lg">
                     <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-list-rich"></use>
                 </svg>
-            </a></li>
-        <li class="nav-item"><a class="nav-link" href="#">
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">
                 <svg class="icon icon-lg">
                     <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-envelope-open"></use>
                 </svg>
-            </a></li>
+            </a>
+        </li>
     </ul>
     <ul class="header-nav">
         <li class="nav-item py-1">
@@ -72,10 +76,11 @@
         <li class="nav-item py-1">
             <div class="vr h-100 mx-2 text-body text-opacity-75"></div>
         </li>
-        <li class="nav-item dropdown"><a class="nav-link py-0 pe-0" data-coreui-toggle="dropdown" href="#"
-                                         role="button" aria-haspopup="true" aria-expanded="false">
-{{--                <div class="avatar avatar-md"><img class="avatar-img" src="assets/img/avatars/8.jpg"--}}
-{{--                                                   alt="user@email.com"></div>--}}
+        <li class="nav-item dropdown">
+            <a class="nav-link py-0 pe-0" data-coreui-toggle="dropdown" href="#"
+               role="button" aria-haspopup="true" aria-expanded="false">
+                {{--                <div class="avatar avatar-md"><img class="avatar-img" src="assets/img/avatars/8.jpg"--}}
+                {{--                                                   alt="user@email.com"></div>--}}
             </a>
             <div class="dropdown-menu dropdown-menu-end pt-0">
                 <div class="dropdown-header bg-body-tertiary text-body-secondary fw-semibold rounded-top mb-2">
@@ -127,11 +132,14 @@
                     <svg class="icon me-2">
                         <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
                     </svg>
-                    Lock Account</a><a class="dropdown-item" href="#">
+                    Lock Account
+                </a>
+                <a class="dropdown-item" href="#">
                     <svg class="icon me-2">
                         <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-account-logout"></use>
                     </svg>
-                    Logout</a>
+                    Logout
+                </a>
             </div>
         </li>
     </ul>

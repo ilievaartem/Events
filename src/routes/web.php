@@ -30,6 +30,7 @@ Route::group(['middleware' => 'web'], function () {
 
     //dashboard
     Route::get('dashboard', [DashboardViewController::class, 'index'])->name('dashboard.index');
+    Route::get('dashboard/filter', [DashboardViewController::class, 'filter'])->name('dashboard.filter');
     //events
     Route::get('events', [EventsViewController::class, 'filterEvents'])->name('events.index');
     Route::get('events/create', [EventsViewController::class, 'showCreate'])->name('events.show.create');

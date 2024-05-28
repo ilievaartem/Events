@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Factory\Complaint\FilterComplaintDTOFactory;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Complaints\ComplaintFilterRequest;
 use App\Services\DashboardService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 class DashboardViewController extends Controller
@@ -13,6 +16,9 @@ class DashboardViewController extends Controller
     {
     }
 
+    /**
+     * @return View
+     */
     public function index(): View
     {
         $content = $this->dashboardService->index();
@@ -22,5 +28,15 @@ class DashboardViewController extends Controller
             'content' => $content,
             'complaintsStatistics' => $complaintsStatistics,
         ]);
+    }
+
+    /**
+     * @param ComplaintFilterRequest $request
+     * @param FilterComplaintDTOFactory $filterComplaintDTOFactory
+     * @return JsonResponse
+     */
+    public function filter(ComplaintFilterRequest $request, FilterComplaintDTOFactory $filterComplaintDTOFactory): JsonResponse
+    {
+        return response()->json($this->dashboardService->filter($filterComplaintDTOFactory->make($request)));
     }
 }

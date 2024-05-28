@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Constants\DB\ComplaintDBConstants;
 use App\DTO\Complaint\FilterComplaintDTO;
-use App\Models\Complaint;
 use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -111,5 +110,46 @@ class ComplaintRepository extends BaseRepository implements ComplaintRepositoryI
             })
             ->with('author', 'event')->paginate(self::PER_PAGE)->toArray();
 
+    }
+
+    public function filterForCharts(FilterComplaintDTO $filterComplaintDTO): ?array
+    {
+        return $this->model->query()->select(['id', 'resolved_at', 'resolve_message', 'created_at'])
+            ->when(
+                $filterComplaintDTO->getResolvedFrom() != null && $filterComplaintDTO->getResolvedTo() != null,
+                function (Builder $query) use ($filterComplaintDTO) {
+                    return $query->whereBetween(ComplaintDBConstants::RESOLVED_AT, [
+                        $filterComplaintDTO->getResolvedFrom(),
+                        $filterComplaintDTO->getResolvedTo()
+                    ]);
+                }
+            )
+            ->when(
+                $filterComplaintDTO->getReadFrom() != null && $filterComplaintDTO->getReadTo() != null,
+                function (Builder $query) use ($filterComplaintDTO) {
+                    return $query->whereBetween(ComplaintDBConstants::READ_AT, [
+                        $filterComplaintDTO->getReadFrom(),
+                        $filterComplaintDTO->getReadTo()
+                    ]);
+                }
+            )
+            ->when(
+                $filterComplaintDTO->getCreatedFrom() != null && $filterComplaintDTO->getCreatedTo() != null,
+                function (Builder $query) use ($filterComplaintDTO) {
+                    return $query->whereBetween(ComplaintDBConstants::CREATED_AT, [
+                        $filterComplaintDTO->getCreatedFrom(),
+                        $filterComplaintDTO->getCreatedTo()
+                    ]);
+                }
+            )
+            ->when((!empty($filterComplaintDTO->getResolvedAt()) && ($filterComplaintDTO->getResolvedAt() == 'resolved')),
+                function (Builder $query) use ($filterComplaintDTO) {
+                    return $query->whereNotNull('resolved_at');
+                })
+            ->when((!empty($filterComplaintDTO->getResolvedAt()) && ($filterComplaintDTO->getResolvedAt() == 'not_resolved')),
+                function (Builder $query) use ($filterComplaintDTO) {
+                    return $query->whereNull('resolved_at');
+                })
+            ->get()->toArray();
     }
 }
