@@ -6,7 +6,7 @@ namespace App\Repositories\Interfaces;
 
 interface EventRepositoryInterface extends BaseRepositoryInterface
 {
-
+    public function getEventCountsByYearAndMonths(int $year, array $months);
     public function checkIsEventHasCurrentAuthorId(string $eventId, string $authorId): bool;
     public function getAuthorIdByEventId(string $eventId): ?string;
     public function getSimilarEvents(array $events): array;

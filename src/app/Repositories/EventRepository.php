@@ -3,23 +3,16 @@
 namespace App\Repositories;
 
 use App\Constants\DB\CategoryDBConstants;
-use App\Constants\DB\CommunityDBConstants;
-use App\Constants\DB\CountryDBConstants;
-use App\Constants\DB\PlaceDBConstants;
-use App\Constants\DB\RegionDBConstants;
-use App\Constants\DB\UserDBConstants;
-use App\Models\Event;
-use App\Repositories\Interfaces\BaseRepositoryInterface;
-use App\Repositories\Interfaces\EventRepositoryInterface;
-use App\Constants\DB\EventDBConstants;
-use App\Constants\DB\CommentDBConstants;
 use App\Constants\DB\ColorDBConstants;
+use App\Constants\DB\CommentDBConstants;
+use App\Constants\DB\EventDBConstants;
 use App\Constants\DB\ManufacturerDBConstants;
 use App\Constants\DB\TagDBConstants;
-use App\DTO\Contracts\DTOContract;
-use App\DTO\Event\CreateEventDTO;
-use App\DTO\Event\FilterEventDTO;
+use App\Models\Event;
+use App\Repositories\Interfaces\EventRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class EventRepository extends BaseRepository implements EventRepositoryInterface
 {
@@ -57,19 +50,41 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
             ])
             ->paginate(self::PER_PAGE)->toArray();
     }
+
+    /**
+     * @param string $id
+     * @return array
+     */
     public function getEventWithOtherData(string $id): array
     {
         return $this->model->query()
             ->with('author', 'country', 'region', 'community', 'place', 'tags', 'categories')->find($id)->toArray();
     }
+
+    /**
+     * @param string $id
+     * @param array $tagsIds
+     * @return void
+     */
     public function addTagsIds(string $id, array $tagsIds): void
     {
         Event::find($id)->tags()->sync($tagsIds);
     }
+
+    /**
+     * @param string $id
+     * @param array $categoriesIds
+     * @return void
+     */
     public function addCategoriesIds(string $id, array $categoriesIds): void
     {
         Event::find($id)->categories()->sync($categoriesIds);
     }
+
+    /**
+     * @param string $id
+     * @return array
+     */
     public function getInfoForSimilar(string $id): array
     {
         return $this->model->query()->with(
@@ -82,13 +97,17 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
                 },
             ]
         )
-
             ->select([EventDBConstants::ID, EventDBConstants::PLACE_ID])
             ->find($id)->toArray();
     }
+
+    /**
+     * @param array $events
+     * @return array
+     */
     public function getSimilarEvents(array $events): array
     {
-        return Event::query()
+        return $this->model->query()
             ->when(
                 $events['events_ids'] != null,
                 function (Builder $query) use ($events) {
@@ -102,64 +121,141 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
             ->toArray();
     }
 
+    /**
+     * @param string $eventId
+     * @return bool
+     */
     public function checkIsEventExistByEventId(string $eventId): bool
     {
-        return $this->model->where(EventDBConstants::ID, $eventId)->exists();
+        return $this->model->query()->where(EventDBConstants::ID, $eventId)->exists();
     }
+
+    /**
+     * @param string $eventId
+     * @param string $authorId
+     * @return bool
+     */
     public function checkIsEventHasCurrentAuthorId(string $eventId, string $authorId): bool
     {
-        return $this->model->where(EventDBConstants::ID, $eventId)
+        return $this->model->query()->where(EventDBConstants::ID, $eventId)
             ->where(EventDBConstants::AUTHOR_ID, $authorId)->exists();
     }
+
+    /**
+     * @param string $eventId
+     * @return string|null
+     */
     public function getAuthorIdByEventId(string $eventId): ?string
     {
-        return $this->model->where(EventDBConstants::ID, $eventId)->first()->author_id;
+        return $this->model->query()->where(EventDBConstants::ID, $eventId)->first()->author_id;
     }
+
+    /**
+     * @param string $id
+     * @return string|null
+     */
     public function getTopicById(string $id): ?string
     {
-        return $this->model->where(EventDBConstants::ID, $id)->first()->title;
+        return $this->model->query()->where(EventDBConstants::ID, $id)->first()->title;
 
     }
+
+    /**
+     * @param string $userId
+     * @return array
+     */
     public function getEventsByAuthorID(string $userId): array
     {
-        return Event::where(EventDBConstants::AUTHOR_ID, $userId)->paginate(self::PER_PAGE)->toArray();
+        return $this->model->query()->where(EventDBConstants::AUTHOR_ID, $userId)->paginate(self::PER_PAGE)->toArray();
     }
+
+    /**
+     * @param int $id
+     * @return array
+     */
     public function getByIdWithComments(int $id): array
     {
-        return Event::with([
+        return $this->model->query()->with([
             CommentDBConstants::TABLE => function ($query) {
                 $query->paginate(self::PER_PAGE);
             }
         ])->find($id)->toArray();
     }
+
+    /**
+     * @param string $id
+     * @return array|null
+     */
     public function getEventPhotosById(string $id): ?array
     {
-        return Event::query()->select([EventDBConstants::PHOTOS])->find($id)->toArray();
-    }
-    public function getEventMainPhotoById(string $id): ?string
-    {
-        return $this->model->where(EventDBConstants::ID, $id)->first()->main_photo;
+        return $this->model->query()->query()->select([EventDBConstants::PHOTOS])->find($id)->toArray();
     }
 
+    /**
+     * @param string $id
+     * @return string|null
+     */
+    public function getEventMainPhotoById(string $id): ?string
+    {
+        return $this->model->query()->where(EventDBConstants::ID, $id)->first()->main_photo;
+    }
+
+    /**
+     *
+     * @param string $id
+     * @param array $photosPaths
+     * @return bool
+     */
     public function updatePhotos(string $id, array $photosPaths): bool
     {
-        return Event::query()->where(EventDBConstants::ID, $id)->update([
+        return $this->model->query()->where(EventDBConstants::ID, $id)->update([
             EventDBConstants::PHOTOS => $photosPaths
         ]);
     }
+
+    /**
+     * @param string $id
+     * @param string|null $mainPhotoPath
+     * @return bool
+     */
     public function updateMainPhoto(string $id, ?string $mainPhotoPath): bool
     {
-        return Event::query()->where(EventDBConstants::ID, $id)->update([
+        return $this->model->query()->where(EventDBConstants::ID, $id)->update([
             EventDBConstants::MAIN_PHOTO => $mainPhotoPath
         ]);
     }
 
+    /**
+     * @param string|null $title
+     * @param string|null $description
+     * @return array
+     */
     public function searchEvent(?string $title, ?string $description): array
     {
-        return Event::when($title != null, function ($query) use ($title) {
+        return $this->model->query()->when($title != null, function ($query) use ($title) {
             return $query->where(EventDBConstants::TITLE, $title);
         })->when($description != null, function ($query) use ($description) {
             return $query->where(EventDBConstants::DESCRIPTION, $description);
         })->get()->toArray();
+    }
+
+    /**
+     * @param int $year
+     * @param array $months
+     * @return array
+     */
+    public function getEventCountsByYearAndMonths(int $year, array $months): array
+    {
+        return $this->model->query()
+            ->whereYear('created_at', '=', $year)
+            ->whereIn(DB::raw('EXTRACT(MONTH FROM created_at)'), $months)
+            ->get()
+            ->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->format('m');
+            })
+            ->map(function ($events) {
+                return $events->count();
+            })
+            ->toArray();
     }
 }

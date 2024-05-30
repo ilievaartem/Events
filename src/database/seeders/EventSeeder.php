@@ -2,26 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Constants\DB\CategoryDBConstants;
 use App\Constants\DB\CityDBConstants;
 use App\Constants\DB\CommunityDBConstants;
 use App\Constants\DB\CountryDBConstants;
 use App\Constants\DB\EventDBConstants;
 use App\Constants\DB\PlaceDBConstants;
 use App\Constants\DB\RegionDBConstants;
-use App\Models\Category;
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Constants\DB\TagDBConstants;
 use App\Constants\DB\UserDBConstants;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Event;
-use App\Models\Tag;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
-use Nette\Utils\Random;
+use Illuminate\Support\Carbon;
 use Ramsey\Uuid\Uuid;
 
 class EventSeeder extends Seeder
@@ -29,7 +23,6 @@ class EventSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-
 
 
     public function run(): void
@@ -68,6 +61,10 @@ class EventSeeder extends Seeder
             $authors = Arr::random($allAuthors);
             $ageType = Arr::random($ageTypes);
             $currentGeo = Arr::random($geo);
+            $dateFirst = Carbon::create(2024, 2, 01);
+            $dateSecond = Carbon::create(2024, 5, 28);
+            $randomTimestamp = mt_rand($dateFirst->timestamp, $dateSecond->timestamp);
+            $createdAt = Carbon::createFromTimestamp($randomTimestamp);
             $events[] = [
                 EventDBConstants::ID => Uuid::uuid7()->toString(),
                 EventDBConstants::TITLE => fake()->title(),
@@ -99,7 +96,7 @@ class EventSeeder extends Seeder
                 EventDBConstants::REGION_ID => $currentGeo[CommunityDBConstants::REGION_ID],
                 EventDBConstants::COMMUNITY_ID => $currentGeo[PlaceDBConstants::COMMUNITY_ID],
                 EventDBConstants::PLACE_ID => $currentGeo['place_id'],
-
+                EventDBConstants::CREATED_AT => $createdAt,
             ];
         }
         $res = array_chunk($events, 1000);

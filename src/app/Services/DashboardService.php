@@ -16,7 +16,7 @@ class DashboardService
         private readonly EventService                 $eventService,
         private readonly ComplaintService             $complaintService,
         private readonly ComplaintRepositoryInterface $complaintRepository,
-
+        private readonly EventTagService              $eventTagService,
     )
     {
     }
@@ -122,5 +122,15 @@ class DashboardService
     public function filter(FilterComplaintDTO $filterComplaintDTO): ?array
     {
         return $this->complaintRepository->filterForCharts($filterComplaintDTO);
+    }
+
+    /**
+     * @param int $year
+     * @param array $months
+     * @return array
+     */
+    public function getEventCountsByYearAndMonths(int $year, array $months): array
+    {
+        return $this->eventService->getEventCountsByYearAndMonths($year, $months);
     }
 }

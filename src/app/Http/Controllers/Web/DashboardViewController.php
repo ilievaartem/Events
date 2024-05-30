@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Complaints\ComplaintFilterRequest;
 use App\Services\DashboardService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardViewController extends Controller
@@ -38,5 +39,18 @@ class DashboardViewController extends Controller
     public function filter(ComplaintFilterRequest $request, FilterComplaintDTOFactory $filterComplaintDTOFactory): JsonResponse
     {
         return response()->json($this->dashboardService->filter($filterComplaintDTOFactory->make($request)));
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function count(Request $request): JsonResponse
+    {
+        $year = $request->query('year');
+        $months = $request->query('months', []);
+
+        $eventCounts = $this->dashboardService->getEventCountsByYearAndMonths($year, $months);
+        return response()->json($eventCounts);
     }
 }

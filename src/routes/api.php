@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CalculationController;
 use App\Http\Controllers\Api\PhotoController;
+use App\Http\Controllers\Web\DashboardViewController;
 use App\Http\Middleware\CalculateOption;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\ApplierController;
@@ -52,7 +53,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('calculate/{operation}', [CalculationController::class, 'calculate'])->middleware([CalculateOption::class]);
 //Route::get('photos/{photoId}', 'PhotoController@show');
 Route::get('photos/{photoId}', [PhotoController::class, 'show']);
-
+//dashboard
+Route::get('dashboard/filter', [DashboardViewController::class, 'filter'])->name('dashboard.filter');
+Route::get('dashboard/count', [DashboardViewController::class, 'count'])->name('dashboard.count');
+//events
 Route::get('events', [EventController::class, 'index']);
 Route::get('events/search', [EventController::class, 'searchEvent']);
 Route::post('events/{id}/photos/upload', [EventController::class, 'addPhotos'])->middleware([UserIsAuthorized::class]);

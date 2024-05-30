@@ -44,4 +44,5 @@ class EventDBConstants
     public const SHORT_DESCRIPTION = "short_description";
     public const IS_ONLINE = "is_online";
     public const IS_OFFLINE = "is_offline";
+    public const CREATED_AT = "created_at";
 }

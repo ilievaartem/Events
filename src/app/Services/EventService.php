@@ -22,6 +22,7 @@ use App\DTO\Photos\CreatePhotosDTO;
 use App\DTO\Photos\DeletePhotosDTO;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
+use App\Repositories\EventRepository;
 use App\Repositories\Interfaces\EventFilterRepositoryInterface;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Services\System\CRUDService;
@@ -46,6 +47,8 @@ class EventService extends CrudService
         private readonly CategoryService                $categoryService,
     )
     {
+        /** @var EventRepository $repository */
+        $this->repository = $repository;
         parent::__construct($repository);
     }
 
@@ -114,6 +117,16 @@ class EventService extends CrudService
             EventDBConstants::COMMUNITY_ID => $geo[PlaceDBConstants::COMMUNITY_ID],
             EventDBConstants::PLACE_ID => $createEventDTO->getPlaceId(),
         ];
+    }
+
+    /**
+     * @param int $year
+     * @param array $months
+     * @return array
+     */
+    public function getEventCountsByYearAndMonths(int $year, array $months): array
+    {
+        return $this->repository->getEventCountsByYearAndMonths($year, $months);
     }
 
     /**
@@ -383,7 +396,7 @@ class EventService extends CrudService
     public function checkIsAuthor(string $id, string $userId): void
     {
         $this->checkIsExist($id);
-        if ($this->checkIsEventHasCurrentAuthorId($id, $userId) == false) {
+        if (!$this->checkIsEventHasCurrentAuthorId($id, $userId)) {
             throw new ForbiddenException("Current user do not create that event");
         }
     }
@@ -398,7 +411,7 @@ class EventService extends CrudService
     public function checkIsNotAuthor(string $id, string $userId): void
     {
         $this->checkIsExist($id);
-        if ($this->checkIsEventHasCurrentAuthorId($id, $userId) == true) {
+        if ($this->checkIsEventHasCurrentAuthorId($id, $userId)) {
             throw new ForbiddenException("Current user create that event");
         }
     }
