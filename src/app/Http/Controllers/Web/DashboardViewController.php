@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Factory\Complaint\FilterComplaintDTOFactory;
+use App\Factory\Dashboard\DashboardDTOFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Complaints\ComplaintFilterRequest;
 use App\Services\DashboardService;
@@ -43,14 +44,11 @@ class DashboardViewController extends Controller
 
     /**
      * @param Request $request
+     * @param DashboardDTOFactory $dashboardDTOFactory
      * @return JsonResponse
      */
-    public function count(Request $request): JsonResponse
+    public function count(Request $request, DashboardDTOFactory $dashboardDTOFactory): JsonResponse
     {
-        $year = $request->query('year');
-        $months = $request->query('months', []);
-
-        $eventCounts = $this->dashboardService->getEventCountsByYearAndMonths($year, $months);
-        return response()->json($eventCounts);
+        return response()->json($this->dashboardService->getCountsByYearAndMonths($dashboardDTOFactory->make($request)));
     }
 }

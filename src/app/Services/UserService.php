@@ -26,6 +26,16 @@ class UserService extends CRUDService
     }
 
     /**
+     * @param int $year
+     * @param array $months
+     * @return array
+     */
+    public function getUsersCountsByYearAndMonths(int $year, array $months): array
+    {
+        return $this->repository->getUsersCountsByYearAndMonths($year, $months);
+    }
+
+    /**
      * @param string $password
      * @return string
      */

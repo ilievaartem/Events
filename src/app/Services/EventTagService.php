@@ -19,4 +19,14 @@ class EventTagService
     {
         return $this->eventTagRepository->getEventsIdByTags($tagsIds);
     }
+
+    /**
+     * @param int $year
+     * @param array $months
+     * @return array
+     */
+    public function getTagCountsByYearAndMonths(int $year, array $months): array
+    {
+        return $this->eventTagRepository->getTagCountsByYearAndMonths($year, $months);
+    }
 }

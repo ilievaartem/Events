@@ -6,6 +6,7 @@ use App\Constants\Content\ComplaintsConstant;
 use App\Constants\DB\CommonDB\CommonDBConstants;
 use App\Constants\DB\UserDBConstants;
 use App\DTO\Complaint\FilterComplaintDTO;
+use App\DTO\Dashboard\DashboardDTO;
 use App\Repositories\Interfaces\ComplaintRepositoryInterface;
 
 class DashboardService
@@ -17,6 +18,8 @@ class DashboardService
         private readonly ComplaintService             $complaintService,
         private readonly ComplaintRepositoryInterface $complaintRepository,
         private readonly EventTagService              $eventTagService,
+        private readonly CategoryEventService         $categoryEventService,
+        private readonly UserService                  $userService,
     )
     {
     }
@@ -125,12 +128,42 @@ class DashboardService
     }
 
     /**
-     * @param int $year
-     * @param array $months
+     * @param DashboardDTO $dashboardDTO
      * @return array
      */
-    public function getEventCountsByYearAndMonths(int $year, array $months): array
+    public function getCountsByYearAndMonths(DashboardDTO $dashboardDTO): array
     {
-        return $this->eventService->getEventCountsByYearAndMonths($year, $months);
+        $counts = [];
+
+        if ($dashboardDTO->getEvents()) {
+            $counts['events'] = $this->eventService->getEventCountsByYearAndMonths(
+                $dashboardDTO->getEvents()['year'],
+                $dashboardDTO->getEvents()['months']
+            );
+        }
+
+        if ($dashboardDTO->getTags()) {
+            $counts['tags'] = $this->eventTagService->getTagCountsByYearAndMonths(
+                $dashboardDTO->getTags()['year'],
+                $dashboardDTO->getTags()['months']
+            );
+        }
+
+        if ($dashboardDTO->getCategories()) {
+            $counts['categories'] = $this->categoryEventService->getCategoriesCountsByYearAndMonths(
+                $dashboardDTO->getCategories()['year'],
+                $dashboardDTO->getCategories()['months']
+            );
+        }
+
+        if ($dashboardDTO->getUsers()) {
+            $counts['user'] = $this->userService->getUsersCountsByYearAndMonths(
+                $dashboardDTO->getUsers()['year'],
+                $dashboardDTO->getUsers()['months']
+            );
+        }
+
+        return $counts;
     }
+
 }

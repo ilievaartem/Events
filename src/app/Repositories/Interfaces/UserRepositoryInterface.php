@@ -4,6 +4,7 @@ namespace App\Repositories\Interfaces;
 
 interface UserRepositoryInterface extends BaseRepositoryInterface
 {
+    public function getUsersCountsByYearAndMonths(int $year, array $months): array;
 
     public function getPhotoPathById(string $id): ?string;
 

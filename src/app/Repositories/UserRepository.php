@@ -3,9 +3,9 @@
 namespace App\Repositories;
 
 use App\Constants\DB\UserDBConstants;
-use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use Illuminate\Database\Query\Builder;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
@@ -111,5 +111,25 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 return $q->orderBy($filter['field'], $filter['direction']);
             })
             ->paginate()->toArray();
+    }
+
+    /**
+     * @param int $year
+     * @param array $months
+     * @return array
+     */
+    public function getUsersCountsByYearAndMonths(int $year, array $months): array
+    {
+        return $this->model->query()
+            ->whereYear('created_at', '=', $year)
+            ->whereIn(DB::raw('EXTRACT(MONTH FROM created_at)'), $months)
+            ->get()
+            ->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->format('m');
+            })
+            ->map(function ($users) {
+                return $users->count();
+            })
+            ->toArray();
     }
 }
